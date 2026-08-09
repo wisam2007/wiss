@@ -5,7 +5,4 @@
       "destination": "/main.html"
     }
   ]
-
-  ,"buildCommand": "cp main.html index.html",
-  "outputDirectory": "."
 }

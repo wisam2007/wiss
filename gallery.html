@@ -24,29 +24,29 @@
             </div>
             
             <nav>
-                 <a href="main.html" data-i18n="nav_main">Main</a>
+                <a href="main.html" data-i18n="nav_main">Main</a>
                 <a href="gallery.html" class="active" data-i18n="nav_gallery">Gallery</a>
                 <a href="alumni.html" data-i18n="nav_about">About Us</a>
             </nav>
 
-        <div class="header-actions">
-               <!-- قائمة اختيار الثيم -->
-            <div class="custom-dropdown" id="themeDropdown">
-                 <button class="dropdown-btn" id="themeDropdownBtn" title="Select Theme">
-                     <img src="Photo/auto_ICON.png" alt="Theme Icon" class="dropdown-icon" id="currentThemeIcon">
-                 </button>
-             <div class="dropdown-content">
-                 <button class="dropdown-item" data-theme-val="light">
-                    <img src="Photo/sun_ICON.png" alt="Light"> Light
-                 </button>
-                 <button class="dropdown-item" data-theme-val="dark">
-                     <img src="Photo/moon_ICON.png" alt="Dark"> Dark
-                 </button>
-                 <button class="dropdown-item" data-theme-val="auto">
-                    <img src="Photo/auto_ICON.png" alt="Auto"> Auto (Time)
-               </button>
-             </div>
-        </div>
+            <div class="header-actions">
+                <!-- قائمة اختيار الثيم -->
+                <div class="custom-dropdown" id="themeDropdown">
+                    <button class="dropdown-btn" id="themeDropdownBtn" title="Select Theme">
+                        <img src="Photo/auto_ICON.png" alt="Theme Icon" class="dropdown-icon" id="currentThemeIcon">
+                    </button>
+                    <div class="dropdown-content">
+                        <button class="dropdown-item" data-theme-val="light">
+                            <img src="Photo/sun_ICON.png" alt="Light"> <span data-i18n="theme_light">Light</span>
+                        </button>
+                        <button class="dropdown-item" data-theme-val="dark">
+                            <img src="Photo/moon_ICON.png" alt="Dark"> <span data-i18n="theme_dark">Dark</span>
+                        </button>
+                        <button class="dropdown-item" data-theme-val="auto">
+                            <img src="Photo/auto_ICON.png" alt="Auto"> <span data-i18n="theme_auto">Auto (Time)</span>
+                        </button>
+                    </div>
+                </div>
 
                 <!-- قائمة اختيار اللغة -->
                 <div class="custom-dropdown" id="langDropdown">
@@ -62,56 +62,53 @@
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="gallery-container">
-        <section class="gallery-hero">
-            <h1 data-i18n="gallery_title">Our Memory Gallery</h1>
-            <p data-i18n="gallery_desc">Explore all the beautiful moments shared by our cohort.</p>
+   <!-- Main Content -->
+<main class="gallery-container">
+    <section class="gallery-hero">
+        <h1 data-i18n="gallery_title">Our Memory Gallery</h1>
+        <p data-i18n="gallery_desc">Explore all the beautiful moments shared by our cohort.</p>
 
-            <!-- Search Bar -->
-            <div class="search-container">
-                <input type="text" id="searchInput" class="custom-input" placeholder="🔍 Search memories by name or title...">
-            </div>
-        </section>
-
-        <!-- Gallery Grid -->
-        <div class="gallery-grid" id="galleryGrid"></div>
-    </main>
-
-    <!-- Floating Action Button (+ Button) -->
-    <button class="fab-add-btn" id="openModalBtn" style="display: none;" title="Add New Memory">+</button>
-
-    <!-- Upload Memory Modal -->
-    <div class="modal-overlay" id="uploadModal">
-        <div class="modal-content">
-            <span class="close-modal" id="closeModalBtn">&times;</span>
-            <h2 data-i18n="add_memory_title">Add New Memory</h2>
-            <form id="memoryForm">
-                <div class="input-group">
-                    <input type="text" class="custom-input" id="userName" placeholder="Your Name" maxlength="12" required>
-                    <small class="char-count" id="nameCounter">0/12</small>
-                </div>
-
-                <label class="file-label">Profile Picture:</label>
-                <input type="file" id="userAvatar" class="custom-input" accept="image/*" required>
-
-                <label class="file-label">Profile Card Theme Color:</label>
-                <input type="color" id="cardBgColor" class="custom-input" value="#ffffff">
-
-                <input type="text" class="custom-input" id="memoryTitle" placeholder="Memory Title" required>
-                
-                <div class="input-group">
-                    <textarea class="custom-input" id="memoryBio" placeholder="Short Bio / Description about you..." maxlength="100" rows="3" required></textarea>
-                    <small class="char-count" id="bioCounter">0/100</small>
-                </div>
-
-                <label class="file-label">Upload Images/Videos (Max 3):</label>
-                <input type="file" id="mediaFiles" class="custom-input" accept="image/*,video/*" multiple required>
-
-                <button type="submit" class="btn-primary">Publish Memory</button>
-            </form>
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input type="text" id="searchInput" class="custom-input" placeholder="🔍 Search memories by name or title..." data-i18n-placeholder="search_placeholder">
         </div>
+    </section>
+
+    <!-- Gallery Grid -->
+    <div class="gallery-grid" id="galleryGrid"></div>
+</main>
+
+<!-- Upload Memory Modal -->
+<div class="modal-overlay" id="uploadModal">
+    <div class="modal-content">
+        <span class="close-modal" id="closeModalBtn">&times;</span>
+        <h2 data-i18n="add_memory_title">Add New Memory</h2>
+        <form id="memoryForm">
+            <div class="input-group">
+                <input type="text" class="custom-input" id="userName" placeholder="Your Name" data-i18n-placeholder="input_your_name" maxlength="12" required>
+                <small class="char-count" id="nameCounter">0/12</small>
+            </div>
+
+            <label class="file-label" data-i18n="lbl_profile_pic">Profile Picture:</label>
+            <input type="file" id="userAvatar" class="custom-input" accept="image/*" required>
+
+            <label class="file-label" data-i18n="lbl_card_theme">Profile Card Theme Color:</label>
+            <input type="color" id="cardBgColor" class="custom-input" value="#ffffff">
+
+            <input type="text" class="custom-input" id="memoryTitle" placeholder="Memory Title" data-i18n-placeholder="input_memory_title" required>
+            
+            <div class="input-group">
+                <textarea class="custom-input" id="memoryBio" placeholder="Short Bio / Description about you..." data-i18n-placeholder="input_memory_bio" maxlength="100" rows="3" required></textarea>
+                <small class="char-count" id="bioCounter">0/100</small>
+            </div>
+
+            <label class="file-label" data-i18n="lbl_upload_media">Upload Images/Videos (Max 3):</label>
+            <input type="file" id="mediaFiles" class="custom-input" accept="image/*,video/*" multiple required>
+
+            <button type="submit" class="btn-primary" data-i18n="btn_publish">Publish Memory</button>
+        </form>
     </div>
+</div>
 
     <!-- Unified Shared JS & Page Specific JS -->
     <script src="main_control.js"></script>

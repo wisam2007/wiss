@@ -27,7 +27,33 @@
             <p class="loading-text">جاري تحميل البروفايلات...</p>
         </section>
     </main>
+<main class="container">
+    <!-- نموذج تسجيل / إنشاء البروفايل -->
+    <section class="form-container">
+        <h2>إنشاء بروفايل جديد</h2>
+        <form id="signupForm">
+            <input type="text" id="fullName" placeholder="الاسم الكامل" required>
+            <input type="text" id="username" placeholder="اسم المستخدم" required>
+            <input type="text" id="userTitle" placeholder="المسمى (مثلاً: طالب كوهورت)">
+            <textarea id="userBio" placeholder="نبذة عنك..."></textarea>
+            
+            <label>صورة البروفايل:</label>
+            <input type="file" id="avatarFile" accept="image/*">
+            
+            <label>لون خلفية البطاقة:</label>
+            <input type="color" id="cardBgColor" value="#ffffff">
 
+            <button type="submit">إنشاء حساب</button>
+        </form>
+    </section>
+
+    <hr>
+
+    <!-- عرض البروفايلات -->
+    <section id="profiles-grid" class="grid-container">
+        <p class="loading-text">جاري تحميل البروفايلات...</p>
+    </section>
+</main>
     <script src="app.js"></script>
 </body>
 </html>

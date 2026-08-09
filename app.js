@@ -1,36 +1,93 @@
-// app.js - إدارة المنطق البرمجي للموقع
+// 1. تهيئة عميل Supabase وتوحيد المسمى
+const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.CONFIG_ANON_KEY || CONFIG.SUPABASE_ANON_KEY);
 
-// 1. دالة رفع وسائط الميديا إلى Cloudinary
-async function uploadMediaToCloudinary(file) {
-    if (!file) return null;
+const signupForm = document.getElementById('signupForm');
+
+signupForm?.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const submitBtn = signupForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'جاري إنشاء الحساب...';
+
+    // قراءة البيانات بأمان
+    const fullName = document.getElementById('fullName')?.value.trim() || '';
+    const username = document.getElementById('username')?.value.trim() || '';
+    const title = document.getElementById('userTitle')?.value.trim() || 'Cohort Student';
+    const bio = document.getElementById('userBio')?.value.trim() || '';
+    const bgColor = document.getElementById('cardBgColor')?.value || '#ffffff';
     
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-
-    const resourceType = file.type.startsWith('video') ? 'video' : 'image';
+    const avatarInput = document.getElementById('avatarFile');
+    const avatarFile = (avatarInput && avatarInput.files) ? avatarInput.files[0] : null;
 
     try {
-        const response = await fetch(
-            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`,
-            { method: 'POST', body: formData }
-        );
-        const data = await response.json();
-        return data.secure_url;
-    } catch (error) {
-        console.error("خطأ في رفع الملف لـ Cloudinary:", error);
-        alert("حدث خطأ أثناء رفع الملف، حاول مرة أخرى.");
-        return null;
-    }
-}
+        let avatarUrl = 'https://via.placeholder.com/100'; 
 
-// 2. تحميل وعرض البروفايلات في الصفحة الرئيسية
+        // 2. رفع الصورة فقط في حال تحديد ملف
+        if (avatarFile) {
+            const fileExt = avatarFile.name.split('.').pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `avatars/${fileName}`;
+
+            const { error: uploadError } = await supabaseClient
+                .storage
+                .from('avatars')
+                .upload(filePath, avatarFile);
+
+            if (uploadError) {
+                console.warn('تنبيه أثناء رفع الصورة:', uploadError.message);
+            } else {
+                const { data: urlData } = supabaseClient
+                    .storage
+                    .from('avatars')
+                    .getPublicUrl(filePath);
+                
+                avatarUrl = urlData.publicUrl;
+            }
+        }
+
+        // 3. إدراج البيانات مع توحيد الأسماء مع العرض
+        const { data, error } = await supabaseClient
+            .from('profiles')
+            .insert([
+                {
+                    full_name: fullName,
+                    username: username,
+                    title: title,
+                    bio: bio,
+                    avatar_url: avatarUrl,
+                    photo_url: avatarUrl, // توحيد مسمى الصورة مع العرض
+                    bg_color: bgColor,
+                    is_video: false
+                }
+            ])
+            .select();
+
+        if (error) throw error;
+
+        localStorage.setItem('currentUser', JSON.stringify(data[0]));
+        alert('تم إنشاء البروفايل بنجاح!');
+        
+        // إعادة تحميل القائمة بدلاً من الانتقال الفوري للتأكد من عمله
+        signupForm.reset();
+        loadProfiles();
+
+    } catch (err) {
+        console.error('Error creating profile:', err);
+        alert('حدث خطأ أثناء حفظ البيانات: ' + err.message);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'إنشاء حساب';
+    }
+});
+
+// 4. جلب وعرض البروفايلات
 async function loadProfiles() {
     const grid = document.getElementById('profiles-grid');
     if (!grid) return;
 
     try {
-        const { data: profiles, error } = await supabase
+        const { data: profiles, error } = await supabaseClient
             .from('profiles')
             .select('*')
             .order('created_at', { ascending: false });
@@ -47,79 +104,23 @@ async function loadProfiles() {
         profiles.forEach(profile => {
             const card = document.createElement('div');
             card.className = 'profile-card';
+            if (profile.bg_color) card.style.backgroundColor = profile.bg_color;
+
+            const displayImg = profile.avatar_url || profile.photo_url || 'https://via.placeholder.com/100';
+
             card.innerHTML = `
-                ${profile.photo_url ? `<img src="${profile.photo_url}" alt="${profile.full_name}" class="profile-img">` : ''}
-                <h3>${profile.full_name || 'طالب'}</h3>
+                <img src="${displayImg}" alt="${profile.full_name}" class="profile-img" style="width:80px; height:80px; border-radius:50%; object-fit:cover;">
+                <h3>${profile.full_name || profile.username || 'طالب'}</h3>
+                <small>${profile.title || ''}</small>
                 <p>${profile.bio || ''}</p>
-                ${profile.video_url ? `<video src="${profile.video_url}" controls class="profile-video"></video>` : ''}
-                <div class="comments-section" id="comments-${profile.id}">
-                    <h4>التعليقات:</h4>
-                    <div class="comments-list" id="list-${profile.id}">جاري تحميل التعليقات...</div>
-                    <form onsubmit="addComment(event, '${profile.id}')" class="comment-form">
-                        <input type="text" placeholder="اسمك" required class="input-name">
-                        <input type="text" placeholder="اكتب تعليقك..." required class="input-text">
-                        <button type="submit">إرسال</button>
-                    </form>
-                </div>
             `;
             grid.appendChild(card);
-            loadComments(profile.id);
         });
     } catch (err) {
         console.error("خطأ في جلب البروفايلات:", err.message);
     }
 }
 
-// 3. جلب التعليقات الخاصة بروفايل معين
-async function loadComments(profileId) {
-    const container = document.getElementById(`list-${profileId}`);
-    if (!container) return;
-
-    const { data: comments, error } = await supabase
-        .from('comments')
-        .select('*')
-        .eq('profile_id', profileId)
-        .order('created_at', { ascending: true });
-
-    if (error) {
-        container.innerHTML = '<p class="error">تعذر تحميل التعليقات.</p>';
-        return;
-    }
-
-    if (!comments || comments.length === 0) {
-        container.innerHTML = '<p class="no-comments">لا توجد تعليقات بعد.</p>';
-        return;
-    }
-
-    container.innerHTML = comments.map(c => `
-        <div class="comment-item">
-            <strong>${c.visitor_name}:</strong> <span>${c.comment_text}</span>
-        </div>
-    `).join('');
-}
-
-// 4. إضافة تعليق جديد لزائر
-async function addComment(event, profileId) {
-    event.preventDefault();
-    const form = event.target;
-    const visitorName = form.querySelector('.input-name').value;
-    const commentText = form.querySelector('.input-text').value;
-
-    const { error } = await supabase
-        .from('comments')
-        .insert([
-            { profile_id: profileId, visitor_name: visitorName, comment_text: commentText }
-        ]);
-
-    if (error) {
-        alert("فشل إضافة التعليق: " + error.message);
-    } else {
-        form.reset();
-        loadComments(profileId);
-    }
-}
-
-// تشغيل جلب البيانات فور تحميل الصفحة
 document.addEventListener('DOMContentLoaded', () => {
     loadProfiles();
 });

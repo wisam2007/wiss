@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <img src="${cardData.avatarUrl}" alt="${cardData.name}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
                         <div>
                             <h4 style="margin:0; font-size:0.9rem;">${cardData.name}</h4>
-                            <span class="card-badge">Author</span>
+                            <span class="card-badge" data-i18n="badge_author">Author</span>
                         </div>
                     </div>
                     <h3>${cardData.title}</h3>
@@ -69,6 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             galleryGrid.appendChild(card);
         });
+
+        // إعادة تطبيق الترجمات بعد رندر البطاقات الديناميكية
+        if (typeof window.applyTranslations === 'function') {
+            window.applyTranslations();
+        }
     }
 
     renderCards(getStoredMemories());
@@ -131,4 +136,37 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Failed to process images. Please try smaller files.");
         }
     });
+    // دالة جلب البروفايلات من Supabase
+async function fetchProfilesFromSupabase() {
+    try {
+        // supabaseClient هو العميل المعرّف لديك في config.js / main_control.js
+        const { data: profiles, error } = await supabaseClient
+            .from('profiles')
+            .select('*')
+            .order('created_at', { ascending: false }); // ترتيب الحسابات من الأحدث للأقدم
+
+        if (error) throw error;
+
+        // تحويل بيانات Supabase إلى الهيكل المستخدم في بطاقات المعرض
+        const formattedMemories = profiles.map(profile => ({
+            id: profile.id,
+            name: profile.full_name || profile.username || 'Anonymous',
+            title: profile.title || 'Cohort Student',
+            bio: profile.bio || 'No bio provided.',
+            avatarUrl: profile.avatar_url || 'https://via.placeholder.com/100',
+            mediaUrl: profile.media_url || profile.avatar_url || 'https://via.placeholder.com/400x300',
+            isVideo: profile.is_video || false,
+            bgColor: profile.bg_color || '#ffffff'
+        }));
+
+        renderCards(formattedMemories);
+    } catch (err) {
+        console.error('Error fetching profiles:', err.message);
+    }
+}
+
+// استدعاء الدالة عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', () => {
+    fetchProfilesFromSupabase();
+});
 });

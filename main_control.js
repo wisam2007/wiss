@@ -12,7 +12,19 @@ const translations = {
         memory_2: '"Group photo"',
         teachers_title: "Our teachers",
         quote_common: '"Thank you all"',
-        footer_text: "© 2026 All rights reserved for Amala Educational Program - this page was coded by <b>Wisam Appsas</b>"
+        footer_text: "© 2026 All rights reserved for Amala Educational Program - this page was coded by <b>Wisam Appsas</b>",
+        gallery_title: "Our Memory Gallery",
+        gallery_desc: "Explore all the beautiful moments shared by our cohort.",
+        search_placeholder: "🔍 Search memories by name or title...",
+        add_memory_title: "Add New Memory",
+        input_your_name: "Your Name",
+        lbl_profile_pic: "Profile Picture:",
+        lbl_card_theme: "Profile Card Theme Color:",
+        input_memory_title: "Memory Title",
+        input_memory_bio: "Short Bio / Description about you...",
+        lbl_upload_media: "Upload Images/Videos (Max 3):",
+        btn_publish: "Publish Memory",
+        badge_author: "Author"
     },
     ar: {
         nav_main: "الرئيسية",
@@ -26,9 +38,23 @@ const translations = {
         memory_2: '"صورة جماعية"',
         teachers_title: "معلمونا",
         quote_common: '"شكراً لكم جميعاً"',
-        footer_text: "© 2026 جميع الحقوق محفوظة لبرنامج أمل التعليمي - تم برمجة هذه الصفحة بواسطة <b>وسام العبساس</b>"
+        footer_text: "© 2026 جميع الحقوق محفوظة لبرنامج أمل التعليمي - تم برمجة هذه الصفحة بواسطة <b>وسام العبساس</b>",
+        gallery_title: "معرض ذكرياتنا",
+        gallery_desc: "استكشف أروع اللحظات التي شاركها أعضاء دفعتنا.",
+        search_placeholder: "🔍 ابحث عن الذكريات بالاسم أو العنوان...",
+        add_memory_title: "إضافة ذاكرة جديدة",
+        input_your_name: "اسمك",
+        lbl_profile_pic: "الصورة الشخصية:",
+        lbl_card_theme: "لون ثيم بطاقة التعريف:",
+        input_memory_title: "عنوان الذاكرة",
+        input_memory_bio: "نبذة قصيرة / وصف عنك...",
+        lbl_upload_media: "رفع الصور/الفيديوهات (الحد الأقصى 3):",
+        btn_publish: "نشر الذاكرة",
+        badge_author: "الناشر"
     }
 };
+    
+
 
 // --- إدارة الوضع الداكن / الفاتح / التلقائي ---
 const themeDropdownBtn = document.getElementById('themeDropdownBtn');
