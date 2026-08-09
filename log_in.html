@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة الطلاب - Student Portal</title>
+    <!-- CSS الأساسي -->
+    <link rel="stylesheet" href="style.css">
+    <!-- مكتبة Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- ملف الإعدادات -->
+    <script src="config.js"></script>
+</head>
+<body>
+    <header class="main-header">
+        <h1>معرض بروفايلات الطلاب</h1>
+        <nav>
+            <a href="main.html">الرئيسية</a>
+            <a href="login.html" id="login-btn">تسجيل الدخول</a>
+            <a href="dashboard.html" id="dash-btn" style="display:none;">لوحة التحكم</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section id="profiles-grid" class="grid-container">
+            <!-- سيتم تحميل بروفايلات الطلاب ديناميكياً هنا -->
+            <p class="loading-text">جاري تحميل البروفايلات...</p>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
