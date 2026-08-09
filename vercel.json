@@ -1,6 +1,8 @@
 {
-  "cleamUrls": true,
-  "rewrites" [
-    { "source": "/", "destination": "/main.html" }
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/main.html"
+    }
   ]
 }
