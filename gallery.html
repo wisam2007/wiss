@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amala GSD cohort-8TH - Gallery</title>
+    
+    <!-- External Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS External Files -->
+    <link rel="stylesheet" href="main_style.css">
+    <link rel="stylesheet" href="gallery_style.css">
+</head>
+<body>
+
+   <header>
+        <div class="header-container">
+            <div class="logo">
+                <img src="Photo/light_mood_ICON.png" alt="AMALA GSD Light Logo" class="logo-light">
+                <img src="Photo/night_mode_ICON.png" alt="AMALA GSD Dark Logo" class="logo-dark">
+            </div>
+            
+            <nav>
+                 <a href="main.html" data-i18n="nav_main">Main</a>
+                <a href="gallery.html" class="active" data-i18n="nav_gallery">Gallery</a>
+                <a href="alumni.html" data-i18n="nav_about">About Us</a>
+            </nav>
+
+        <div class="header-actions">
+               <!-- قائمة اختيار الثيم -->
+            <div class="custom-dropdown" id="themeDropdown">
+                 <button class="dropdown-btn" id="themeDropdownBtn" title="Select Theme">
+                     <img src="Photo/auto_ICON.png" alt="Theme Icon" class="dropdown-icon" id="currentThemeIcon">
+                 </button>
+             <div class="dropdown-content">
+                 <button class="dropdown-item" data-theme-val="light">
+                    <img src="Photo/sun_ICON.png" alt="Light"> Light
+                 </button>
+                 <button class="dropdown-item" data-theme-val="dark">
+                     <img src="Photo/moon_ICON.png" alt="Dark"> Dark
+                 </button>
+                 <button class="dropdown-item" data-theme-val="auto">
+                    <img src="Photo/auto_ICON.png" alt="Auto"> Auto (Time)
+               </button>
+             </div>
+        </div>
+
+                <!-- قائمة اختيار اللغة -->
+                <div class="custom-dropdown" id="langDropdown">
+                    <button class="dropdown-btn" id="langDropdownBtn" title="Select Language">
+                        🌐 <span id="currentLangLabel">EN</span>
+                    </button>
+                    <div class="dropdown-content">
+                        <button class="dropdown-item" data-lang-val="en">English</button>
+                        <button class="dropdown-item" data-lang-val="ar">العربية</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="gallery-container">
+        <section class="gallery-hero">
+            <h1 data-i18n="gallery_title">Our Memory Gallery</h1>
+            <p data-i18n="gallery_desc">Explore all the beautiful moments shared by our cohort.</p>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" id="searchInput" class="custom-input" placeholder="🔍 Search memories by name or title...">
+            </div>
+        </section>
+
+        <!-- Gallery Grid -->
+        <div class="gallery-grid" id="galleryGrid"></div>
+    </main>
+
+    <!-- Floating Action Button (+ Button) -->
+    <button class="fab-add-btn" id="openModalBtn" style="display: none;" title="Add New Memory">+</button>
+
+    <!-- Upload Memory Modal -->
+    <div class="modal-overlay" id="uploadModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModalBtn">&times;</span>
+            <h2 data-i18n="add_memory_title">Add New Memory</h2>
+            <form id="memoryForm">
+                <div class="input-group">
+                    <input type="text" class="custom-input" id="userName" placeholder="Your Name" maxlength="12" required>
+                    <small class="char-count" id="nameCounter">0/12</small>
+                </div>
+
+                <label class="file-label">Profile Picture:</label>
+                <input type="file" id="userAvatar" class="custom-input" accept="image/*" required>
+
+                <label class="file-label">Profile Card Theme Color:</label>
+                <input type="color" id="cardBgColor" class="custom-input" value="#ffffff">
+
+                <input type="text" class="custom-input" id="memoryTitle" placeholder="Memory Title" required>
+                
+                <div class="input-group">
+                    <textarea class="custom-input" id="memoryBio" placeholder="Short Bio / Description about you..." maxlength="100" rows="3" required></textarea>
+                    <small class="char-count" id="bioCounter">0/100</small>
+                </div>
+
+                <label class="file-label">Upload Images/Videos (Max 3):</label>
+                <input type="file" id="mediaFiles" class="custom-input" accept="image/*,video/*" multiple required>
+
+                <button type="submit" class="btn-primary">Publish Memory</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Unified Shared JS & Page Specific JS -->
+    <script src="main_control.js"></script>
+    <script src="gallery_control.js"></script>
+</body>
+</html>
