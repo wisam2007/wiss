@@ -3,57 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة الطلاب - Student Portal</title>
-    <!-- CSS الأساسي -->
-    <link rel="stylesheet" href="style.css">
+    <title>تسجيل الدخول / إنشاء بروفايل - بوابة الطلاب</title>
+    <!-- خط Tajawal لتوافقه مع ثيم موقعك -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="log_in_style.css">
     <!-- مكتبة Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- ملف الإعدادات -->
     <script src="config.js"></script>
 </head>
 <body>
-    <header class="main-header">
-        <h1>معرض بروفايلات الطلاب</h1>
-        <nav>
-            <a href="main.html">الرئيسية</a>
-            <a href="login.html" id="login-btn">تسجيل الدخول</a>
-            <a href="dashboard.html" id="dash-btn" style="display:none;">لوحة التحكم</a>
-        </nav>
-    </header>
 
-    <main class="container">
-        <section id="profiles-grid" class="grid-container">
-            <!-- سيتم تحميل بروفايلات الطلاب ديناميكياً هنا -->
-            <p class="loading-text">جاري تحميل البروفايلات...</p>
-        </section>
-    </main>
-<main class="container">
-    <!-- نموذج تسجيل / إنشاء البروفايل -->
-    <section class="form-container">
-        <h2>إنشاء بروفايل جديد</h2>
+    <div class="form-card">
+        <!-- شريط التقدم -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <header class="form-header">
+            <h2>إنشاء البروفايل الشخصي</h2>
+            <p>أكمل الخطوات التالية للانضمام إلى معرض الطلاب</p>
+        </header>
+
         <form id="signupForm">
-            <input type="text" id="fullName" placeholder="الاسم الكامل" required>
-            <input type="text" id="username" placeholder="اسم المستخدم" required>
-            <input type="text" id="userTitle" placeholder="المسمى (مثلاً: طالب كوهورت)">
-            <textarea id="userBio" placeholder="نبذة عنك..."></textarea>
-            
-            <label>صورة البروفايل:</label>
-            <input type="file" id="avatarFile" accept="image/*">
-            
-            <label>لون خلفية البطاقة:</label>
-            <input type="color" id="cardBgColor" value="#ffffff">
+            <!-- الخطوة 1: المعلومات الشخصية -->
+            <div class="form-step active-step" id="step-1">
+                <h3>الخطوة 1 من 3: البيانات الأساسية</h3>
+                
+                <div class="input-group">
+                    <label for="fullName">الاسم الكامل</label>
+                    <input type="text" id="fullName" placeholder="مثال: أحمد محمد" required>
+                </div>
 
-            <button type="submit">إنشاء حساب</button>
+                <div class="input-group">
+                    <label for="userBio">نبذة عنك (Bio)</label>
+                    <textarea id="userBio" rows="3" placeholder="اكتب نبذة مختصرة عن تخصصك أو اهتماماتك..."></textarea>
+                </div>
+
+                <div class="btn-group single-btn">
+                    <button type="button" class="btn btn-next" onclick="nextStep(1)">التالي &larr;</button>
+                </div>
+            </div>
+
+            <!-- الخطوة 2: الصور -->
+            <div class="form-step" id="step-2">
+                <h3>الخطوة 2 من 3: الصور الشخصية والمعرض</h3>
+
+                <div class="input-group">
+                    <label for="avatarFile">صورة البروفايل (الأيقونة)</label>
+                    <input type="file" id="avatarFile" accept="image/*" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="galleryImages">معرض الصور (من 1 إلى 5 صور)</label>
+                    <input type="file" id="galleryImages" accept="image/*" multiple required>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-prev" onclick="prevStep(2)">&rarr; السابق</button>
+                    <button type="button" class="btn btn-next" onclick="nextStep(2)">التالي &larr;</button>
+                </div>
+            </div>
+
+            <!-- الخطوة 3: الفيديو والتأكيد -->
+            <div class="form-step" id="step-3">
+                <h3>الخطوة 3 من 3: رابط يوتيوب والتأكيد</h3>
+
+                <div class="input-group">
+                    <label for="youtubeUrl">رابط فيديو يوتيوب (اختياري)</label>
+                    <input type="url" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-prev" onclick="prevStep(3)">&rarr; السابق</button>
+                    <button type="submit" class="btn btn-submit" id="submitBtn">حفظ وإنشاء البروفايل</button>
+                </div>
+            </div>
         </form>
-    </section>
+    </div>
 
-    <hr>
-
-    <!-- عرض البروفايلات -->
-    <section id="profiles-grid" class="grid-container">
-        <p class="loading-text">جاري تحميل البروفايلات...</p>
-    </section>
-</main>
     <script src="app.js"></script>
 </body>
 </html>

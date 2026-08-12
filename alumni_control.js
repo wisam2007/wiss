@@ -1,4 +1,3 @@
-// --- القاموس الخاص بالترجمة المحلية ---
 const translations = {
     en: {
         nav_main: "Main",
@@ -25,7 +24,6 @@ const translations = {
         lbl_upload_media: "Upload Images/Videos (Max 3):",
         btn_publish: "Publish Memory",
         badge_author: "Author",
-        beta_badge: "Beta",
 
         /* ---------- About / Alumni page ---------- */
         about_eyebrow: "Cohort 8th",
@@ -58,7 +56,7 @@ const translations = {
         memory_2: '"صورة جماعية"',
         teachers_title: "معلمونا",
         quote_common: '"شكراً لكم جميعاً"',
-        footer_text: "© 2026 جميع الحقوق محفوظة لبرنامج أمل التعليمي - تم برمجة هذه الصفحة بواسطة <b>وسام عباصا</b>",
+        footer_text: "© 2026 جميع الحقوق محفوظة لبرنامج أمل التعليمي - تم برمجة هذه الصفحة بواسطة <b>وسام العبساس</b>",
         gallery_title: "معرض ذكرياتنا",
         gallery_desc: "استكشف أروع اللحظات التي شاركها أعضاء دفعتنا.",
         search_placeholder: "🔍 ابحث عن الذكريات بالاسم أو العنوان...",
@@ -71,7 +69,6 @@ const translations = {
         lbl_upload_media: "رفع الصور/الفيديوهات (الحد الأقصى 3):",
         btn_publish: "نشر الذاكرة",
         badge_author: "الناشر",
-        beta_badge: "نسخة تجريبية",
 
         /* ---------- صفحة من نحن ---------- */
         about_eyebrow: "الدفعة الثامنة",

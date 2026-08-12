@@ -1,11 +1,132 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alumni Guide</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Amala GSD cohort-8TH</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="main_style.css">
+    <link rel="stylesheet" href="alumni_style.css">
 </head>
 <body>
-  
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <img src="Photo/light_mood_ICON.png" alt="AMALA GSD Light Logo" class="logo-light">
+                <img src="Photo/night_mode_ICON.png" alt="AMALA GSD Dark Logo" class="logo-dark">
+            </div>
+
+            <nav>
+                <a href="main.html" data-i18n="nav_main">Main</a>
+                <a href="gallery.html" data-i18n="nav_gallery">Gallery</a>
+                <a href="alumni.html" class="active" data-i18n="nav_about">About Us</a>
+            </nav>
+
+            <div class="header-actions">
+                <!-- قائمة اختيار الثيم -->
+                <div class="custom-dropdown" id="themeDropdown">
+                    <button class="dropdown-btn" id="themeDropdownBtn" title="Select Theme">
+                        <img src="Photo/auto_ICON.png" alt="Theme Icon" class="dropdown-icon" id="currentThemeIcon">
+                    </button>
+                    <div class="dropdown-content">
+                        <button class="dropdown-item" data-theme-val="light">
+                            <img src="Photo/sun_ICON.png" alt="Light"> Light
+                        </button>
+                        <button class="dropdown-item" data-theme-val="dark">
+                            <img src="Photo/moon_ICON.png" alt="Dark"> Dark
+                        </button>
+                        <button class="dropdown-item" data-theme-val="auto">
+                            <img src="Photo/auto_ICON.png" alt="Auto"> Auto (Time)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- قائمة اختيار اللغة -->
+                <div class="custom-dropdown" id="langDropdown">
+                    <button class="dropdown-btn" id="langDropdownBtn" title="Select Language">
+                        🌐 <span id="currentLangLabel">EN</span>
+                    </button>
+                    <div class="dropdown-content">
+                        <button class="dropdown-item" data-lang-val="en">English</button>
+                        <button class="dropdown-item" data-lang-val="ar">العربية</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ---------- Hero ---------- -->
+    <section class="about-hero">
+        <span class="about-eyebrow" data-i18n="about_eyebrow">Cohort 8th</span>
+        <h1 class="about-headline" data-i18n="about_headline">Our Story, Our Journey</h1>
+        <p class="about-quote" data-i18n="about_quote">
+            Every batch leaves a mark. Here's a look at where we came from, what we believe in, and the people who made this journey possible.
+        </p>
+    </section>
+
+    <!-- ---------- Vision ---------- -->
+    <section class="vision-section">
+        <p class="vision-intro" data-i18n="vision_intro">
+            <span class="highlight" data-i18n="vision_intro_highlight">Amala GSD</span> was built on a simple idea: give young people the tools and the community to grow, together.
+        </p>
+        <div class="vision-grid">
+            <div class="vision-card">
+                <div class="vision-icon">🎯</div>
+                <h3 data-i18n="vision_1_title">Our Mission</h3>
+                <p data-i18n="vision_1_desc">To equip the eighth cohort with practical skills, mentorship, and a genuine sense of belonging.</p>
+            </div>
+            <div class="vision-card">
+                <div class="vision-icon">🌱</div>
+                <h3 data-i18n="vision_2_title">Our Vision</h3>
+                <p data-i18n="vision_2_desc">A generation of learners who lift each other up and carry what they've learned into their communities.</p>
+            </div>
+            <div class="vision-card">
+                <div class="vision-icon">🤝</div>
+                <h3 data-i18n="vision_3_title">Our Values</h3>
+                <p data-i18n="vision_3_desc">Collaboration, curiosity, and gratitude — the same values that shaped every session of this program.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ---------- Journey ---------- -->
+    <section class="journey-section">
+        <div class="journey-card">
+            <span class="journey-icon">🚀</span>
+            <h2 data-i18n="journey_title">The Journey So Far</h2>
+            <p data-i18n="journey_text">
+                From our first day together to the memories captured on this wall, cohort eight has grown closer with every challenge, every project, and every late-night conversation. This page is a small piece of that story — the rest lives in what we carry forward.
+            </p>
+        </div>
+    </section>
+
+    <!-- ---------- Thanks (Signature Section) ---------- -->
+    <section class="thanks-section">
+        <div class="thanks-heading">
+            <span class="thanks-icon">💛</span>
+            <h2 data-i18n="thanks_title">A Word of Thanks to Our Teachers</h2>
+            <p data-i18n="thanks_desc">None of this would have been possible without the people who guided us, challenged us, and believed in us from day one.</p>
+        </div>
+        <div class="thanks-grid">
+            <div class="thanks-card">
+                <span class="thanks-mark">"</span>
+                <span class="thanks-badge">Abdel-Hamid Adam</span>
+                <p data-i18n="thanks_msg_1">Thank you for your patience and for pushing us to be better every single session.</p>
+            </div>
+            <div class="thanks-card">
+                <span class="thanks-mark">"</span>
+                <span class="thanks-badge">Waqar Khattab</span>
+                <p data-i18n="thanks_msg_2">Thank you for the guidance and support that made this journey feel possible.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p data-i18n="footer_text">© 2026 All rights reserved for Amala Educational Program - this page was coded by <b>Wisam Appsas</b></p>
+    </footer>
+
+    <!-- ربط ملف التفاعل والتحكم الرئيسي -->
+    <script src="alumni_control.js"></script>
 </body>
 </html>

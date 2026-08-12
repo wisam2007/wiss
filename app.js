@@ -1,126 +1,236 @@
-// 1. تهيئة عميل Supabase وتوحيد المسمى
-const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.CONFIG_ANON_KEY || CONFIG.SUPABASE_ANON_KEY);
+// ================= ========================
+// 1. الإعدادات والرموز الثابتة (Configuration)
+// ==========================================
+const CONFIG_APP = {
+    MAX_FILE_SIZE_MB: 5,
+    ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp'],
+    TOTAL_STEPS: 3
+};
 
-const signupForm = document.getElementById('signupForm');
+const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+window.supabaseClient = supabaseClient;
 
-signupForm?.addEventListener('submit', async function (e) {
-    e.preventDefault();
+// ================= ========================
+// 2. دوال مساعدة للتحقق والأمان (Helpers)
+// ==========================================
 
-    const submitBtn = signupForm.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'جاري إنشاء الحساب...';
-
-    // قراءة البيانات بأمان
-    const fullName = document.getElementById('fullName')?.value.trim() || '';
-    const username = document.getElementById('username')?.value.trim() || '';
-    const title = document.getElementById('userTitle')?.value.trim() || 'Cohort Student';
-    const bio = document.getElementById('userBio')?.value.trim() || '';
-    const bgColor = document.getElementById('cardBgColor')?.value || '#ffffff';
+// التحقق من صحة الملف (الحجم والنوع)
+function validateImageFile(file) {
+    if (!file) return { valid: false, message: 'الملف غير موجود.' };
     
-    const avatarInput = document.getElementById('avatarFile');
-    const avatarFile = (avatarInput && avatarInput.files) ? avatarInput.files[0] : null;
-
-    try {
-        let avatarUrl = 'https://via.placeholder.com/100'; 
-
-        // 2. رفع الصورة فقط في حال تحديد ملف
-        if (avatarFile) {
-            const fileExt = avatarFile.name.split('.').pop();
-            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-            const filePath = `avatars/${fileName}`;
-
-            const { error: uploadError } = await supabaseClient
-                .storage
-                .from('avatars')
-                .upload(filePath, avatarFile);
-
-            if (uploadError) {
-                console.warn('تنبيه أثناء رفع الصورة:', uploadError.message);
-            } else {
-                const { data: urlData } = supabaseClient
-                    .storage
-                    .from('avatars')
-                    .getPublicUrl(filePath);
-                
-                avatarUrl = urlData.publicUrl;
-            }
-        }
-
-        // 3. إدراج البيانات مع توحيد الأسماء مع العرض
-        const { data, error } = await supabaseClient
-            .from('profiles')
-            .insert([
-                {
-                    full_name: fullName,
-                    username: username,
-                    title: title,
-                    bio: bio,
-                    avatar_url: avatarUrl,
-                    photo_url: avatarUrl, // توحيد مسمى الصورة مع العرض
-                    bg_color: bgColor,
-                    is_video: false
-                }
-            ])
-            .select();
-
-        if (error) throw error;
-
-        localStorage.setItem('currentUser', JSON.stringify(data[0]));
-        alert('تم إنشاء البروفايل بنجاح!');
-        
-        // إعادة تحميل القائمة بدلاً من الانتقال الفوري للتأكد من عمله
-        signupForm.reset();
-        loadProfiles();
-
-    } catch (err) {
-        console.error('Error creating profile:', err);
-        alert('حدث خطأ أثناء حفظ البيانات: ' + err.message);
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'إنشاء حساب';
+    if (!CONFIG_APP.ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        return { valid: false, message: `نوع الملف (${file.name}) غير مدعوم. يرجى اختيار صورة (JPG, PNG, WEBP).` };
     }
-});
+    
+    const maxBytes = CONFIG_APP.MAX_FILE_SIZE_MB * 1024 * 1024;
+    if (file.size > maxBytes) {
+        return { valid: false, message: `حجم الصورة (${file.name}) يتجاوز الحد المسموح (${CONFIG_APP.MAX_FILE_SIZE_MB} ميجابايت).` };
+    }
+    
+    return { valid: true };
+}
 
-// 4. جلب وعرض البروفايلات
-async function loadProfiles() {
-    const grid = document.getElementById('profiles-grid');
-    if (!grid) return;
+// التحقق السريع من صحة رابط يوتيوب
+function isValidYouTubeUrl(url) {
+    if (!url) return true; // اختياري
+    const pattern = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+    return pattern.test(url);
+}
 
-    try {
-        const { data: profiles, error } = await supabaseClient
-            .from('profiles')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-
-        grid.innerHTML = '';
-
-        if (!profiles || profiles.length === 0) {
-            grid.innerHTML = '<p class="no-data">لا توجد بروفايلات متاحة حالياً.</p>';
-            return;
-        }
-
-        profiles.forEach(profile => {
-            const card = document.createElement('div');
-            card.className = 'profile-card';
-            if (profile.bg_color) card.style.backgroundColor = profile.bg_color;
-
-            const displayImg = profile.avatar_url || profile.photo_url || 'https://via.placeholder.com/100';
-
-            card.innerHTML = `
-                <img src="${displayImg}" alt="${profile.full_name}" class="profile-img" style="width:80px; height:80px; border-radius:50%; object-fit:cover;">
-                <h3>${profile.full_name || profile.username || 'طالب'}</h3>
-                <small>${profile.title || ''}</small>
-                <p>${profile.bio || ''}</p>
-            `;
-            grid.appendChild(card);
-        });
-    } catch (err) {
-        console.error("خطأ في جلب البروفايلات:", err.message);
+// ================= ========================
+// 3. إدارة الخطوات وشريط التقدم (Navigation)
+// ==========================================
+function updateProgress(stepNumber) {
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) {
+        const percentage = Math.min((stepNumber / CONFIG_APP.TOTAL_STEPS) * 100, 100);
+        progressBar.style.width = `${percentage}%`;
     }
 }
 
+function nextStep(currentStep) {
+    // التحقق من الخطوة 1
+    if (currentStep === 1) {
+        const nameInput = document.getElementById('fullName');
+        if (!nameInput || !nameInput.value.trim()) {
+            alert('يرجى كتابة الاسم الكامل أولاً.');
+            nameInput?.focus();
+            return;
+        }
+    } 
+    // التحقق من الخطوة 2 (الصور)
+    else if (currentStep === 2) {
+        const avatarInput = document.getElementById('avatarFile');
+        const galleryInput = document.getElementById('galleryImages');
+
+        const avatarFile = avatarInput?.files[0];
+        if (!avatarFile) {
+            alert('يرجى اختيار صورة للبروفايل (الأيقونة).');
+            return;
+        }
+
+        // فحص صورة البروفايل
+        const avatarCheck = validateImageFile(avatarFile);
+        if (!avatarCheck.valid) {
+            alert(avatarCheck.message);
+            return;
+        }
+
+        // فحص صور المعرض
+        const galleryFiles = galleryInput?.files ? Array.from(galleryInput.files) : [];
+        if (galleryFiles.length < 1 || galleryFiles.length > 5) {
+            alert(`يرجى اختيار من 1 إلى 5 صور للمعرض. (العدد الحالي: ${galleryFiles.length})`);
+            return;
+        }
+
+        for (const file of galleryFiles) {
+            const check = validateImageFile(file);
+            if (!check.valid) {
+                alert(check.message);
+                return;
+            }
+        }
+    }
+
+    // التنقل الانسيابي
+    const currentStepEl = document.getElementById(`step-${currentStep}`);
+    const nextStepEl = document.getElementById(`step-${currentStep + 1}`);
+
+    if (currentStepEl && nextStepEl) {
+        currentStepEl.classList.remove('active-step');
+        nextStepEl.classList.add('active-step');
+        updateProgress(currentStep + 1);
+    }
+}
+
+function prevStep(currentStep) {
+    const currentStepEl = document.getElementById(`step-${currentStep}`);
+    const prevStepEl = document.getElementById(`step-${currentStep - 1}`);
+
+    if (currentStepEl && prevStepEl) {
+        currentStepEl.classList.remove('active-step');
+        prevStepEl.classList.add('active-step');
+        updateProgress(currentStep - 1);
+    }
+}
+
+// ================= ========================
+// 4. دالة رفع الملفات وإدارتها
+// ==========================================
+async function uploadFileToStorage(bucket, file) {
+    const fileExt = file.name.split('.').pop().toLowerCase();
+    const cleanFileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+    const filePath = `profiles/${cleanFileName}`;
+
+    const { error: uploadError } = await supabaseClient
+        .storage
+        .from(bucket)
+        .upload(filePath, file, { cacheControl: '3600', upsert: false });
+
+    if (uploadError) {
+        throw new Error(`فشل رفع الملف (${file.name}): ${uploadError.message}`);
+    }
+
+    const { data: urlData } = supabaseClient
+        .storage
+        .from(bucket)
+        .getPublicUrl(filePath);
+
+    return { url: urlData.publicUrl, path: filePath };
+}
+
+// دالة حذف الملفات في حالة حدوث خطأ أثناء الحفظ (Rollback)
+async function cleanupUploadedFiles(bucket, filePaths) {
+    if (!filePaths || filePaths.length === 0) return;
+    try {
+        await supabaseClient.storage.from(bucket).remove(filePaths);
+    } catch (e) {
+        console.warn('تعذر حذف الملفات المؤقتة بعد فشل العملية:', e);
+    }
+}
+
+// ================= ========================
+// 5. معالجة إرسال النموذج (Submit Handler)
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    loadProfiles();
+    const signupForm = document.getElementById('signupForm');
+
+    signupForm?.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const submitBtn = document.getElementById('submitBtn');
+        const youtubeUrl = document.getElementById('youtubeUrl')?.value.trim() || '';
+
+        // التحقق من صحة رابط يوتيوب قبل الرفع
+        if (youtubeUrl && !isValidYouTubeUrl(youtubeUrl)) {
+            alert('يرجى إدخال رابط يوتيوب صحيح.');
+            document.getElementById('youtubeUrl')?.focus();
+            return;
+        }
+
+        const fullName = document.getElementById('fullName')?.value.trim() || '';
+        const bio = document.getElementById('userBio')?.value.trim() || '';
+
+        const avatarFile = document.getElementById('avatarFile')?.files[0];
+        const galleryFiles = document.getElementById('galleryImages')?.files 
+            ? Array.from(document.getElementById('galleryImages').files) 
+            : [];
+
+        // قائمة لتتبع المسارات المرفوعة لاستخدامها في التنظيف عند الخطأ
+        const uploadedPaths = [];
+
+        try {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'جاري رفع الصور...';
+
+            // 1. رفع صورة البروفايل
+            const avatarRes = await uploadFileToStorage('avatars', avatarFile);
+            uploadedPaths.push(avatarRes.path);
+
+            // 2. رفع صور المعرض
+            const galleryResponses = await Promise.all(
+                galleryFiles.map(file => uploadFileToStorage('avatars', file))
+            );
+            
+            galleryResponses.forEach(res => uploadedPaths.push(res.path));
+
+            const photoDataPayload = {
+                avatar: avatarRes.url,
+                gallery: galleryResponses.map(res => res.url)
+            };
+
+            submitBtn.textContent = 'جاري حفظ البيانات...';
+
+            // 3. إدخال البيانات في جدول profiles
+            const { error: dbError } = await supabaseClient
+                .from('profiles')
+                .insert([
+                    {
+                        full_name: fullName,
+                        bio: bio,
+                        photo_url: JSON.stringify(photoDataPayload), // أو تمرير photoDataPayload مباشرة إذا كان العمود من نوع JSONB
+                        video_url: youtubeUrl
+                    }
+                ]);
+
+            if (dbError) throw dbError;
+
+            alert('تم إنشاء البروفايل بنجاح! جاري التحويل...');
+            window.location.href = 'main.html';
+
+        } catch (err) {
+            console.error('حدث خطأ أثناء الإنشاء:', err);
+            
+            // إلغاء التغييرات: حذف الصور التي تم رفعها لمنع استهلاك مساحة التخزين بلا فائدة
+            if (uploadedPaths.length > 0) {
+                submitBtn.textContent = 'جاري إلغاء الملفات المرفوعة...';
+                await cleanupUploadedFiles('avatars', uploadedPaths);
+            }
+
+            alert('حدث خطأ أثناء الحفظ: ' + (err.message || 'خطأ غير معروف'));
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'حفظ وإنشاء البروفايل';
+        }
+    });
 });

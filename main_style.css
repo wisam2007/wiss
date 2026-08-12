@@ -82,6 +82,21 @@ header {
     gap: 5px;
 }
 
+/* --- شارة "نسخة تجريبية" بجانب اللوجو --- */
+.beta-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #ffffff;
+    background: linear-gradient(45deg, var(--primary-color), #a855f7);
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-inline-start: 4px;
+    white-space: nowrap;
+}
+
 nav {
     display: flex;
     gap: 25px;
@@ -200,6 +215,7 @@ nav a:hover, nav a.active {
     margin-bottom: 25px;
     letter-spacing: -1px;
     background: linear-gradient(45deg, var(--primary-color), #a855f7);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -388,6 +404,10 @@ footer b {
     }
     .hero p {
         font-size: 1rem;
+    }
+    .beta-badge {
+        font-size: 0.6rem;
+        padding: 2px 8px;
     }
 }
 

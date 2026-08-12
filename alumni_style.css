@@ -1,0 +1,266 @@
+/* ==========================================
+   About / Alumni Page
+   يعتمد على متغيرات اللون المعرّفة بـ main_style.css
+   (primary-color الأزرق، وتدرج بنفسجي) مع إضافة لمسة
+   دافئة (وردي/كهرماني) خاصة بقسم شكر الأساتذة فقط،
+   ليكون هو العنصر المميز عاطفياً بالصفحة.
+   ========================================== */
+
+:root {
+    --warm-accent: #e11d48;
+    --warm-accent-soft: rgba(225, 29, 72, 0.08);
+    --warm-gold: #f59e0b;
+}
+
+/* ---------- Hero ---------- */
+.about-hero {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 100px 24px 70px 24px;
+    text-align: center;
+}
+
+.about-eyebrow {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--primary-color, #0284c7);
+    background-color: rgba(2, 132, 199, 0.1);
+    padding: 6px 18px;
+    border-radius: 30px;
+    margin-bottom: 22px;
+}
+
+.about-headline {
+    font-size: 2.6rem;
+    font-weight: 900;
+    line-height: 1.3;
+    margin-bottom: 30px;
+    background: linear-gradient(45deg, var(--primary-color, #0284c7), #a855f7);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.about-quote {
+    position: relative;
+    font-size: 1.15rem;
+    font-weight: 500;
+    line-height: 1.9;
+    color: var(--text-muted, #64748b);
+    margin: 0 auto;
+    max-width: 620px;
+    padding: 0 10px;
+}
+
+/* ---------- Vision ---------- */
+.vision-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 80px 24px;
+}
+
+.vision-intro {
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto 45px auto;
+    font-size: 1.05rem;
+    line-height: 1.9;
+    color: var(--text-color, #1e293b);
+}
+
+.vision-intro .highlight {
+    color: var(--primary-color, #0284c7);
+    font-weight: 700;
+}
+
+.vision-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+.vision-card {
+    background-color: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 18px;
+    padding: 32px 26px;
+    text-align: center;
+    box-shadow: var(--shadow, 0 4px 6px -1px rgba(0,0,0,0.05));
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.vision-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--primary-color, #0284c7);
+    box-shadow: 0 14px 25px rgba(2, 132, 199, 0.15);
+}
+
+.vision-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    font-size: 1.6rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(2,132,199,0.12), rgba(168,85,247,0.12));
+    margin-bottom: 18px;
+}
+
+.vision-card h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: var(--text-color, #1e293b);
+}
+
+.vision-card p {
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: var(--text-muted, #64748b);
+}
+
+/* ---------- Journey ---------- */
+.journey-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 24px 80px 24px;
+}
+
+.journey-card {
+    background: linear-gradient(160deg, var(--card-bg, #ffffff), rgba(2, 132, 199, 0.04));
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 20px;
+    padding: 44px 38px;
+    text-align: center;
+}
+
+.journey-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 14px;
+}
+
+.journey-card h2 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 18px;
+    color: var(--text-color, #1e293b);
+}
+
+.journey-card p {
+    font-size: 1rem;
+    line-height: 1.95;
+    color: var(--text-muted, #64748b);
+}
+
+/* ---------- Thanks (Signature Section) ---------- */
+.thanks-section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px 24px 100px 24px;
+}
+
+.thanks-heading {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto 50px auto;
+}
+
+.thanks-icon {
+    font-size: 2.2rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.thanks-heading h2 {
+    font-size: 1.7rem;
+    font-weight: 900;
+    color: var(--warm-accent);
+    margin-bottom: 14px;
+}
+
+.thanks-heading p {
+    font-size: 0.98rem;
+    line-height: 1.8;
+    color: var(--text-muted, #64748b);
+}
+
+.thanks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 28px;
+}
+
+.thanks-card {
+    position: relative;
+    background-color: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-inline-start: 4px solid var(--warm-accent);
+    border-radius: 4px 18px 18px 4px;
+    padding: 34px 30px 28px 30px;
+    box-shadow: var(--shadow, 0 4px 6px -1px rgba(0,0,0,0.05));
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+[dir="rtl"] .thanks-card {
+    border-inline-start: 4px solid var(--warm-accent);
+    border-radius: 18px 4px 4px 18px;
+}
+
+.thanks-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 30px rgba(225, 29, 72, 0.12);
+}
+
+.thanks-mark {
+    position: absolute;
+    top: -6px;
+    left: 18px;
+    font-size: 4.5rem;
+    font-weight: 900;
+    color: var(--warm-accent-soft);
+    line-height: 1;
+    pointer-events: none;
+}
+
+.thanks-badge {
+    display: inline-block;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--warm-accent);
+    margin-bottom: 14px;
+}
+
+.thanks-card p {
+    position: relative;
+    font-size: 0.95rem;
+    line-height: 1.85;
+    color: var(--text-color, #1e293b);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+    .about-headline {
+        font-size: 2rem;
+    }
+    .about-hero {
+        padding: 70px 20px 50px 20px;
+    }
+    .journey-card {
+        padding: 32px 22px;
+    }
+    .thanks-card {
+        padding: 30px 22px 24px 22px;
+    }
+}
+
+/* احترام تفضيل تقليل الحركة */
+@media (prefers-reduced-motion: reduce) {
+    .vision-card, .thanks-card {
+        transition: none;
+    }
+}

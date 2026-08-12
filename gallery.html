@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amala GSD cohort-8TH - Gallery</title>
+    <title>معرض الطلاب - Amala GSD</title>
     
     <!-- External Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,6 +13,10 @@
     <!-- CSS External Files -->
     <link rel="stylesheet" href="main_style.css">
     <link rel="stylesheet" href="gallery_style.css">
+
+    <!-- Supabase Library & Config -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
 </head>
 <body>
 
@@ -24,38 +28,38 @@
             </div>
             
             <nav>
-                <a href="main.html" data-i18n="nav_main">Main</a>
-                <a href="gallery.html" class="active" data-i18n="nav_gallery">Gallery</a>
-                <a href="alumni.html" data-i18n="nav_about">About Us</a>
+                <a href="main.html" data-i18n="nav_main">الرئيسية</a>
+                <a href="gallery.html" class="active" data-i18n="nav_gallery">المعرض</a>
+                <a href="alumni.html" data-i18n="nav_about">عن الدفعة</a>
             </nav>
 
             <div class="header-actions">
                 <!-- قائمة اختيار الثيم -->
                 <div class="custom-dropdown" id="themeDropdown">
-                    <button class="dropdown-btn" id="themeDropdownBtn" title="Select Theme">
+                    <button class="dropdown-btn" id="themeDropdownBtn" type="button" title="Select Theme">
                         <img src="Photo/auto_ICON.png" alt="Theme Icon" class="dropdown-icon" id="currentThemeIcon">
                     </button>
                     <div class="dropdown-content">
-                        <button class="dropdown-item" data-theme-val="light">
-                            <img src="Photo/sun_ICON.png" alt="Light"> <span data-i18n="theme_light">Light</span>
+                        <button class="dropdown-item" type="button" data-theme-val="light">
+                            <img src="Photo/sun_ICON.png" alt="Light"> <span>فاتح</span>
                         </button>
-                        <button class="dropdown-item" data-theme-val="dark">
-                            <img src="Photo/moon_ICON.png" alt="Dark"> <span data-i18n="theme_dark">Dark</span>
+                        <button class="dropdown-item" type="button" data-theme-val="dark">
+                            <img src="Photo/moon_ICON.png" alt="Dark"> <span>داكن</span>
                         </button>
-                        <button class="dropdown-item" data-theme-val="auto">
-                            <img src="Photo/auto_ICON.png" alt="Auto"> <span data-i18n="theme_auto">Auto (Time)</span>
+                        <button class="dropdown-item" type="button" data-theme-val="auto">
+                            <img src="Photo/auto_ICON.png" alt="Auto"> <span>تلقائي</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- قائمة اختيار اللغة -->
                 <div class="custom-dropdown" id="langDropdown">
-                    <button class="dropdown-btn" id="langDropdownBtn" title="Select Language">
-                        🌐 <span id="currentLangLabel">EN</span>
+                    <button class="dropdown-btn" id="langDropdownBtn" type="button" title="Select Language">
+                        🌐 <span id="currentLangLabel">AR</span>
                     </button>
                     <div class="dropdown-content">
-                        <button class="dropdown-item" data-lang-val="en">English</button>
-                        <button class="dropdown-item" data-lang-val="ar">العربية</button>
+                        <button class="dropdown-item" type="button" data-lang-val="ar">العربية</button>
+                        <button class="dropdown-item" type="button" data-lang-val="en">English</button>
                     </div>
                 </div>
             </div>
@@ -63,54 +67,75 @@
     </header>
 
    <!-- Main Content -->
-<main class="gallery-container">
-    <section class="gallery-hero">
-        <h1 data-i18n="gallery_title">Our Memory Gallery</h1>
-        <p data-i18n="gallery_desc">Explore all the beautiful moments shared by our cohort.</p>
+   <main class="gallery-container">
+        <section class="gallery-hero">
+            <h1 data-i18n="gallery_title">معرض الطلاب والذكريات</h1>
+            <p data-i18n="gallery_desc">استكشف البروفايلات والصور واللحظات الجميلة التي شاركها طلاب الدفعة.</p>
 
-        <!-- Search Bar -->
-        <div class="search-container">
-            <input type="text" id="searchInput" class="custom-input" placeholder="🔍 Search memories by name or title..." data-i18n-placeholder="search_placeholder">
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" id="searchInput" class="custom-input" data-i18n="search_placeholder" placeholder="🔍 ابحث عن طالب بالاسم أو النبذة التعريفية...">
+            </div>
+        </section>
+
+        <!-- Gallery Grid -->
+        <div class="gallery-grid" id="galleryGrid">
+            <p class="loading-status">جاري تحميل بروفايلات المعرض...</p>
         </div>
-    </section>
-
-    <!-- Gallery Grid -->
-    <div class="gallery-grid" id="galleryGrid"></div>
-</main>
-
-<!-- Upload Memory Modal -->
-<div class="modal-overlay" id="uploadModal">
-    <div class="modal-content">
-        <span class="close-modal" id="closeModalBtn">&times;</span>
-        <h2 data-i18n="add_memory_title">Add New Memory</h2>
-        <form id="memoryForm">
-            <div class="input-group">
-                <input type="text" class="custom-input" id="userName" placeholder="Your Name" data-i18n-placeholder="input_your_name" maxlength="12" required>
-                <small class="char-count" id="nameCounter">0/12</small>
+   </main>
+<!-- النافذة العائمة للبروفايل (Profile Modal) -->
+   <div class="modal-overlay" id="profileModal">
+        <button class="modal-close-outside" id="modalCloseBtn" type="button">&times;</button>
+        
+        <div class="modal-card">
+            <div class="modal-header-bg">
+                <img id="modalAvatar" src="" alt="Profile Avatar" class="modal-avatar">
             </div>
-
-            <label class="file-label" data-i18n="lbl_profile_pic">Profile Picture:</label>
-            <input type="file" id="userAvatar" class="custom-input" accept="image/*" required>
-
-            <label class="file-label" data-i18n="lbl_card_theme">Profile Card Theme Color:</label>
-            <input type="color" id="cardBgColor" class="custom-input" value="#ffffff">
-
-            <input type="text" class="custom-input" id="memoryTitle" placeholder="Memory Title" data-i18n-placeholder="input_memory_title" required>
             
-            <div class="input-group">
-                <textarea class="custom-input" id="memoryBio" placeholder="Short Bio / Description about you..." data-i18n-placeholder="input_memory_bio" maxlength="100" rows="3" required></textarea>
-                <small class="char-count" id="bioCounter">0/100</small>
+            <div class="modal-body">
+                <h2 id="modalName" class="modal-user-name">اسم الطالب</h2>
+                <p id="modalBio" class="modal-user-bio">النبذة التعريفية...</p>
+
+                <!-- قسم معرض الصور المصغر -->
+                <div class="modal-section" id="modalGallerySection">
+                    <h3>🖼️ معرض الصور</h3>
+                    <div class="modal-gallery-grid" id="modalGalleryGrid"></div>
+                </div>
+
+                <!-- قسم الفيديو -->
+                <div class="modal-section" id="modalVideoSection" style="display: none;">
+                    <h3>🎬 فيديو التعريف</h3>
+                    <div class="video-container" id="modalVideoContainer"></div>
+                </div>
+
+                <!-- قسم التفاعلات (الإيموجي) -->
+                <div class="modal-section reactions-section">
+                    <h3>✨ التفاعلات</h3>
+                    <div class="reactions-bar">
+                        <button class="reaction-btn" type="button" data-reaction-type="like" onclick="addReaction('like')">❤️ <span id="count-like">0</span></button>
+                        <button class="reaction-btn" type="button" data-reaction-type="laugh" onclick="addReaction('laugh')">😆 <span id="count-laugh">0</span></button>
+                        <button class="reaction-btn" type="button" data-reaction-type="sad" onclick="addReaction('sad')">😢 <span id="count-sad">0</span></button>
+                        <button class="reaction-btn" type="button" data-reaction-type="smile" onclick="addReaction('smile')">😊 <span id="count-smile">0</span></button>
+                    </div>
+                </div>
+
+                <!-- قسم التعليقات -->
+                <div class="modal-section comments-section">
+                    <h3>💬 التعليقات</h3>
+                    <div class="comments-list" id="commentsList">
+                        <p class="no-comments">لا توجد تعليقات بعد، كن أول من يعلق!</p>
+                    </div>
+
+                    <form id="commentForm" class="comment-form">
+                        <input type="text" id="commentAuthor" placeholder="اسمك..." required class="comment-input author-input">
+                        <input type="text" id="commentText" placeholder="اكتب تعليقك هنا..." required class="comment-input text-input">
+                        <button type="submit" class="btn-send-comment">إرسال</button>
+                    </form>
+                </div>
             </div>
-
-            <label class="file-label" data-i18n="lbl_upload_media">Upload Images/Videos (Max 3):</label>
-            <input type="file" id="mediaFiles" class="custom-input" accept="image/*,video/*" multiple required>
-
-            <button type="submit" class="btn-primary" data-i18n="btn_publish">Publish Memory</button>
-        </form>
-    </div>
-</div>
-
-    <!-- Unified Shared JS & Page Specific JS -->
+        </div>
+   </div>
+    <!-- External Controls & App JS -->
     <script src="main_control.js"></script>
     <script src="gallery_control.js"></script>
 </body>
