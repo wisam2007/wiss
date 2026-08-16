@@ -30,33 +30,33 @@ html {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Tajawal', sans-serif;
-}
-
-/* تحديد الترانزيشن للعناصر المطلوبة فقط لرفع مستوى الأداء */
-body, header, .memory-card, .teacher-card, footer, nav a, .dropdown-btn, .dropdown-content {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 body {
+    font-family: 'Tajawal', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     line-height: 1.6;
-    text-align: start; 
+    text-align: start;
+}
+
+body, header, .memory-card, .teacher-card, footer, nav a,
+.dropdown-btn, .dropdown-content {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 header {
-    position: sticky;      
-    top: 0;                 
+    position: sticky;
+    top: 0;
     left: 0;
     right: 0;
-    width: 100%;            
-    background-color: var(--header-bg); 
+    width: 100%;
+    background-color: var(--header-bg);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     border-bottom: 1px solid var(--border-color);
-    box-shadow: var(--shadow); 
-    z-index: 1000;          
+    box-shadow: var(--shadow);
+    z-index: 1000;
 }
 
 .header-container {
@@ -68,11 +68,6 @@ header {
     padding: 15px 20px;
 }
 
-.logo img {
-    height: 50px; 
-    width: auto;
-}
-
 .logo {
     font-weight: 900;
     font-size: 1.3rem;
@@ -82,7 +77,16 @@ header {
     gap: 5px;
 }
 
-/* --- شارة "نسخة تجريبية" بجانب اللوجو --- */
+.logo img {
+    height: 50px;
+    width: auto;
+}
+
+.logo-light { display: block; }
+.logo-dark { display: none; }
+[data-theme="dark"] .logo-light { display: none; }
+[data-theme="dark"] .logo-dark { display: block; }
+
 .beta-badge {
     display: inline-block;
     font-size: 0.65rem;
@@ -119,7 +123,6 @@ nav a:hover, nav a.active {
     gap: 15px;
 }
 
-/* --- القوائم المنسدلة للثيم واللغات --- */
 .custom-dropdown {
     position: relative;
     display: inline-block;
@@ -201,7 +204,6 @@ nav a:hover, nav a.active {
     font-weight: bold;
 }
 
-/* --- قسم الترحيب (Hero Section) --- */
 .hero {
     padding: 120px 20px 80px 20px;
     text-align: center;
@@ -252,7 +254,6 @@ nav a:hover, nav a.active {
     transform: translateY(-2px);
 }
 
-/* --- قسم المعرض والذكريات --- */
 .gallery-section {
     max-width: 1200px;
     margin: 0 auto;
@@ -282,19 +283,19 @@ nav a:hover, nav a.active {
     box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; 
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .memory-card:hover {
-    transform: translateY(-5px); 
-    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15); 
-    border-color: var(--primary-color); 
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15);
+    border-color: var(--primary-color);
 }
 
 .memory-card img {
     width: 100%;
     height: 240px;
-    object-fit: cover; 
+    object-fit: cover;
     display: block;
     transition: transform 0.5s ease;
 }
@@ -305,7 +306,6 @@ nav a:hover, nav a.active {
 
 .card-body {
     padding: 20px;
-    text-align: inherit; 
 }
 
 .card-body p {
@@ -313,7 +313,6 @@ nav a:hover, nav a.active {
     font-size: 0.95rem;
 }
 
-/* --- شبكة المعلمين --- */
 .teachers-section {
     margin-top: 50px;
 }
@@ -342,7 +341,7 @@ nav a:hover, nav a.active {
 
 [data-theme="dark"] .teacher-card:hover {
     border-color: var(--primary-color);
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.4); 
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
 }
 
 .teacher-card img {
@@ -367,7 +366,7 @@ nav a:hover, nav a.active {
     font-size: 0.95rem;
     position: absolute;
     bottom: -100%;
-    left: 0; 
+    left: 0;
     right: 0;
     background: rgba(2, 132, 199, 0.95);
     padding: 15px;
@@ -379,7 +378,6 @@ nav a:hover, nav a.active {
     bottom: 0;
 }
 
-/* --- الفوتر --- */
 footer {
     border-top: 1px solid var(--border-color);
     padding: 20px;
@@ -394,7 +392,6 @@ footer b {
     color: var(--primary-color);
 }
 
-/* --- التجاوب مع الشاشات الصغير --- */
 @media (max-width: 768px) {
     nav {
         display: none;
@@ -409,19 +406,4 @@ footer b {
         font-size: 0.6rem;
         padding: 2px 8px;
     }
-}
-
-/* التبديل بين اللوجو الفاتح والداكن */
-.logo-light {
-    display: block !important;
-}
-.logo-dark {
-    display: none !important;
-}
-
-[data-theme="dark"] .logo-light {
-    display: none !important;
-}
-[data-theme="dark"] .logo-dark {
-    display: block !important;
 }

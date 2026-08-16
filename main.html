@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" id="htmlRoot">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Wall of Memories - Amala Educational Program, Cohort 8">
     <title>Amala GSD cohort-8TH</title>
+    <link rel="icon" href="Photo/light_mood_ICON.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
@@ -11,7 +13,6 @@
 </head>
 <body>
     <header>
-
         <div class="header-container">
             <div class="logo">
                 <img src="Photo/light_mood_ICON.png" alt="AMALA GSD Light Logo" class="logo-light">
@@ -25,26 +26,24 @@
                 <a href="alumni.html" data-i18n="nav_about">About Us</a>
             </nav>
 
-        <div class="header-actions">
-               <!-- قائمة اختيار الثيم -->
-            <div class="custom-dropdown" id="themeDropdown">
-                 <button class="dropdown-btn" id="themeDropdownBtn" title="Select Theme">
-                     <img src="Photo/auto_ICON.png" alt="Theme Icon" class="dropdown-icon" id="currentThemeIcon">
-                 </button>
-             <div class="dropdown-content">
-                 <button class="dropdown-item" data-theme-val="light">
-                    <img src="Photo/sun_ICON.png" alt="Light"> Light
-                 </button>
-                 <button class="dropdown-item" data-theme-val="dark">
-                     <img src="Photo/moon_ICON.png" alt="Dark"> Dark
-                 </button>
-                 <button class="dropdown-item" data-theme-val="auto">
-                    <img src="Photo/auto_ICON.png" alt="Auto"> Auto (Time)
-               </button>
-             </div>
-        </div>
+            <div class="header-actions">
+                <div class="custom-dropdown" id="themeDropdown">
+                    <button class="dropdown-btn" id="themeDropdownBtn" title="Select Theme">
+                        <img src="Photo/auto_ICON.png" alt="Theme Icon" class="dropdown-icon" id="currentThemeIcon">
+                    </button>
+                    <div class="dropdown-content">
+                        <button class="dropdown-item" data-theme-val="light">
+                            <img src="Photo/sun_ICON.png" alt="Light"> Light
+                        </button>
+                        <button class="dropdown-item" data-theme-val="dark">
+                            <img src="Photo/moon_ICON.png" alt="Dark"> Dark
+                        </button>
+                        <button class="dropdown-item" data-theme-val="auto">
+                            <img src="Photo/auto_ICON.png" alt="Auto"> Auto (Time)
+                        </button>
+                    </div>
+                </div>
 
-                <!-- قائمة اختيار اللغة -->
                 <div class="custom-dropdown" id="langDropdown">
                     <button class="dropdown-btn" id="langDropdownBtn" title="Select Language">
                         🌐 <span id="currentLangLabel">EN</span>
@@ -61,7 +60,7 @@
     <section class="hero">
         <h1 data-i18n="hero_title">Wall of Memories</h1>
         <p data-i18n="hero_desc">
-           This page documents the memories of the eighth batch of the Amala educational program, where you can take a look at the students' ambitions and write motivational messages to inspire them in their upcoming journey.
+            This page documents the memories of the eighth batch of the Amala educational program, where you can take a look at the students' ambitions and write motivational messages to inspire them in their upcoming journey.
         </p>
         <a href="gallery.html" class="cta-btn" data-i18n="hero_cta">Browse the gallery and write your message</a>
     </section>
@@ -70,13 +69,13 @@
         <h2 class="section-title" data-i18n="memories_title">Our memories</h2>
         <div class="group-memories">
             <div class="memory-card">
-                <img src="Photo/WhatsApp Image 2026-07-08 at 7.10.31 PM.jpeg" alt="Our journey together in Amala">
+                <img src="Photo/WhatsApp Image 2026-07-08 at 7.10.31 PM.jpeg" alt="Our journey together in Amala" loading="lazy">
                 <div class="card-body">
                     <p><strong data-i18n="memory_1">"Our journey together in Amala"</strong></p>
                 </div>
             </div>
             <div class="memory-card">
-                <img src="Photo/WhatsApp Image 2026-07-08 at 6.37.58 PM (1).jpeg" alt="Group photo">
+                <img src="Photo/WhatsApp Image 2026-07-08 at 6.37.58 PM (1).jpeg" alt="Group photo" loading="lazy">
                 <div class="card-body">
                     <p><strong data-i18n="memory_2">"Group photo"</strong></p>
                 </div>
@@ -87,13 +86,13 @@
             <h2 class="section-title" data-i18n="teachers_title">Our teachers</h2>
             <div class="teachers-grid">
                 <div class="teacher-card">
-                    <img src="Photo/WhatsApp Image 2026-07-08 at 6.37.58 PM.jpeg" alt="Abdel-Hamid Adam">
+                    <img src="Photo/WhatsApp Image 2026-07-08 at 6.37.58 PM.jpeg" alt="Abdel-Hamid Adam" loading="lazy">
                     <h3>Abdel-Hamid Adam</h3>
                     <blockquote class="quote" data-i18n="quote_common">"Thank you all"</blockquote>
                 </div>
 
                 <div class="teacher-card">
-                    <img src="Photo/WhatsApp Image 2026-07-08 at 6.37.59 PM.jpeg" alt="Waqar Khattab">
+                    <img src="Photo/WhatsApp Image 2026-07-08 at 6.37.59 PM.jpeg" alt="Waqar Khattab" loading="lazy">
                     <h3>Waqar Khattab</h3>
                     <blockquote class="quote" data-i18n="quote_common">"Thank you all"</blockquote>
                 </div>
@@ -105,23 +104,21 @@
         <p data-i18n="footer_text">© 2026 All rights reserved for Amala Educational Program - this page was coded by <b>Wisam Appsas</b></p>
     </footer>
 
-    <!-- ربط ملف التفاعل والتحكم الرئيسي -->
-    <script src="main_control.js"></script>
-    <script src="app.js"></script>
+    <script src="main_control.js" defer></script>
+    <script src="app.js" defer></script>
 
-    <!-- Firebase SDK Setup -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-analytics.js";
 
         const firebaseConfig = {
-          apiKey: "AIzaSyDKRm4m5PzW7ctlm4oGR70JP2Bq3UAinG*",
-          authDomain: "wall-of-memories-6ebe5.firebaseapp.com",
-          projectId: "wall-of-memories-6ebe5",
-          storageBucket: "wall-of-memories-6ebe5.firebasestorage.app",
-          messagingSenderId: "815152503979",
-          appId: "1:815152503979:web:557da206072dd061edebee",
-          measurementId: "G-482RV8EB7W"
+            apiKey: "REPLACE_WITH_YOUR_FULL_VALID_API_KEY",
+            authDomain: "wall-of-memories-6ebe5.firebaseapp.com",
+            projectId: "wall-of-memories-6ebe5",
+            storageBucket: "wall-of-memories-6ebe5.firebasestorage.app",
+            messagingSenderId: "815152503979",
+            appId: "1:815152503979:web:557da206072dd061edebee",
+            measurementId: "G-482RV8EB7W"
         };
 
         const app = initializeApp(firebaseConfig);

@@ -3,30 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="معرض الطلاب - Amala GSD">
     <title>معرض الطلاب - Amala GSD</title>
-    
-    <!-- External Google Fonts -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- CSS External Files -->
+
     <link rel="stylesheet" href="main_style.css">
     <link rel="stylesheet" href="gallery_style.css">
 
-    <!-- Supabase Library & Config -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="config.js" defer></script>
 </head>
 <body>
 
-   <header>
+    <header>
         <div class="header-container">
             <div class="logo">
                 <img src="Photo/light_mood_ICON.png" alt="AMALA GSD Light Logo" class="logo-light">
                 <img src="Photo/night_mode_ICON.png" alt="AMALA GSD Dark Logo" class="logo-dark">
             </div>
-            
+
             <nav>
                 <a href="main.html" data-i18n="nav_main">الرئيسية</a>
                 <a href="gallery.html" class="active" data-i18n="nav_gallery">المعرض</a>
@@ -34,7 +32,6 @@
             </nav>
 
             <div class="header-actions">
-                <!-- قائمة اختيار الثيم -->
                 <div class="custom-dropdown" id="themeDropdown">
                     <button class="dropdown-btn" id="themeDropdownBtn" type="button" title="Select Theme">
                         <img src="Photo/auto_ICON.png" alt="Theme Icon" class="dropdown-icon" id="currentThemeIcon">
@@ -52,7 +49,6 @@
                     </div>
                 </div>
 
-                <!-- قائمة اختيار اللغة -->
                 <div class="custom-dropdown" id="langDropdown">
                     <button class="dropdown-btn" id="langDropdownBtn" type="button" title="Select Language">
                         🌐 <span id="currentLangLabel">AR</span>
@@ -66,60 +62,54 @@
         </div>
     </header>
 
-   <!-- Main Content -->
-   <main class="gallery-container">
+    <main class="gallery-container">
         <section class="gallery-hero">
             <h1 data-i18n="gallery_title">معرض الطلاب والذكريات</h1>
             <p data-i18n="gallery_desc">استكشف البروفايلات والصور واللحظات الجميلة التي شاركها طلاب الدفعة.</p>
 
-            <!-- Search Bar -->
             <div class="search-container">
+                <label for="searchInput" class="visually-hidden">بحث عن طالب</label>
                 <input type="text" id="searchInput" class="custom-input" data-i18n="search_placeholder" placeholder="🔍 ابحث عن طالب بالاسم أو النبذة التعريفية...">
             </div>
         </section>
 
-        <!-- Gallery Grid -->
         <div class="gallery-grid" id="galleryGrid">
             <p class="loading-status">جاري تحميل بروفايلات المعرض...</p>
         </div>
-   </main>
-<!-- النافذة العائمة للبروفايل (Profile Modal) -->
-   <div class="modal-overlay" id="profileModal">
-        <button class="modal-close-outside" id="modalCloseBtn" type="button">&times;</button>
-        
+    </main>
+
+    <div class="modal-overlay" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="modalName">
+        <button class="modal-close-outside" id="modalCloseBtn" type="button" aria-label="إغلاق">&times;</button>
+
         <div class="modal-card">
             <div class="modal-header-bg">
-                <img id="modalAvatar" src="" alt="Profile Avatar" class="modal-avatar">
+                <img id="modalAvatar" src="" alt="صورة الطالب الشخصية" class="modal-avatar">
             </div>
-            
+
             <div class="modal-body">
                 <h2 id="modalName" class="modal-user-name">اسم الطالب</h2>
                 <p id="modalBio" class="modal-user-bio">النبذة التعريفية...</p>
 
-                <!-- قسم معرض الصور المصغر -->
                 <div class="modal-section" id="modalGallerySection">
                     <h3>🖼️ معرض الصور</h3>
                     <div class="modal-gallery-grid" id="modalGalleryGrid"></div>
                 </div>
 
-                <!-- قسم الفيديو -->
                 <div class="modal-section" id="modalVideoSection" style="display: none;">
                     <h3>🎬 فيديو التعريف</h3>
                     <div class="video-container" id="modalVideoContainer"></div>
                 </div>
 
-                <!-- قسم التفاعلات (الإيموجي) -->
                 <div class="modal-section reactions-section">
                     <h3>✨ التفاعلات</h3>
-                    <div class="reactions-bar">
-                        <button class="reaction-btn" type="button" data-reaction-type="like" onclick="addReaction('like')">❤️ <span id="count-like">0</span></button>
-                        <button class="reaction-btn" type="button" data-reaction-type="laugh" onclick="addReaction('laugh')">😆 <span id="count-laugh">0</span></button>
-                        <button class="reaction-btn" type="button" data-reaction-type="sad" onclick="addReaction('sad')">😢 <span id="count-sad">0</span></button>
-                        <button class="reaction-btn" type="button" data-reaction-type="smile" onclick="addReaction('smile')">😊 <span id="count-smile">0</span></button>
+                    <div class="reactions-bar" id="reactionsBar">
+                        <button class="reaction-btn" type="button" data-reaction-type="like">❤️ <span id="count-like">0</span></button>
+                        <button class="reaction-btn" type="button" data-reaction-type="laugh">😆 <span id="count-laugh">0</span></button>
+                        <button class="reaction-btn" type="button" data-reaction-type="sad">😢 <span id="count-sad">0</span></button>
+                        <button class="reaction-btn" type="button" data-reaction-type="smile">😊 <span id="count-smile">0</span></button>
                     </div>
                 </div>
 
-                <!-- قسم التعليقات -->
                 <div class="modal-section comments-section">
                     <h3>💬 التعليقات</h3>
                     <div class="comments-list" id="commentsList">
@@ -127,16 +117,20 @@
                     </div>
 
                     <form id="commentForm" class="comment-form">
+                        <label for="commentAuthor" class="visually-hidden">اسمك</label>
                         <input type="text" id="commentAuthor" placeholder="اسمك..." required class="comment-input author-input">
+
+                        <label for="commentText" class="visually-hidden">تعليقك</label>
                         <input type="text" id="commentText" placeholder="اكتب تعليقك هنا..." required class="comment-input text-input">
+
                         <button type="submit" class="btn-send-comment">إرسال</button>
                     </form>
                 </div>
             </div>
         </div>
-   </div>
-    <!-- External Controls & App JS -->
-    <script src="main_control.js"></script>
-    <script src="gallery_control.js"></script>
+    </div>
+
+    <script src="main_control.js" defer></script>
+    <script src="gallery_control.js" defer></script>
 </body>
 </html>
