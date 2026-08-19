@@ -1,89 +1,237 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" id="htmlRoot">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول / إنشاء بروفايل - بوابة الطلاب</title>
-    <!-- خط Tajawal لتوافقه مع ثيم موقعك -->
+    <title>إنشاء حساب - بوابة الطلاب</title>
+
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+
     <link rel="stylesheet" href="log_in_style.css">
-    <!-- مكتبة Supabase -->
+
+
+    <!-- Leaflet (map picker) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
+
+
+    <!-- Cloudflare Turnstile -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 
-    <div class="form-card">
-        <!-- شريط التقدم -->
-        <div class="progress-container">
-            <div class="progress-bar" id="progressBar"></div>
+
+    <!-- top bar -->
+    <div class="top-bar">
+        <a href="main.html" class="top-logo">Amala GSD</a>
+        <div class="top-actions">
+            <div id="authHeaderSlot"></div> 
+            
+            <div class="custom-dropdown" id="themeDropdown">
+                <button class="dropdown-btn" id="themeDropdownBtn" title="Select Theme">
+                    <span id="currentThemeIcon">🌓</span>
+                </button>
+                <div class="dropdown-content">
+                    <button class="dropdown-item" data-theme-val="light">☀️ فاتح</button>
+                    <button class="dropdown-item" data-theme-val="dark">🌙 داكن</button>
+                    <button class="dropdown-item" data-theme-val="auto">🌓 تلقائي</button>
+                </div>
+            </div>
+            <div class="custom-dropdown" id="langDropdown">
+                <button class="dropdown-btn" id="langDropdownBtn" title="Select Language">
+                    🌐 <span id="currentLangLabel">AR</span>
+                </button>
+                <div class="dropdown-content">
+                    <button class="dropdown-item" data-lang-val="en">English</button>
+                    <button class="dropdown-item" data-lang-val="ar">العربية</button>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <header class="form-header">
-            <h2>إنشاء البروفايل الشخصي</h2>
-            <p>أكمل الخطوات التالية للانضمام إلى معرض الطلاب</p>
-        </header>
 
-        <form id="signupForm">
-            <!-- الخطوة 1: المعلومات الشخصية -->
-            <div class="form-step active-step" id="step-1">
-                <h3>الخطوة 1 من 3: البيانات الأساسية</h3>
-                
+    <div class="page-wrap">
+        <!-- LIVE PREVIEW PANEL -->
+        <aside class="preview-panel" id="previewPanel">
+            <p class="preview-label">معاينة حية</p>
+            <div class="preview-card" id="previewCard">
+                <div class="preview-banner" id="previewBanner"></div>
+                <div class="preview-avatar-wrap">
+                    <img id="previewAvatar" class="preview-avatar" src="Photo/placeholder_avatar.png" alt="">
+                    <div class="preview-disc" id="previewDisc">
+                        <button type="button" class="disc-play-btn" id="discPlayBtn" hidden aria-label="play preview">▶</button>
+                    </div>
+                </div>
+                <audio id="previewAudioEl" preload="none"></audio>
+                <h4 id="previewName">اسمك هنا</h4>
+                <span class="preview-role" id="previewRole">الدور</span>
+                <p class="preview-bio" id="previewBio"></p>
+                <p class="preview-song" id="previewSong"></p>
+            </div>
+        </aside>
+
+
+        <div class="form-card">
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+
+            <header class="form-header">
+                <h2>إنشاء البروفايل الشخصي</h2>
+                <p>أكمل الخطوات التالية للانضمام إلى معرض الطلاب</p>
+                <p class="draft-note" id="draftNote" hidden>تم استرجاع مسودة محفوظة من زيارة سابقة ✓</p>
+            </header>
+
+
+            <!-- STEP 0: AUTH -->
+            <div class="form-step active-step" id="step-0">
+                <h3>الدخول أو إنشاء حساب</h3>
+                <button type="button" class="btn btn-google" id="googleBtn">
+                    <span>المتابعة عبر Google</span>
+                </button>
+                <div class="divider"><span>أو</span></div>
+                <div class="auth-tabs">
+                    <button type="button" class="auth-tab active" data-tab="signup">حساب جديد</button>
+                    <button type="button" class="auth-tab" data-tab="login">لدي حساب</button>
+                </div>
+                <div class="input-group">
+                    <label for="authEmail">البريد الإلكتروني</label>
+                    <input type="email" id="authEmail" placeholder="you@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label for="authPassword">كلمة المرور</label>
+                    <input type="password" id="authPassword" placeholder="••••••••" minlength="6" required>
+                </div>
+                <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-callback="onTurnstileSuccess" data-theme="auto"></div>
+                <p class="auth-msg" id="authMsg"></p>
+                <div class="btn-group single-btn">
+                    <button type="button" class="btn btn-next" id="authSubmitBtn" disabled>إنشاء الحساب</button>
+                </div>
+            </div>
+
+
+            <div class="form-step" id="step-1">
+                <h3>الخطوة 1: الدور والاسم</h3>
+                <div class="role-selection">
+                    <div class="role-card" data-role="student">طالب</div>
+                    <div class="role-card" data-role="teacher">معلم</div>
+                </div>
                 <div class="input-group">
                     <label for="fullName">الاسم الكامل</label>
-                    <input type="text" id="fullName" placeholder="مثال: أحمد محمد" required>
+                    <input type="text" id="fullName" placeholder="ادخل اسمك الكامل">
                 </div>
-
                 <div class="input-group">
-                    <label for="userBio">نبذة عنك (Bio)</label>
-                    <textarea id="userBio" rows="3" placeholder="اكتب نبذة مختصرة عن تخصصك أو اهتماماتك..."></textarea>
+                    <label for="userBio">نبذة تعريفية</label>
+                    <textarea id="userBio" placeholder="اكتب نبذة قصيرة عنك..."></textarea>
                 </div>
-
-                <div class="btn-group single-btn">
+                <div class="btn-group">
                     <button type="button" class="btn btn-next" onclick="nextStep(1)">التالي &larr;</button>
                 </div>
             </div>
 
-            <!-- الخطوة 2: الصور -->
+
             <div class="form-step" id="step-2">
-                <h3>الخطوة 2 من 3: الصور الشخصية والمعرض</h3>
-
+                <h3>الخطوة 2: الموقع الجغرافي</h3>
                 <div class="input-group">
-                    <label for="avatarFile">صورة البروفايل (الأيقونة)</label>
-                    <input type="file" id="avatarFile" accept="image/*" required>
+                    <label for="cityInput">اسم المدينة</label>
+                    <input type="text" id="cityInput" placeholder="مثال: الرياض، عمان...">
+                    <button type="button" class="btn btn-locate" id="locateBtn">بحث عن المدينة</button>
                 </div>
-
-                <div class="input-group">
-                    <label for="galleryImages">معرض الصور (من 1 إلى 5 صور)</label>
-                    <input type="file" id="galleryImages" accept="image/*" multiple required>
+                <div id="map" class="map-picker"></div>
+                <div class="social-grid">
+                    <div class="input-group">
+                        <label for="linkedinUrl">رابط لينكد إن</label>
+                        <input type="url" id="linkedinUrl" placeholder="https://linkedin.com/in/...">
+                    </div>
+                    <div class="input-group">
+                        <label for="instagramUrl">رابط انستغرام</label>
+                        <input type="url" id="instagramUrl" placeholder="https://instagram.com/...">
+                    </div>
                 </div>
-
                 <div class="btn-group">
                     <button type="button" class="btn btn-prev" onclick="prevStep(2)">&rarr; السابق</button>
                     <button type="button" class="btn btn-next" onclick="nextStep(2)">التالي &larr;</button>
                 </div>
             </div>
 
-            <!-- الخطوة 3: الفيديو والتأكيد -->
-            <div class="form-step" id="step-3">
-                <h3>الخطوة 3 من 3: رابط يوتيوب والتأكيد</h3>
 
+            <div class="form-step" id="step-3">
+                <h3>الخطوة 3: الصورة والبانر والموسيقى</h3>
                 <div class="input-group">
-                    <label for="youtubeUrl">رابط فيديو يوتيوب (اختياري)</label>
-                    <input type="url" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
+                    <label for="avatarFile">صورة البروفايل الشخصية</label>
+                    <input type="file" id="avatarFile" accept="image/*">
                 </div>
+                <div class="banner-options">
+                    <button type="button" class="banner-opt active" data-banner="auto">تلقائي</button>
+                    <button type="button" class="banner-opt" data-banner="gradient">تدرج لوني</button>
+                    <button type="button" class="banner-opt" data-banner="emoji">إيموجي</button>
+                    <button type="button" class="banner-opt" data-banner="image">صورة</button>
+                </div>
+                <input type="file" id="bannerImageFile" accept="image/*" hidden>
+                <input type="text" id="bannerEmojiInput" placeholder="اختر إيموجي" hidden>
+                
+                <div class="input-group">
+                    <label for="songSearch">البحث عن أغنية مفضلة</label>
+                    <input type="text" id="songSearch" placeholder="اكتب اسم الاغنية أو الفنان...">
+                    <div id="songResults" class="song-results"></div>
+                    <div id="songSelected" class="song-selected" hidden></div>
+                </div>
+
 
                 <div class="btn-group">
                     <button type="button" class="btn btn-prev" onclick="prevStep(3)">&rarr; السابق</button>
-                    <button type="submit" class="btn btn-submit" id="submitBtn">حفظ وإنشاء البروفايل</button>
+                    <button type="button" class="btn btn-next" onclick="nextStep(3)">التالي &larr;</button>
                 </div>
             </div>
-        </form>
+
+
+            <form id="signupForm">
+                <div class="form-step" id="step-4">
+                    <h3>الخطوة 4: معرض الصور والفيديو</h3>
+                    
+                    <div class="input-group">
+                        <label for="galleryImages">صور الذكريات (من 1 إلى 5 صور)</label>
+                        <input type="file" id="galleryImages" accept="image/*" multiple>
+                    </div>
+
+
+                    <div class="input-group">
+                        <label>نوع الفيديو</label>
+                        <div class="video-type-tabs">
+                            <button type="button" class="video-tab active" data-vtype="youtube">YouTube</button>
+                            <button type="button" class="video-tab" data-vtype="drive">Google Drive</button>
+                        </div>
+                        <input type="url" id="youtubeUrl" placeholder="https://youtube.com/watch?v=...">
+                        <input type="url" id="driveUrl" placeholder="https://drive.google.com/file/d/..." hidden>
+                    </div>
+
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-prev" onclick="prevStep(4)">&rarr; السابق</button>
+                        <button type="submit" class="btn btn-submit" id="submitBtn">حفظ وإنشاء البروفايل</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 
+
+    <script src="log_in_control.js"></script>
+    <script src="auth.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
+
+
+
+

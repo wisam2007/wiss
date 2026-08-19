@@ -1,13 +1,71 @@
+/* ==========================================
+   1. تنسيقات تسجيل الدخول والمستخدم
+   ========================================== */
+.user-profile-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.nav-user-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+
+.btn-logout, .btn-login {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+
+.btn-logout {
+    background-color: transparent;
+    border: 1px solid #ef4444;
+    color: #ef4444;
+}
+
+
+.btn-logout:hover {
+    background-color: #ef4444;
+    color: #ffffff;
+}
+
+
+.btn-login {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border: none;
+}
+
+
+.btn-login:hover {
+    background-color: var(--primary-hover);
+}
+
+
+/* ==========================================
+   2. المعرض وحاوية الصفحة (Gallery Layout)
+   ========================================== */
 .gallery-container {
     max-width: 1200px;
     margin: 40px auto;
     padding: 0 20px;
 }
 
+
 .gallery-hero {
     text-align: center;
     margin-bottom: 35px;
 }
+
 
 .gallery-hero h1 {
     font-size: 2.2rem;
@@ -16,15 +74,19 @@
     color: var(--text-color);
 }
 
+
 .gallery-hero p {
     color: var(--text-muted);
     font-size: 1rem;
 }
 
+
+/* البحث */
 .search-container {
     max-width: 500px;
     margin: 25px auto 0 auto;
 }
+
 
 .custom-input {
     width: 100%;
@@ -39,17 +101,21 @@
     transition: all 0.3s ease;
 }
 
+
 .custom-input:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15);
 }
 
+
+/* شبكة المعرض وبطاقاته */
 .gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
     gap: 25px;
     margin-top: 30px;
 }
+
 
 .loading-status, .no-results {
     grid-column: 1 / -1;
@@ -58,6 +124,7 @@
     color: var(--text-muted);
     font-size: 1.1rem;
 }
+
 
 .gallery-card {
     background-color: var(--card-bg);
@@ -71,15 +138,18 @@
     flex-direction: column;
 }
 
+
 [data-theme="dark"] .gallery-card {
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
+
 
 .gallery-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 12px 25px rgba(0,0,0,0.12);
     border-color: var(--primary-color);
 }
+
 
 .card-media {
     position: relative;
@@ -89,6 +159,7 @@
     overflow: hidden;
 }
 
+
 .card-media img {
     width: 100%;
     height: 100%;
@@ -96,9 +167,11 @@
     transition: transform 0.4s ease;
 }
 
+
 .gallery-card:hover .card-media img {
     transform: scale(1.06);
 }
+
 
 .media-badges {
     position: absolute;
@@ -107,6 +180,7 @@
     display: flex;
     gap: 6px;
 }
+
 
 .card-badge {
     font-size: 0.75rem;
@@ -118,9 +192,11 @@
     font-weight: 600;
 }
 
+
 .card-badge.video-badge {
     background-color: rgba(220, 38, 38, 0.85);
 }
+
 
 .card-content {
     padding: 18px;
@@ -130,11 +206,13 @@
     flex-grow: 1;
 }
 
+
 .card-user-header {
     display: flex;
     align-items: center;
     gap: 12px;
 }
+
 
 .user-avatar-mini {
     width: 42px;
@@ -145,12 +223,14 @@
     flex-shrink: 0;
 }
 
+
 .user-name {
     font-size: 1.1rem;
     font-weight: 700;
     color: var(--text-color);
     margin: 0;
 }
+
 
 .user-bio {
     font-size: 0.88rem;
@@ -163,6 +243,10 @@
     overflow: hidden;
 }
 
+
+/* ==========================================
+   3. النافذة المنبثقة (Modal)
+   ========================================== */
 .modal-overlay {
     display: none;
     position: fixed;
@@ -177,9 +261,11 @@
     overflow-y: auto;
 }
 
+
 .modal-overlay.active {
     display: flex;
 }
+
 
 .modal-close-outside {
     position: fixed;
@@ -200,9 +286,11 @@
     justify-content: center;
 }
 
+
 .modal-close-outside:hover {
     background-color: #ffffff;
 }
+
 
 .modal-card {
     background-color: var(--card-bg);
@@ -214,10 +302,12 @@
     animation: modal-pop 0.25s ease;
 }
 
+
 @keyframes modal-pop {
     from { opacity: 0; transform: translateY(20px) scale(0.98); }
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
 
 .modal-header-bg {
     height: 140px;
@@ -227,6 +317,7 @@
     align-items: flex-end;
     justify-content: center;
 }
+
 
 .modal-avatar {
     width: 110px;
@@ -239,10 +330,12 @@
     background-color: var(--card-bg);
 }
 
+
 .modal-body {
     padding: 70px 30px 30px 30px;
     text-align: center;
 }
+
 
 .modal-user-name {
     font-size: 1.4rem;
@@ -251,12 +344,14 @@
     color: var(--text-color);
 }
 
+
 .modal-user-bio {
     color: var(--text-muted);
     font-size: 0.95rem;
     margin-bottom: 20px;
     line-height: 1.6;
 }
+
 
 .modal-section {
     text-align: start;
@@ -265,6 +360,7 @@
     border-top: 1px solid var(--border-color);
 }
 
+
 .modal-section h3 {
     font-size: 1rem;
     font-weight: 700;
@@ -272,11 +368,13 @@
     color: var(--text-color);
 }
 
+
 .modal-gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
     gap: 8px;
 }
+
 
 .modal-gallery-grid img {
     width: 100%;
@@ -287,10 +385,13 @@
     transition: opacity 0.2s ease;
 }
 
+
 .modal-gallery-grid img:hover {
     opacity: 0.85;
 }
 
+
+/* التشغيل والتفاعلات inside Modal */
 .video-container {
     position: relative;
     width: 100%;
@@ -300,6 +401,7 @@
     background-color: #000;
 }
 
+
 .video-container iframe {
     position: absolute;
     inset: 0;
@@ -308,11 +410,13 @@
     border: none;
 }
 
+
 .reactions-bar {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
 }
+
 
 .reaction-btn {
     display: flex;
@@ -328,10 +432,12 @@
     transition: transform 0.15s ease, border-color 0.2s ease;
 }
 
+
 .reaction-btn:hover {
     border-color: var(--primary-color);
     transform: translateY(-2px);
 }
+
 
 .reaction-btn:disabled {
     opacity: 0.6;
@@ -339,16 +445,22 @@
     transform: none;
 }
 
+
 .reaction-btn.active {
     background-color: rgba(2, 132, 199, 0.12);
     border-color: var(--primary-color);
     font-weight: 700;
 }
 
+
 [data-theme="dark"] .reaction-btn.active {
     background-color: rgba(56, 189, 248, 0.18);
 }
 
+
+/* ==========================================
+   4. التعليقات ونماذج الإدخال
+   ========================================== */
 .comments-section .comments-list {
     max-height: 220px;
     overflow-y: auto;
@@ -358,6 +470,7 @@
     margin-bottom: 14px;
 }
 
+
 .comment-item {
     background-color: var(--bg-color);
     border: 1px solid var(--border-color);
@@ -366,6 +479,7 @@
     font-size: 0.9rem;
 }
 
+
 .comment-item strong {
     display: block;
     font-size: 0.85rem;
@@ -373,11 +487,13 @@
     margin-bottom: 3px;
 }
 
+
 .comment-item p {
     margin: 0;
     color: var(--text-color);
     line-height: 1.5;
 }
+
 
 .no-comments {
     text-align: center;
@@ -386,11 +502,25 @@
     padding: 10px 0;
 }
 
+
 .comment-form {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
+
+
+.comment-input-wrapper {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+
+.comment-input-wrapper .text-input {
+    flex-grow: 1;
+}
+
 
 .comment-input {
     padding: 10px 14px;
@@ -402,9 +532,11 @@
     outline: none;
 }
 
+
 .comment-input:focus {
     border-color: var(--primary-color);
 }
+
 
 .btn-send-comment {
     align-self: flex-end;
@@ -418,17 +550,27 @@
     transition: background-color 0.2s ease;
 }
 
+
 .btn-send-comment:hover {
     background-color: var(--primary-hover);
 }
+
 
 .btn-send-comment:disabled {
     opacity: 0.7;
     cursor: not-allowed;
 }
 
+
+/* ==========================================
+   5. الاستجابة للشاشات الصغيرة (Media Queries)
+   ========================================== */
 @media (max-width: 480px) {
     .modal-body {
         padding: 65px 18px 20px 18px;
     }
 }
+
+
+
+

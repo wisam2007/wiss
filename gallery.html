@@ -13,7 +13,11 @@
     <link rel="stylesheet" href="main_style.css">
     <link rel="stylesheet" href="gallery_style.css">
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <!-- Supabase — نفس أسلوب صفحة تسجيل الدخول بالضبط: مكتبة UMD واحدة، ثم
+         config.js التي تنشئ window.CONFIG_APP و window.supabaseClient.
+         (تمت إزالة استيراد ESM المكرر والـ CONFIG المكرر لتفادي وجود عميلَي
+         Supabase منفصلين على نفس الصفحة). -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="config.js" defer></script>
 </head>
 <body>
@@ -32,6 +36,13 @@
             </nav>
 
             <div class="header-actions">
+                <!-- قسم المستخدم المسجل -->
+                <div class="user-profile-nav" id="userProfileNav" style="display: none;">
+                    <span id="navUserName" class="nav-user-name"></span>
+                    <button id="logoutBtn" class="btn-logout" type="button">تسجيل الخروج</button>
+                </div>
+                <a href="log_in.html" id="loginLink" class="btn-login" style="display: none;">تسجيل الدخول</a>
+
                 <div class="custom-dropdown" id="themeDropdown">
                     <button class="dropdown-btn" id="themeDropdownBtn" type="button" title="Select Theme">
                         <img src="Photo/auto_ICON.png" alt="Theme Icon" class="dropdown-icon" id="currentThemeIcon">
@@ -117,20 +128,18 @@
                     </div>
 
                     <form id="commentForm" class="comment-form">
-                        <label for="commentAuthor" class="visually-hidden">اسمك</label>
-                        <input type="text" id="commentAuthor" placeholder="اسمك..." required class="comment-input author-input">
-
-                        <label for="commentText" class="visually-hidden">تعليقك</label>
-                        <input type="text" id="commentText" placeholder="اكتب تعليقك هنا..." required class="comment-input text-input">
-
-                        <button type="submit" class="btn-send-comment">إرسال</button>
+                        <div class="comment-input-wrapper">
+                            <input type="text" id="commentText" placeholder="اكتب تعليقك هنا..." required class="comment-input text-input">
+                            <button type="submit" class="btn-send-comment">إرسال</button>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="main_control.js" defer></script>
+    <script src="gallery_style.css" defer></script>
+    <script src="main_style.css" defer></script>
     <script src="gallery_control.js" defer></script>
 </body>
 </html>

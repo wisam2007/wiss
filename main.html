@@ -22,6 +22,7 @@
 
             <nav>
                 <a href="main.html" class="active" data-i18n="nav_main">Main</a>
+                <a href="#location" data-i18n="nav_sitemap">Site Map</a>
                 <a href="gallery.html" data-i18n="nav_gallery">Gallery</a>
                 <a href="alumni.html" data-i18n="nav_about">About Us</a>
             </nav>
@@ -53,59 +54,153 @@
                         <button class="dropdown-item" data-lang-val="ar">العربية</button>
                     </div>
                 </div>
+
+                <!-- shows "Sign in" for guests, or the user's avatar + menu once logged in -->
+                <div id="authHeaderSlot"></div>
             </div>
         </div>
     </header>
 
+    <!-- HERO + KEY DETAILS -->
     <section class="hero">
-        <h1 data-i18n="hero_title">Wall of Memories</h1>
+        <h1 data-i18n="hero_title">Cohort 8 — Grade 2: The Learning Journey</h1>
         <p data-i18n="hero_desc">
-            This page documents the memories of the eighth batch of the Amala educational program, where you can take a look at the students' ambitions and write motivational messages to inspire them in their upcoming journey.
+            A documentation platform dedicated to showcasing the experiences of Cohort 8, Grade 2 students in the
+            Amala educational program. Here we gather the leading hands-on initiatives, field photos, and inspiring
+            moments that shaped our learning path and strengthened our community impact.
         </p>
+
+        <div class="key-details">
+            <div class="detail-chip">
+                <span class="detail-icon" aria-hidden="true">🎓</span>
+                <span data-i18n="detail_1">Cohort &amp; Grade: Cohort 8 | Grade 2</span>
+            </div>
+            <div class="detail-chip">
+                <span class="detail-icon" aria-hidden="true">🖼️</span>
+                <span data-i18n="detail_2">Platform: An interactive digital documentation gallery</span>
+            </div>
+            <div class="detail-chip">
+                <span class="detail-icon" aria-hidden="true">🏫</span>
+                <span data-i18n="detail_3">Program: Amala Educational Program (Amala GSD)</span>
+            </div>
+            <div class="detail-chip">
+                <span class="detail-icon" aria-hidden="true">✨</span>
+                <span data-i18n="detail_4">Highlights: Graduation projects, cohort photos &amp; memories</span>
+            </div>
+        </div>
+
         <a href="gallery.html" class="cta-btn" data-i18n="hero_cta">Browse the gallery and write your message</a>
     </section>
 
+    <!-- STUDY LOCATION MAP -->
+    <section class="location-section" id="location">
+        <h2 class="section-title" data-i18n="location_title">Where do we learn?</h2>
+        <p class="section-desc" data-i18n="location_desc">
+            A map showing the center and the rooms where we held cohort sessions and hands-on workshops.
+        </p>
+
+        <div class="location-content">
+            <div class="location-map">
+                <img src="Photo/study_location_map.jpg" alt="Amala study location map" loading="lazy">
+            </div>
+            <div class="location-card">
+                <div class="location-row">
+                    <span class="location-icon" aria-hidden="true">📍</span>
+                    <div>
+                        <h4 data-i18n="location_label_1">Location</h4>
+                        <p data-i18n="location_value_1">Amala Center / Jabal Al-Weibdeh</p>
+                    </div>
+                </div>
+                <div class="location-row">
+                    <span class="location-icon" aria-hidden="true">🧑‍🤝‍🧑</span>
+                    <div>
+                        <h4 data-i18n="location_label_2">Learning environment</h4>
+                        <p data-i18n="location_value_2">Group and individual field activities</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GALLERY SHOWCASE -->
     <main class="gallery-section" id="gallery">
         <h2 class="section-title" data-i18n="memories_title">Our memories</h2>
         <div class="group-memories">
             <div class="memory-card">
-                <img src="Photo/WhatsApp Image 2026-07-08 at 7.10.31 PM.jpeg" alt="Our journey together in Amala" loading="lazy">
+                <img src="Photo/WhatsApp Image 2026-07-08 at 7.10.31 PM.jpeg" alt="Opening session of the cohort" loading="lazy">
                 <div class="card-body">
-                    <p><strong data-i18n="memory_1">"Our journey together in Amala"</strong></p>
+                    <p class="memory-name" data-i18n="memory_1_title">Cohort opening session</p>
+                    <p data-i18n="memory_1_desc">The launch of the field work program and building a shared vision among the students.</p>
                 </div>
             </div>
             <div class="memory-card">
-                <img src="Photo/WhatsApp Image 2026-07-08 at 6.37.58 PM (1).jpeg" alt="Group photo" loading="lazy">
+                <img src="Photo/WhatsApp Image 2026-07-08 at 6.37.58 PM (1).jpeg" alt="Various projects" loading="lazy">
                 <div class="card-body">
-                    <p><strong data-i18n="memory_2">"Group photo"</strong></p>
+                    <p class="memory-name" data-i18n="memory_2_title">A variety of projects</p>
+                    <p data-i18n="memory_2_desc">Showcasing innovative ideas and solutions aimed at developing the local community.</p>
+                </div>
+            </div>
+            <div class="memory-card">
+                <img src="Photo/WhatsApp Image 2026-07-08 at 6.37.58 PM.jpeg" alt="Group photo" loading="lazy">
+                <div class="card-body">
+                    <p class="memory-name" data-i18n="memory_3_title">Group photo</p>
+                    <p data-i18n="memory_3_desc">The cohort's very first group photo.</p>
                 </div>
             </div>
         </div>
 
+        <!-- TEACHERS & MENTORS -->
         <div class="teachers-section">
             <h2 class="section-title" data-i18n="teachers_title">Our teachers</h2>
             <div class="teachers-grid">
                 <div class="teacher-card">
+                    <img src="Photo/WhatsApp Image 2026-07-08 at 6.37.59 PM.jpeg" alt="Waqar Khattab" loading="lazy">
+                    <h3>Waqar Khattab</h3>
+                    <blockquote class="quote" data-i18n="quote_waqar">"Persisting in learning and leadership is the first step toward real change."</blockquote>
+                </div>
+
+                <div class="teacher-card">
                     <img src="Photo/WhatsApp Image 2026-07-08 at 6.37.58 PM.jpeg" alt="Abdel-Hamid Adam" loading="lazy">
                     <h3>Abdel-Hamid Adam</h3>
+                    <blockquote class="quote" data-i18n="quote_abdelhamid">"Thank you all — we're proud of what you achieved on this learning journey."</blockquote>
+                </div>
+
+                <div class="teacher-card">
+                    <img src="Photo/placeholder_avatar.png" alt="Rahaf" loading="lazy">
+                    <h3>Rahaf</h3>
                     <blockquote class="quote" data-i18n="quote_common">"Thank you all"</blockquote>
                 </div>
 
                 <div class="teacher-card">
-                    <img src="Photo/WhatsApp Image 2026-07-08 at 6.37.59 PM.jpeg" alt="Waqar Khattab" loading="lazy">
-                    <h3>Waqar Khattab</h3>
+                    <img src="Photo/placeholder_avatar.png" alt="Sarah" loading="lazy">
+                    <h3>Sarah</h3>
                     <blockquote class="quote" data-i18n="quote_common">"Thank you all"</blockquote>
                 </div>
+            </div>
+
+            <div class="teachers-cta">
+                <a href="gallery.html" class="cta-btn" data-i18n="hero_cta">Browse the gallery and write your message</a>
             </div>
         </div>
     </main>
 
     <footer>
+        <div class="footer-links">
+            <a href="https://amala.org" target="_blank" rel="noopener" data-i18n="footer_link_1">Amala's Official Page</a>
+            <a href="gallery.html" data-i18n="footer_link_2">Portfolio Gallery</a>
+            <a href="#" data-i18n="footer_link_3">Terms &amp; Privacy</a>
+            <a href="#" data-i18n="footer_link_4">Social Media</a>
+        </div>
         <p data-i18n="footer_text">© 2026 All rights reserved for Amala Educational Program - this page was coded by <b>Wisam Appsas</b></p>
     </footer>
 
     <script src="main_control.js" defer></script>
     <script src="app.js" defer></script>
+
+    <!-- Supabase auth state -> header avatar / sign-in link -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="auth_header.js" defer></script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";

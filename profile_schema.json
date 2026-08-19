@@ -1,0 +1,64 @@
+{
+  "table": "profiles",
+  "description": "Shape of one row in Supabase's public.profiles table, matching schema.sql and the payload built by signup_app.js / edit_profile_app.js.",
+  "fields": {
+    "id": { "type": "uuid", "source": "auth.users.id", "required": true },
+    "full_name": { "type": "text", "required": true },
+    "role": { "type": "text", "enum": ["student", "teacher"], "required": true },
+    "bio": { "type": "text", "required": false },
+    "city": { "type": "text", "required": false },
+    "lat": { "type": "double precision", "required": false },
+    "lng": { "type": "double precision", "required": false },
+    "social_links": {
+      "type": "jsonb",
+      "shape": { "linkedin": "text (url)", "instagram": "text (url)" }
+    },
+    "avatar_url": { "type": "text", "required": true },
+    "banner": {
+      "type": "jsonb",
+      "shape": {
+        "type": { "enum": ["auto", "gradient", "image", "emoji"] },
+        "value": "hex color | 'animated' | image URL | emoji string, depending on type"
+      }
+    },
+    "song": {
+      "type": "jsonb",
+      "nullable": true,
+      "shape": {
+        "title": "text",
+        "artist": "text",
+        "artwork": "url (iTunes artworkUrl100)",
+        "previewUrl": "url (30s mp3 clip from iTunes Search API)"
+      },
+      "source": "https://itunes.apple.com/search?term=...&media=music"
+    },
+    "gallery": { "type": "text[]", "description": "1 to 5 public storage URLs" },
+    "video_url": { "type": "text", "nullable": true },
+    "video_type": { "type": "text", "enum": ["youtube", "drive"] },
+    "created_at": { "type": "timestamptz", "default": "now()" },
+    "updated_at": { "type": "timestamptz", "default": "now()" }
+  },
+  "example": {
+    "id": "b3f1a2c4-...",
+    "full_name": "أحمد محمد",
+    "role": "student",
+    "bio": "مهتم بالذكاء الاصطناعي وتطوير الويب",
+    "city": "عمّان، الأردن",
+    "lat": 31.9539,
+    "lng": 35.9106,
+    "social_links": { "linkedin": "https://linkedin.com/in/ahmad", "instagram": "https://instagram.com/ahmad" },
+    "avatar_url": "https://xxxx.supabase.co/storage/v1/object/public/media/avatars/....jpg",
+    "banner": { "type": "auto", "value": "#0284c7" },
+    "song": {
+      "title": "Song Name",
+      "artist": "Artist Name",
+      "artwork": "https://is1-ssl.mzstatic.com/.../100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/.../preview.m4a"
+    },
+    "gallery": [
+      "https://xxxx.supabase.co/storage/v1/object/public/media/gallery/....jpg"
+    ],
+    "video_url": "https://www.youtube.com/watch?v=xxxxx",
+    "video_type": "youtube"
+  }
+}

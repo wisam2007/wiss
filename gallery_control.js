@@ -1,7 +1,18 @@
-const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+// gallery_control.js — uses the SAME shared config.js / window.supabaseClient
+// that log_in.html and edit_profile.html use (no separate ESM import, no
+// duplicate CONFIG object) so the session created on the login page is
+// recognized here without creating a second, disconnected Supabase client.
+const CONFIG_APP = window.CONFIG_APP;
+const supabaseClient = window.supabaseClient || window.supabase.createClient(CONFIG_APP.SUPABASE_URL, CONFIG_APP.SUPABASE_ANON_KEY);
+window.supabaseClient = supabaseClient;
 
 let allProfiles = [];
 let activeProfileId = null;
+let currentUser = null;
+let currentProfileData = null;
+
+// رابط صورة افتراضية مستقرة وسريعة (تُستخدم فقط كبديل عند فشل تحميل صورة معينة)
+const FALLBACK_IMAGE = 'https://placehold.co/300x300/e2e8f0/1e293b?text=No+Image';
 
 function escapeHTML(str) {
     const div = document.createElement('div');
@@ -23,6 +34,41 @@ function debounce(fn, delay) {
     };
 }
 
+// 1. التحقق من حالة تسجيل الدخول والربط بالـ Header
+async function checkAuthStatus() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+        // اسم صفحة الدخول الفعلي هو log_in.html (وليس login.html)
+        window.location.href = 'log_in.html';
+        return;
+    }
+
+    currentUser = session.user;
+
+    const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('id', currentUser.id)
+        .single();
+
+    currentProfileData = profile;
+
+    const userProfileNav = document.getElementById('userProfileNav');
+    const navUserName = document.getElementById('navUserName');
+
+    if (userProfileNav && navUserName) {
+        navUserName.textContent = profile?.full_name || currentUser.email;
+        userProfileNav.style.display = 'flex';
+    }
+}
+
+// 2. تسجيل الخروج
+document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
+    window.location.href = 'log_in.html';
+});
+
 async function fetchProfiles() {
     const galleryGrid = document.getElementById('galleryGrid');
     if (!galleryGrid) return;
@@ -43,23 +89,30 @@ async function fetchProfiles() {
 }
 
 function resolveProfileMedia(profile) {
-    let avatarUrl = 'https://via.placeholder.com/150';
+    let avatarUrl = FALLBACK_IMAGE;
     let galleryImages = [];
 
-    if (profile.photo_url && typeof profile.photo_url === 'object') {
-        avatarUrl = profile.photo_url.avatar || avatarUrl;
-        galleryImages = profile.photo_url.gallery || [];
-    } else if (typeof profile.photo_url === 'string' && profile.photo_url.trim() !== '') {
-        try {
-            const parsed = JSON.parse(profile.photo_url);
-            avatarUrl = parsed.avatar || avatarUrl;
-            galleryImages = parsed.gallery || [];
-        } catch (e) {
-            avatarUrl = profile.photo_url;
+    try {
+        if (profile.photo_url) {
+            let mediaData = profile.photo_url;
+
+            if (typeof mediaData === 'string') {
+                try { mediaData = JSON.parse(mediaData); } catch (e) { avatarUrl = mediaData; }
+            }
+
+            if (typeof mediaData === 'object' && mediaData !== null) {
+                avatarUrl = mediaData.avatar || FALLBACK_IMAGE;
+                galleryImages = Array.isArray(mediaData.gallery) ? mediaData.gallery : [];
+            }
         }
+    } catch (err) {
+        console.error('خطأ في معالجة الصور:', err);
     }
 
-    return { avatarUrl, galleryImages };
+    return {
+        avatarUrl: avatarUrl || FALLBACK_IMAGE,
+        galleryImages: galleryImages
+    };
 }
 
 function buildGalleryCard(profile) {
@@ -92,12 +145,14 @@ function buildGalleryCard(profile) {
     coverImg.src = coverImage;
     coverImg.alt = safeName;
     coverImg.loading = 'lazy';
+    coverImg.onerror = function() { this.src = FALLBACK_IMAGE; };
     card.querySelector('.card-media').prepend(coverImg);
 
     const avatarImg = document.createElement('img');
     avatarImg.src = avatarUrl;
     avatarImg.className = 'user-avatar-mini';
     avatarImg.alt = safeName;
+    avatarImg.onerror = function() { this.src = FALLBACK_IMAGE; };
     card.querySelector('.card-user-header').prepend(avatarImg);
 
     return card;
@@ -119,13 +174,17 @@ function renderGalleryCards(profilesList) {
 }
 
 async function openProfileModal(profile, avatarUrl, galleryImages) {
+    if (!profile || !profile.id) return;
     activeProfileId = profile.id;
 
     const modalAvatar = document.getElementById('modalAvatar');
     const modalName = document.getElementById('modalName');
     const modalBio = document.getElementById('modalBio');
 
-    if (modalAvatar) modalAvatar.src = avatarUrl;
+    if (modalAvatar) {
+        modalAvatar.src = avatarUrl;
+        modalAvatar.onerror = function() { this.src = FALLBACK_IMAGE; };
+    }
     if (modalName) modalName.textContent = profile.full_name || 'بدون اسم';
     if (modalBio) modalBio.textContent = profile.bio || 'لا توجد نبذة تعريفية.';
 
@@ -136,6 +195,7 @@ async function openProfileModal(profile, avatarUrl, galleryImages) {
             const img = document.createElement('img');
             img.src = imgUrl;
             img.alt = profile.full_name || 'صورة المعرض';
+            img.onerror = function() { this.src = FALLBACK_IMAGE; };
             img.addEventListener('click', () => window.open(imgUrl, '_blank'));
             galleryGrid.appendChild(img);
         });
@@ -203,13 +263,20 @@ function setReactionCount(type, value) {
 }
 
 async function loadReactions(profileId) {
+    if (!profileId) return;
+
     Object.keys(REACTION_COLUMN_MAP).forEach(type => setReactionCount(type, 0));
 
-    const { data } = await supabaseClient
+    const { data, error } = await supabaseClient
         .from('profile_reactions')
         .select('*')
         .eq('profile_id', profileId)
         .maybeSingle();
+
+    if (error) {
+        console.error('خطأ في تحميل التفاعلات:', error);
+        return;
+    }
 
     if (profileId !== activeProfileId) return;
 
@@ -233,7 +300,7 @@ async function callReactionRPC(fnName, profileId, dbColumn) {
 }
 
 async function addReaction(type) {
-    if (!activeProfileId) return;
+    if (!activeProfileId || !currentUser) return;
 
     const dbColumn = REACTION_COLUMN_MAP[type];
     if (!dbColumn) return;
@@ -282,6 +349,8 @@ function renderCommentItem(container, author, text) {
 }
 
 async function loadComments(profileId) {
+    if (!profileId) return;
+
     const commentsList = document.getElementById('commentsList');
     if (!commentsList) return;
 
@@ -297,7 +366,13 @@ async function loadComments(profileId) {
 
     commentsList.innerHTML = '';
 
-    if (error || !data || data.length === 0) {
+    if (error) {
+        console.error('خطأ في جلب التعليقات:', error);
+        commentsList.innerHTML = '<p class="no-comments">حدث خطأ أثناء تحميل التعليقات.</p>';
+        return;
+    }
+
+    if (!data || data.length === 0) {
         commentsList.innerHTML = '<p class="no-comments">لا توجد تعليقات بعد، كن أول من يعلق!</p>';
         return;
     }
@@ -306,18 +381,18 @@ async function loadComments(profileId) {
     commentsList.scrollTop = commentsList.scrollHeight;
 }
 
+// 3. إرسال التعليق
 document.getElementById('commentForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!activeProfileId) return;
+    if (!activeProfileId || !currentUser) return;
 
-    const authorInput = document.getElementById('commentAuthor');
     const textInput = document.getElementById('commentText');
     const submitBtn = document.querySelector('.btn-send-comment');
 
-    const author = authorInput.value.trim();
     const text = textInput.value.trim();
-    if (!author || !text) return;
+    if (!text) return;
 
+    const authorName = currentProfileData?.full_name || currentUser.email.split('@')[0];
     const profileId = activeProfileId;
     submitBtn.disabled = true;
     submitBtn.textContent = '...';
@@ -325,7 +400,12 @@ document.getElementById('commentForm')?.addEventListener('submit', async (e) => 
     try {
         const { error } = await supabaseClient
             .from('comments')
-            .insert([{ profile_id: profileId, author_name: author, comment_text: text }]);
+            .insert([{
+                profile_id: profileId,
+                user_id: currentUser.id,
+                author_name: authorName,
+                comment_text: text
+            }]);
 
         if (error) throw error;
 
@@ -334,7 +414,7 @@ document.getElementById('commentForm')?.addEventListener('submit', async (e) => 
             if (commentsList.querySelector('.no-comments')) {
                 commentsList.innerHTML = '';
             }
-            renderCommentItem(commentsList, author, text);
+            renderCommentItem(commentsList, authorName, text);
             commentsList.scrollTop = commentsList.scrollHeight;
         }
 
@@ -348,7 +428,8 @@ document.getElementById('commentForm')?.addEventListener('submit', async (e) => 
     }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await checkAuthStatus();
     fetchProfiles();
 
     const handleSearch = debounce((query) => {

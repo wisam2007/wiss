@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعديل البروفايل - بوابة الطلاب</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="log_in_style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="main.html" class="top-logo">Amala GSD</a>
+        <div class="top-actions">
+            <div class="custom-dropdown" id="themeDropdown">
+                <button class="dropdown-btn" id="themeDropdownBtn"><span id="currentThemeIcon">🌓</span></button>
+                <div class="dropdown-content">
+                    <button class="dropdown-item" data-theme-val="light">☀️ فاتح</button>
+                    <button class="dropdown-item" data-theme-val="dark">🌙 داكن</button>
+                    <button class="dropdown-item" data-theme-val="auto">🌓 تلقائي</button>
+                </div>
+            </div>
+            <div class="custom-dropdown" id="langDropdown">
+                <button class="dropdown-btn" id="langDropdownBtn">🌐 <span id="currentLangLabel">AR</span></button>
+                <div class="dropdown-content">
+                    <button class="dropdown-item" data-lang-val="en">English</button>
+                    <button class="dropdown-item" data-lang-val="ar">العربية</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="page-wrap" style="grid-template-columns: 1fr; max-width: 640px;">
+        <div class="form-card">
+            <header class="form-header">
+                <h2>تعديل بياناتي</h2>
+                <p>حدّث معلوماتك، صورتك، البنر، الأغنية، أو الفيديوهات في أي وقت</p>
+            </header>
+
+
+            <p id="loadingMsg" class="field-hint">جاري تحميل بياناتك...</p>
+
+
+            <form id="editForm" hidden>
+                <div class="input-group">
+                    <label>الدور</label>
+                    <div class="role-select">
+                        <button type="button" class="role-card" data-role="student"><span class="role-icon">🎓</span><span>طالب في الكوهورت</span></button>
+                        <button type="button" class="role-card" data-role="teacher"><span class="role-icon">👩‍🏫</span><span>معلم / ميسّر</span></button>
+                    </div>
+                </div>
+
+
+                <div class="input-group">
+                    <label for="fullName">الاسم الكامل</label>
+                    <input type="text" id="fullName" required>
+                </div>
+
+
+                <div class="input-group">
+                    <label for="userBio">نبذة عنك</label>
+                    <textarea id="userBio" rows="3"></textarea>
+                </div>
+
+
+                <div class="input-group">
+                    <label for="cityInput">المدينة والدولة</label>
+                    <input type="text" id="cityInput">
+                    <button type="button" class="btn btn-locate" id="locateBtn">تحديث الدبوس على الخريطة</button>
+                </div>
+                <div id="mapPicker" class="map-picker"></div>
+
+
+                <div class="social-grid">
+                    <div class="input-group"><label for="linkedinUrl">LinkedIn</label><input type="url" id="linkedinUrl"></div>
+                    <div class="input-group"><label for="instagramUrl">Instagram</label><input type="url" id="instagramUrl"></div>
+                </div>
+
+
+                <div class="input-group">
+                    <label for="avatarFile">تغيير صورة البروفايل</label>
+                    <img id="currentAvatar" src="" alt="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;margin-bottom:8px;display:block;">
+                    <input type="file" id="avatarFile" accept="image/*">
+                </div>
+
+
+                <div class="input-group">
+                    <label>تصميم البنر</label>
+                    <div class="banner-options">
+                        <button type="button" class="banner-opt" data-banner="auto">لون تلقائي</button>
+                        <button type="button" class="banner-opt" data-banner="gradient">تدرج متحرك</button>
+                        <button type="button" class="banner-opt" data-banner="image">رفع صورة</button>
+                        <button type="button" class="banner-opt" data-banner="emoji">إيموجي</button>
+                    </div>
+                    <input type="file" id="bannerImageFile" accept="image/*" hidden>
+                    <input type="text" id="bannerEmojiInput" placeholder="🎨" maxlength="4" hidden>
+                </div>
+
+
+                <div class="input-group">
+                    <label for="songSearch">أغنية البروفايل</label>
+                    <input type="text" id="songSearch" placeholder="ابحث عن أغنية أو فنان...">
+                    <div class="song-results" id="songResults"></div>
+                    <div class="song-selected" id="songSelected" hidden></div>
+                    <audio id="previewAudioEl" preload="none"></audio>
+                </div>
+
+
+                <div class="input-group">
+                    <label>إضافة صور جديدة للمعرض (اختياري)</label>
+                    <input type="file" id="galleryImages" accept="image/*" multiple>
+                    <p class="field-hint">اترك هذا الحقل فارغاً إن كنت لا تريد تغيير صور المعرض الحالية</p>
+                </div>
+
+
+                <div class="input-group">
+                    <label>نوع الفيديو</label>
+                    <div class="video-type-tabs">
+                        <button type="button" class="video-tab" data-vtype="youtube">YouTube</button>
+                        <button type="button" class="video-tab" data-vtype="drive">Google Drive</button>
+                    </div>
+                    <input type="url" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
+                    <input type="url" id="driveUrl" placeholder="https://drive.google.com/..." hidden>
+                </div>
+
+
+                <div class="btn-group single-btn">
+                    <button type="submit" class="btn btn-submit" id="saveBtn">حفظ التعديلات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="log_in_control.js"></script>
+    <script src="edit_profile_control.js"></script>
+</body>
+</html>
+
+
+
+
