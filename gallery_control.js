@@ -1,30 +1,67 @@
-// gallery_control.js — uses the SAME shared config.js / window.supabaseClient
-// that log_in.html and edit_profile.html use (no separate ESM import, no
-// duplicate CONFIG object) so the session created on the login page is
-// recognized here without creating a second, disconnected Supabase client.
-const CONFIG_APP = window.CONFIG_APP;
-const supabaseClient = window.supabaseClient || window.supabase.createClient(CONFIG_APP.SUPABASE_URL, CONFIG_APP.SUPABASE_ANON_KEY);
-window.supabaseClient = supabaseClient;
+// gallery_control.js
 
+
+// 1. تهيئة عميل Supabase وآلية الحصول عليه
+let supabaseClient = null;
+
+
+function getSupabase() {
+    if (supabaseClient) return supabaseClient;
+    if (window.supabaseClient) {
+        supabaseClient = window.supabaseClient;
+        return supabaseClient;
+    }
+    if (window.supabase && window.CONFIG_APP) {
+        supabaseClient = window.supabase.createClient(
+            window.CONFIG_APP.SUPABASE_URL,
+            window.CONFIG_APP.SUPABASE_ANON_KEY
+        );
+        window.supabaseClient = supabaseClient;
+        return supabaseClient;
+    }
+    return null;
+}
+
+
+// 2. المتغيرات العامة
 let allProfiles = [];
 let activeProfileId = null;
 let currentUser = null;
 let currentProfileData = null;
 
-// رابط صورة افتراضية مستقرة وسريعة (تُستخدم فقط كبديل عند فشل تحميل صورة معينة)
+
 const FALLBACK_IMAGE = 'https://placehold.co/300x300/e2e8f0/1e293b?text=No+Image';
 
+
+// عناصر التحكم بالصوت
+let audioEl, playBtn, songLabel, previewDisc;
+
+
+// 3. الدوال المساعدة
 function escapeHTML(str) {
     const div = document.createElement('div');
     div.textContent = str ?? '';
     return div.innerHTML;
 }
 
+
 function extractYouTubeId(url) {
     if (!url) return null;
     const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
     return match ? match[1] : null;
 }
+
+
+function extractDriveFileId(url) {
+    if (!url) return null;
+    // يدعم صيغتي الرابط الشائعتين لملفات Google Drive:
+    // .../file/d/FILE_ID/view  و  ...?id=FILE_ID
+    const dMatch = url.match(/\/d\/([^/?]+)/);
+    if (dMatch) return dMatch[1];
+    const idMatch = url.match(/[?&]id=([^&]+)/);
+    return idMatch ? idMatch[1] : null;
+}
+
 
 function debounce(fn, delay) {
     let timer;
@@ -34,102 +71,141 @@ function debounce(fn, delay) {
     };
 }
 
-// 1. التحقق من حالة تسجيل الدخول والربط بالـ Header
+
+function setPreviewAudio(audioUrl, songTitle) {
+    if (!audioEl || !playBtn || !songLabel) return;
+    stopAudio();
+    audioEl.src = audioUrl || '';
+    songLabel.textContent = songTitle || 'أغنية غير محددة';
+    playBtn.hidden = !audioUrl;
+}
+
+
+function stopAudio() {
+    if (!audioEl) return;
+    audioEl.pause();
+    audioEl.currentTime = 0;
+    if (playBtn) playBtn.innerText = '▶';
+    if (previewDisc) previewDisc.classList.remove('playing');
+}
+
+
+// 4. التحقق من حالة تسجيل الدخول
 async function checkAuthStatus() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
+    const client = getSupabase();
+    if (!client) return;
 
-    if (!session) {
-        // اسم صفحة الدخول الفعلي هو log_in.html (وليس login.html)
-        window.location.href = 'log_in.html';
-        return;
-    }
 
-    currentUser = session.user;
+    try {
+        const { data: { session } } = await client.auth.getSession();
 
-    const { data: profile } = await supabaseClient
-        .from('profiles')
-        .select('*')
-        .eq('id', currentUser.id)
-        .single();
 
-    currentProfileData = profile;
+        const userProfileNav = document.getElementById('userProfileNav');
+        const loginLink = document.getElementById('loginLink');
+        const navUserName = document.getElementById('navUserName');
 
-    const userProfileNav = document.getElementById('userProfileNav');
-    const navUserName = document.getElementById('navUserName');
 
-    if (userProfileNav && navUserName) {
-        navUserName.textContent = profile?.full_name || currentUser.email;
-        userProfileNav.style.display = 'flex';
+        if (!session) {
+            if (loginLink) loginLink.style.display = 'inline-block';
+            if (userProfileNav) userProfileNav.style.display = 'none';
+            return;
+        }
+
+
+        currentUser = session.user;
+
+
+        const { data: profile } = await client
+            .from('profiles')
+            .select('*')
+            .eq('id', currentUser.id)
+            .single();
+
+
+        currentProfileData = profile;
+
+
+        if (userProfileNav && navUserName) {
+            navUserName.textContent = profile?.full_name || currentUser.email;
+            userProfileNav.style.display = 'flex';
+        }
+        if (loginLink) loginLink.style.display = 'none';
+    } catch (err) {
+        console.error('خطأ في التحقق من تسجيل الدخول:', err);
     }
 }
 
-// 2. تسجيل الخروج
-document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-    await supabaseClient.auth.signOut();
-    window.location.href = 'log_in.html';
-});
 
+// 5. جلب البروفايلات من Supabase
 async function fetchProfiles() {
     const galleryGrid = document.getElementById('galleryGrid');
     if (!galleryGrid) return;
 
+
+    const client = getSupabase();
+
+
+    if (!client) {
+        galleryGrid.innerHTML = `
+            <div style="text-align: center; color: #ef4444; padding: 20px;">
+                <p>⚠️ لم يتم الاتصال بقاعدة البيانات.</p>
+                <small>تأكد من تحميل مكتبة Supabase JS (script src) قبل config.js في &lt;head&gt;، ومن صحة القيم داخل ملف <b>config.js</b></small>
+            </div>
+        `;
+        return;
+    }
+
+
     try {
-        const { data: profiles, error } = await supabaseClient
+        const { data: profiles, error } = await client
             .from('profiles')
             .select('*')
             .order('created_at', { ascending: false });
 
+
         if (error) throw error;
+
+
         allProfiles = profiles || [];
         renderGalleryCards(allProfiles);
     } catch (err) {
         console.error('خطأ في جلب بيانات المعرض:', err);
-        galleryGrid.innerHTML = '<p class="loading-status" style="color: #ef4444;">حدث خطأ أثناء تحميل المعرض.</p>';
+        galleryGrid.innerHTML = '<p class="loading-status" style="color: #ef4444;">حدث خطأ أثناء تحميل المعرض من القاعدة.</p>';
     }
 }
 
+
+// 6. معالجة الصور وبناء بطاقات العرض
+// ملاحظة: تم تعديل هذه الدالة لتقرأ الأعمدة كما يكتبها فعلياً نموذج التسجيل
+// (avatar_url كنص مباشر، gallery كمصفوفة روابط) بدل عمود photo_url الذي لا وجود له
+// في الـ payload المُرسَل من صفحة إنشاء البروفايل.
 function resolveProfileMedia(profile) {
-    let avatarUrl = FALLBACK_IMAGE;
-    let galleryImages = [];
-
-    try {
-        if (profile.photo_url) {
-            let mediaData = profile.photo_url;
-
-            if (typeof mediaData === 'string') {
-                try { mediaData = JSON.parse(mediaData); } catch (e) { avatarUrl = mediaData; }
-            }
-
-            if (typeof mediaData === 'object' && mediaData !== null) {
-                avatarUrl = mediaData.avatar || FALLBACK_IMAGE;
-                galleryImages = Array.isArray(mediaData.gallery) ? mediaData.gallery : [];
-            }
-        }
-    } catch (err) {
-        console.error('خطأ في معالجة الصور:', err);
-    }
-
-    return {
-        avatarUrl: avatarUrl || FALLBACK_IMAGE,
-        galleryImages: galleryImages
-    };
+    const avatarUrl = profile.avatar_url || FALLBACK_IMAGE;
+    const galleryImages = Array.isArray(profile.gallery) ? profile.gallery : [];
+    return { avatarUrl, galleryImages };
 }
+
 
 function buildGalleryCard(profile) {
     const { avatarUrl, galleryImages } = resolveProfileMedia(profile);
     const coverImage = galleryImages.length > 0 ? galleryImages[0] : avatarUrl;
     const hasVideo = Boolean(profile.video_url && profile.video_url.trim() !== '');
+    // song يُخزَّن ككائن JSON من نموذج التسجيل: { title, artist, artwork, previewUrl }
+    const hasAudio = Boolean(profile.song && profile.song.previewUrl);
     const safeName = profile.full_name || 'بدون اسم';
     const safeBio = profile.bio || 'لا توجد نبذة تعريفية.';
+
 
     const card = document.createElement('div');
     card.className = 'gallery-card';
     card.addEventListener('click', () => openProfileModal(profile, avatarUrl, galleryImages));
 
+
     card.innerHTML = `
         <div class="card-media">
             <div class="media-badges">
                 <span class="card-badge">📸 ${galleryImages.length}</span>
+                ${hasAudio ? '<span class="card-badge audio-badge">🎵 أغنية</span>' : ''}
                 ${hasVideo ? '<span class="card-badge video-badge">▶ فيديو</span>' : ''}
             </div>
         </div>
@@ -141,12 +217,14 @@ function buildGalleryCard(profile) {
         </div>
     `;
 
+
     const coverImg = document.createElement('img');
     coverImg.src = coverImage;
     coverImg.alt = safeName;
     coverImg.loading = 'lazy';
     coverImg.onerror = function() { this.src = FALLBACK_IMAGE; };
     card.querySelector('.card-media').prepend(coverImg);
+
 
     const avatarImg = document.createElement('img');
     avatarImg.src = avatarUrl;
@@ -155,17 +233,21 @@ function buildGalleryCard(profile) {
     avatarImg.onerror = function() { this.src = FALLBACK_IMAGE; };
     card.querySelector('.card-user-header').prepend(avatarImg);
 
+
     return card;
 }
+
 
 function renderGalleryCards(profilesList) {
     const galleryGrid = document.getElementById('galleryGrid');
     if (!galleryGrid) return;
 
+
     if (profilesList.length === 0) {
         galleryGrid.innerHTML = '<p class="no-results">لم يتم العثور على أي بروفايلات مطابقة.</p>';
         return;
     }
+
 
     galleryGrid.innerHTML = '';
     const fragment = document.createDocumentFragment();
@@ -173,13 +255,17 @@ function renderGalleryCards(profilesList) {
     galleryGrid.appendChild(fragment);
 }
 
+
+// 7. النافذة المنبثقة (Modal)
 async function openProfileModal(profile, avatarUrl, galleryImages) {
     if (!profile || !profile.id) return;
     activeProfileId = profile.id;
 
+
     const modalAvatar = document.getElementById('modalAvatar');
     const modalName = document.getElementById('modalName');
     const modalBio = document.getElementById('modalBio');
+
 
     if (modalAvatar) {
         modalAvatar.src = avatarUrl;
@@ -187,6 +273,23 @@ async function openProfileModal(profile, avatarUrl, galleryImages) {
     }
     if (modalName) modalName.textContent = profile.full_name || 'بدون اسم';
     if (modalBio) modalBio.textContent = profile.bio || 'لا توجد نبذة تعريفية.';
+
+
+    // الأغنية مخزّنة ككائن JSON (title, artist, artwork, previewUrl) وليس كعمودين منفصلين
+    const audioSection = document.getElementById('modalAudioSection');
+    if (audioSection) {
+        if (profile.song && profile.song.previewUrl) {
+            const label = profile.song.artist
+                ? `${profile.song.title} — ${profile.song.artist}`
+                : (profile.song.title || 'أغنية مختارة');
+            setPreviewAudio(profile.song.previewUrl, label);
+            audioSection.style.display = 'block';
+        } else {
+            setPreviewAudio('', '');
+            audioSection.style.display = 'none';
+        }
+    }
+
 
     const galleryGrid = document.getElementById('modalGalleryGrid');
     if (galleryGrid) {
@@ -201,237 +304,78 @@ async function openProfileModal(profile, avatarUrl, galleryImages) {
         });
     }
 
+
+    // الفيديو: يدعم الآن يوتيوب وGoogle Drive حسب video_type المخزّن مع البروفايل
     const videoSection = document.getElementById('modalVideoSection');
     const videoContainer = document.getElementById('modalVideoContainer');
     if (videoSection && videoContainer) {
-        const videoId = extractYouTubeId(profile.video_url);
-        if (videoId) {
-            videoContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>`;
-            videoSection.style.display = 'block';
+        videoContainer.innerHTML = '';
+
+        if (profile.video_type === 'drive' && profile.video_url) {
+            const driveId = extractDriveFileId(profile.video_url);
+            if (driveId) {
+                videoContainer.innerHTML = `<iframe src="https://drive.google.com/file/d/${driveId}/preview" allow="autoplay" allowfullscreen></iframe>`;
+                videoSection.style.display = 'block';
+            } else {
+                videoSection.style.display = 'none';
+            }
         } else {
-            videoSection.style.display = 'none';
+            const videoId = extractYouTubeId(profile.video_url);
+            if (videoId) {
+                videoContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>`;
+                videoSection.style.display = 'block';
+            } else {
+                videoSection.style.display = 'none';
+            }
         }
     }
 
-    document.getElementById('profileModal')?.classList.add('active');
 
-    loadReactions(profile.id);
-    loadComments(profile.id);
+    document.getElementById('profileModal')?.classList.add('active');
 }
+
 
 function closeModal() {
     document.getElementById('profileModal')?.classList.remove('active');
+    stopAudio();
     const videoContainer = document.getElementById('modalVideoContainer');
     if (videoContainer) videoContainer.innerHTML = '';
     activeProfileId = null;
 }
 
-const REACTION_COLUMN_MAP = {
-    like: 'likes',
-    laugh: 'laughs',
-    sad: 'sads',
-    smile: 'smiles'
-};
 
-function getMyReactionKey(profileId) {
-    return `my_reaction_profile_${profileId}`;
-}
-
-function getMyReaction(profileId) {
-    return localStorage.getItem(getMyReactionKey(profileId));
-}
-
-function setMyReaction(profileId, type) {
-    if (type) {
-        localStorage.setItem(getMyReactionKey(profileId), type);
-    } else {
-        localStorage.removeItem(getMyReactionKey(profileId));
-    }
-}
-
-function highlightActiveReaction(profileId) {
-    const myType = getMyReaction(profileId);
-    document.querySelectorAll('.reactions-bar .reaction-btn').forEach(btn => {
-        const btnType = btn.getAttribute('data-reaction-type');
-        btn.classList.toggle('active', Boolean(myType) && btnType === myType);
-    });
-}
-
-function setReactionCount(type, value) {
-    const el = document.getElementById(`count-${type}`);
-    if (el) el.textContent = value;
-}
-
-async function loadReactions(profileId) {
-    if (!profileId) return;
-
-    Object.keys(REACTION_COLUMN_MAP).forEach(type => setReactionCount(type, 0));
-
-    const { data, error } = await supabaseClient
-        .from('profile_reactions')
-        .select('*')
-        .eq('profile_id', profileId)
-        .maybeSingle();
-
-    if (error) {
-        console.error('خطأ في تحميل التفاعلات:', error);
-        return;
-    }
-
-    if (profileId !== activeProfileId) return;
-
-    if (data) {
-        setReactionCount('like', data.likes || 0);
-        setReactionCount('laugh', data.laughs || 0);
-        setReactionCount('sad', data.sads || 0);
-        setReactionCount('smile', data.smiles || 0);
-    }
-
-    highlightActiveReaction(profileId);
-}
-
-async function callReactionRPC(fnName, profileId, dbColumn) {
-    const { data, error } = await supabaseClient.rpc(fnName, {
-        p_profile_id: profileId,
-        p_column: dbColumn
-    });
-    if (error) throw error;
-    return data;
-}
-
-async function addReaction(type) {
-    if (!activeProfileId || !currentUser) return;
-
-    const dbColumn = REACTION_COLUMN_MAP[type];
-    if (!dbColumn) return;
-
-    const profileId = activeProfileId;
-    const allButtons = document.querySelectorAll('.reactions-bar .reaction-btn');
-    allButtons.forEach(b => (b.disabled = true));
-
-    const previousType = getMyReaction(profileId);
-
-    try {
-        if (previousType === type) {
-            const newValue = await callReactionRPC('decrement_reaction', profileId, dbColumn);
-            setReactionCount(type, newValue);
-            setMyReaction(profileId, null);
-        } else if (previousType) {
-            const oldColumn = REACTION_COLUMN_MAP[previousType];
-            const [oldValue, newValue] = await Promise.all([
-                callReactionRPC('decrement_reaction', profileId, oldColumn),
-                callReactionRPC('increment_reaction', profileId, dbColumn)
-            ]);
-            setReactionCount(previousType, oldValue);
-            setReactionCount(type, newValue);
-            setMyReaction(profileId, type);
-        } else {
-            const newValue = await callReactionRPC('increment_reaction', profileId, dbColumn);
-            setReactionCount(type, newValue);
-            setMyReaction(profileId, type);
-        }
-
-        if (profileId === activeProfileId) highlightActiveReaction(profileId);
-    } catch (err) {
-        console.error('خطأ في تسجيل التفاعل:', err);
-        if (profileId === activeProfileId) loadReactions(profileId);
-    } finally {
-        allButtons.forEach(b => (b.disabled = false));
-    }
-}
-
-function renderCommentItem(container, author, text) {
-    const item = document.createElement('div');
-    item.className = 'comment-item';
-    item.innerHTML = `<strong>${escapeHTML(author)}</strong> <p>${escapeHTML(text)}</p>`;
-    container.appendChild(item);
-    return item;
-}
-
-async function loadComments(profileId) {
-    if (!profileId) return;
-
-    const commentsList = document.getElementById('commentsList');
-    if (!commentsList) return;
-
-    commentsList.innerHTML = '<p style="text-align:center; font-size: 0.9rem; color: var(--text-muted);">جاري تحميل التعليقات...</p>';
-
-    const { data, error } = await supabaseClient
-        .from('comments')
-        .select('*')
-        .eq('profile_id', profileId)
-        .order('created_at', { ascending: true });
-
-    if (profileId !== activeProfileId) return;
-
-    commentsList.innerHTML = '';
-
-    if (error) {
-        console.error('خطأ في جلب التعليقات:', error);
-        commentsList.innerHTML = '<p class="no-comments">حدث خطأ أثناء تحميل التعليقات.</p>';
-        return;
-    }
-
-    if (!data || data.length === 0) {
-        commentsList.innerHTML = '<p class="no-comments">لا توجد تعليقات بعد، كن أول من يعلق!</p>';
-        return;
-    }
-
-    data.forEach(comment => renderCommentItem(commentsList, comment.author_name, comment.comment_text));
-    commentsList.scrollTop = commentsList.scrollHeight;
-}
-
-// 3. إرسال التعليق
-document.getElementById('commentForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!activeProfileId || !currentUser) return;
-
-    const textInput = document.getElementById('commentText');
-    const submitBtn = document.querySelector('.btn-send-comment');
-
-    const text = textInput.value.trim();
-    if (!text) return;
-
-    const authorName = currentProfileData?.full_name || currentUser.email.split('@')[0];
-    const profileId = activeProfileId;
-    submitBtn.disabled = true;
-    submitBtn.textContent = '...';
-
-    try {
-        const { error } = await supabaseClient
-            .from('comments')
-            .insert([{
-                profile_id: profileId,
-                user_id: currentUser.id,
-                author_name: authorName,
-                comment_text: text
-            }]);
-
-        if (error) throw error;
-
-        if (profileId === activeProfileId) {
-            const commentsList = document.getElementById('commentsList');
-            if (commentsList.querySelector('.no-comments')) {
-                commentsList.innerHTML = '';
-            }
-            renderCommentItem(commentsList, authorName, text);
-            commentsList.scrollTop = commentsList.scrollHeight;
-        }
-
-        textInput.value = '';
-    } catch (err) {
-        console.error('خطأ في إرسال التعليق:', err);
-        alert('حدث خطأ أثناء إرسال التعليق.');
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'إرسال';
-    }
-});
-
+// 8. تشغيل السكربت بعد اكتمال تحميل الصفحة
 document.addEventListener('DOMContentLoaded', async () => {
-    await checkAuthStatus();
-    fetchProfiles();
+    // تهيئة الصوت
+    audioEl = document.getElementById('previewAudioEl');
+    playBtn = document.getElementById('discPlayBtn');
+    songLabel = document.getElementById('previewSong');
+    previewDisc = document.getElementById('previewDisc');
 
+
+    if (playBtn && audioEl) {
+        playBtn.addEventListener('click', () => {
+            if (!audioEl.src) return;
+            if (audioEl.paused) {
+                audioEl.play().then(() => {
+                    playBtn.innerText = '⏸';
+                    if (previewDisc) previewDisc.classList.add('playing');
+                });
+            } else {
+                audioEl.pause();
+                playBtn.innerText = '▶';
+                if (previewDisc) previewDisc.classList.remove('playing');
+            }
+        });
+    }
+
+
+    // جلب البيانات والتحقق
+    await checkAuthStatus();
+    await fetchProfiles();
+
+
+    // إعداد البحث
     const handleSearch = debounce((query) => {
         const filtered = allProfiles.filter(p =>
             (p.full_name && p.full_name.toLowerCase().includes(query)) ||
@@ -440,18 +384,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderGalleryCards(filtered);
     }, 250);
 
+
     document.getElementById('searchInput')?.addEventListener('input', (e) => {
         handleSearch(e.target.value.toLowerCase().trim());
     });
 
-    document.getElementById('modalCloseBtn')?.addEventListener('click', closeModal);
 
+    // أحداث الإغلاق والخروج
+    document.getElementById('modalCloseBtn')?.addEventListener('click', closeModal);
     document.getElementById('profileModal')?.addEventListener('click', (e) => {
         if (e.target.id === 'profileModal') closeModal();
     });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+    });
 
-    document.getElementById('reactionsBar')?.addEventListener('click', (e) => {
-        const btn = e.target.closest('.reaction-btn');
-        if (btn) addReaction(btn.dataset.reactionType);
+
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+        const client = getSupabase();
+        if (client) await client.auth.signOut();
+        window.location.href = 'log_in.html';
     });
 });

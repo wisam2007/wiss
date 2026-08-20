@@ -6,21 +6,34 @@
     <meta name="description" content="معرض الطلاب - Amala GSD">
     <title>معرض الطلاب - Amala GSD</title>
 
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
+
+    <!-- CSS Files -->
     <link rel="stylesheet" href="main_style.css">
     <link rel="stylesheet" href="gallery_style.css">
 
-    <!-- Supabase — نفس أسلوب صفحة تسجيل الدخول بالضبط: مكتبة UMD واحدة، ثم
-         config.js التي تنشئ window.CONFIG_APP و window.supabaseClient.
-         (تمت إزالة استيراد ESM المكرر والـ CONFIG المكرر لتفادي وجود عميلَي
-         Supabase منفصلين على نفس الصفحة). -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="config.js" defer></script>
+
+<!-- مكتبة Supabase JS SDK — يجب تحميلها قبل config.js وقبل أي سكربت آخر يعتمد عليها -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- ملف الإعدادات (بدون defer لضمان جاهزيته فوراً) -->
+<script src="config.js"></script>
+<script>
+    // تهيئة صريحة ومبكرة لعميل Supabase بعد تحميل المكتبة والإعدادات مباشرة،
+    // بدل الاعتماد فقط على التهيئة الكسولة داخل gallery_control.js
+    window.getSupabaseClient();
+</script>
 </head>
 <body>
+
+
+    <!-- عنصر تشغيل الصوت الخفي -->
+    <audio id="previewAudioEl" preload="none"></audio>
+
 
     <header>
         <div class="header-container">
@@ -29,19 +42,21 @@
                 <img src="Photo/night_mode_ICON.png" alt="AMALA GSD Dark Logo" class="logo-dark">
             </div>
 
+
             <nav>
                 <a href="main.html" data-i18n="nav_main">الرئيسية</a>
                 <a href="gallery.html" class="active" data-i18n="nav_gallery">المعرض</a>
                 <a href="alumni.html" data-i18n="nav_about">عن الدفعة</a>
             </nav>
 
+
             <div class="header-actions">
-                <!-- قسم المستخدم المسجل -->
                 <div class="user-profile-nav" id="userProfileNav" style="display: none;">
                     <span id="navUserName" class="nav-user-name"></span>
                     <button id="logoutBtn" class="btn-logout" type="button">تسجيل الخروج</button>
                 </div>
                 <a href="log_in.html" id="loginLink" class="btn-login" style="display: none;">تسجيل الدخول</a>
+
 
                 <div class="custom-dropdown" id="themeDropdown">
                     <button class="dropdown-btn" id="themeDropdownBtn" type="button" title="Select Theme">
@@ -60,6 +75,7 @@
                     </div>
                 </div>
 
+
                 <div class="custom-dropdown" id="langDropdown">
                     <button class="dropdown-btn" id="langDropdownBtn" type="button" title="Select Language">
                         🌐 <span id="currentLangLabel">AR</span>
@@ -73,10 +89,12 @@
         </div>
     </header>
 
+
     <main class="gallery-container">
         <section class="gallery-hero">
             <h1 data-i18n="gallery_title">معرض الطلاب والذكريات</h1>
             <p data-i18n="gallery_desc">استكشف البروفايلات والصور واللحظات الجميلة التي شاركها طلاب الدفعة.</p>
+
 
             <div class="search-container">
                 <label for="searchInput" class="visually-hidden">بحث عن طالب</label>
@@ -84,32 +102,52 @@
             </div>
         </section>
 
+
         <div class="gallery-grid" id="galleryGrid">
             <p class="loading-status">جاري تحميل بروفايلات المعرض...</p>
         </div>
     </main>
 
+
     <div class="modal-overlay" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="modalName">
         <button class="modal-close-outside" id="modalCloseBtn" type="button" aria-label="إغلاق">&times;</button>
+
 
         <div class="modal-card">
             <div class="modal-header-bg">
                 <img id="modalAvatar" src="" alt="صورة الطالب الشخصية" class="modal-avatar">
             </div>
 
+
             <div class="modal-body">
                 <h2 id="modalName" class="modal-user-name">اسم الطالب</h2>
                 <p id="modalBio" class="modal-user-bio">النبذة التعريفية...</p>
+
+
+                <div class="modal-section audio-section" id="modalAudioSection" style="display: none;">
+                    <h3>🎵 الأغنية المفضلة</h3>
+                    <div class="audio-player-card">
+                        <div class="preview-disc" id="previewDisc">
+                            <button type="button" class="disc-play-btn" id="discPlayBtn" aria-label="play preview">▶</button>
+                        </div>
+                        <div class="audio-info">
+                            <p class="preview-song" id="previewSong">جاري التحميل...</p>
+                        </div>
+                    </div>
+                </div>
+
 
                 <div class="modal-section" id="modalGallerySection">
                     <h3>🖼️ معرض الصور</h3>
                     <div class="modal-gallery-grid" id="modalGalleryGrid"></div>
                 </div>
 
+
                 <div class="modal-section" id="modalVideoSection" style="display: none;">
                     <h3>🎬 فيديو التعريف</h3>
                     <div class="video-container" id="modalVideoContainer"></div>
                 </div>
+
 
                 <div class="modal-section reactions-section">
                     <h3>✨ التفاعلات</h3>
@@ -121,11 +159,13 @@
                     </div>
                 </div>
 
+
                 <div class="modal-section comments-section">
                     <h3>💬 التعليقات</h3>
                     <div class="comments-list" id="commentsList">
                         <p class="no-comments">لا توجد تعليقات بعد، كن أول من يعلق!</p>
                     </div>
+
 
                     <form id="commentForm" class="comment-form">
                         <div class="comment-input-wrapper">
@@ -138,8 +178,8 @@
         </div>
     </div>
 
-    <script src="gallery_style.css" defer></script>
-    <script src="main_style.css" defer></script>
+
+    <!-- استدعاء التحكم بالنظام فقط برمجياً -->
     <script src="gallery_control.js" defer></script>
 </body>
 </html>

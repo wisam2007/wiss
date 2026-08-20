@@ -198,6 +198,11 @@
 }
 
 
+.card-badge.audio-badge {
+    background-color: rgba(16, 185, 129, 0.85);
+}
+
+
 .card-content {
     padding: 18px;
     display: flex;
@@ -369,6 +374,81 @@
 }
 
 
+/* مشغل الصوت والأغاني */
+.audio-player-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background-color: var(--bg-color);
+    padding: 12px 18px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+}
+
+
+.preview-disc {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: repeating-radial-gradient(circle, #333 0, #333 2px, #111 3px, #111 6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: transform 0.3s linear;
+}
+
+
+.preview-disc.playing {
+    animation: rotate-disc 3s linear infinite;
+}
+
+
+@keyframes rotate-disc {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+
+.disc-play-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border: none;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+
+.disc-play-btn:hover {
+    transform: scale(1.1);
+    background-color: var(--primary-hover);
+}
+
+
+.audio-info {
+    overflow: hidden;
+}
+
+
+.preview-song {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
 .modal-gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
@@ -398,7 +478,7 @@
     padding-top: 56.25%;
     border-radius: 10px;
     overflow: hidden;
-    background-color: #000;
+    background-color: #000000;
 }
 
 
@@ -570,7 +650,5 @@
         padding: 65px 18px 20px 18px;
     }
 }
-
-
 
 
