@@ -1,8 +1,12 @@
 // gallery_control.js
 
 
+
+
 // 1. تهيئة عميل Supabase وآلية الحصول عليه
 let supabaseClient = null;
+
+
 
 
 function getSupabase() {
@@ -23,6 +27,8 @@ function getSupabase() {
 }
 
 
+
+
 // 2. المتغيرات العامة
 let allProfiles = [];
 let activeProfileId = null;
@@ -30,11 +36,17 @@ let currentUser = null;
 let currentProfileData = null;
 
 
+
+
 const FALLBACK_IMAGE = 'https://placehold.co/300x300/e2e8f0/1e293b?text=No+Image';
+
+
 
 
 // عناصر التحكم بالصوت
 let audioEl, playBtn, songLabel, previewDisc;
+
+
 
 
 // 3. الدوال المساعدة
@@ -45,6 +57,31 @@ function escapeHTML(str) {
 }
 
 
+
+
+// دالة تحويل مسارات الحاوية (Storage Paths) إلى رابط كامل يمنع خطأ 404
+function getPublicStorageUrl(path, bucketName = 'avatars') {
+    if (!path || path.trim() === '' || path === 'null') return FALLBACK_IMAGE;
+    if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path;
+
+
+
+
+    const client = getSupabase();
+    if (!client) return FALLBACK_IMAGE;
+
+
+
+
+    // تنظيف المسار من أي سلاش في البداية لتفادي أخطاء الربط
+    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    const { data } = client.storage.from(bucketName).getPublicUrl(cleanPath);
+    return data?.publicUrl || FALLBACK_IMAGE;
+}
+
+
+
+
 function extractYouTubeId(url) {
     if (!url) return null;
     const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
@@ -52,15 +89,17 @@ function extractYouTubeId(url) {
 }
 
 
+
+
 function extractDriveFileId(url) {
     if (!url) return null;
-    // يدعم صيغتي الرابط الشائعتين لملفات Google Drive:
-    // .../file/d/FILE_ID/view  و  ...?id=FILE_ID
     const dMatch = url.match(/\/d\/([^/?]+)/);
     if (dMatch) return dMatch[1];
     const idMatch = url.match(/[?&]id=([^&]+)/);
     return idMatch ? idMatch[1] : null;
 }
+
+
 
 
 function debounce(fn, delay) {
@@ -72,6 +111,8 @@ function debounce(fn, delay) {
 }
 
 
+
+
 function setPreviewAudio(audioUrl, songTitle) {
     if (!audioEl || !playBtn || !songLabel) return;
     stopAudio();
@@ -79,6 +120,8 @@ function setPreviewAudio(audioUrl, songTitle) {
     songLabel.textContent = songTitle || 'أغنية غير محددة';
     playBtn.hidden = !audioUrl;
 }
+
+
 
 
 function stopAudio() {
@@ -90,19 +133,27 @@ function stopAudio() {
 }
 
 
+
+
 // 4. التحقق من حالة تسجيل الدخول
 async function checkAuthStatus() {
     const client = getSupabase();
     if (!client) return;
 
 
+
+
     try {
         const { data: { session } } = await client.auth.getSession();
+
+
 
 
         const userProfileNav = document.getElementById('userProfileNav');
         const loginLink = document.getElementById('loginLink');
         const navUserName = document.getElementById('navUserName');
+
+
 
 
         if (!session) {
@@ -112,7 +163,11 @@ async function checkAuthStatus() {
         }
 
 
+
+
         currentUser = session.user;
+
+
 
 
         const { data: profile } = await client
@@ -122,7 +177,11 @@ async function checkAuthStatus() {
             .single();
 
 
+
+
         currentProfileData = profile;
+
+
 
 
         if (userProfileNav && navUserName) {
@@ -136,24 +195,32 @@ async function checkAuthStatus() {
 }
 
 
+
+
 // 5. جلب البروفايلات من Supabase
 async function fetchProfiles() {
     const galleryGrid = document.getElementById('galleryGrid');
     if (!galleryGrid) return;
 
 
+
+
     const client = getSupabase();
+
+
 
 
     if (!client) {
         galleryGrid.innerHTML = `
             <div style="text-align: center; color: #ef4444; padding: 20px;">
                 <p>⚠️ لم يتم الاتصال بقاعدة البيانات.</p>
-                <small>تأكد من تحميل مكتبة Supabase JS (script src) قبل config.js في &lt;head&gt;، ومن صحة القيم داخل ملف <b>config.js</b></small>
+                <small>تأكد من تحميل مكتبة Supabase JS قبل config.js</small>
             </div>
         `;
         return;
     }
+
+
 
 
     try {
@@ -163,7 +230,11 @@ async function fetchProfiles() {
             .order('created_at', { ascending: false });
 
 
+
+
         if (error) throw error;
+
+
 
 
         allProfiles = profiles || [];
@@ -175,30 +246,68 @@ async function fetchProfiles() {
 }
 
 
-// 6. معالجة الصور وبناء بطاقات العرض
-// ملاحظة: تم تعديل هذه الدالة لتقرأ الأعمدة كما يكتبها فعلياً نموذج التسجيل
-// (avatar_url كنص مباشر، gallery كمصفوفة روابط) بدل عمود photo_url الذي لا وجود له
-// في الـ payload المُرسَل من صفحة إنشاء البروفايل.
+
+
+// 6. معالجة الوسائط وتحويل المسارات إلى روابط شغالّة
 function resolveProfileMedia(profile) {
-    const avatarUrl = profile.avatar_url || FALLBACK_IMAGE;
-    const galleryImages = Array.isArray(profile.gallery) ? profile.gallery : [];
-    return { avatarUrl, galleryImages };
+    // جلب رابط صورة الشخصية الكامل
+    const avatarUrl = getPublicStorageUrl(profile.avatar_url, 'avatars');
+
+
+
+
+    // معالجة صور ألبوم المعرض وتطبيق getPublicStorageUrl على كل صورة
+    const rawGallery = Array.isArray(profile.gallery) ? profile.gallery : [];
+    const galleryImages = rawGallery.map(img => getPublicStorageUrl(img, 'media'));
+
+
+
+
+    // معالجة خلفية البنر (لون أو تدرج أو صورة من Storage)
+    let bannerStyle = profile.banner_style || '#1d4ed8';
+    if (bannerStyle.endsWith('.jpg') || bannerStyle.endsWith('.jpeg') || bannerStyle.endsWith('.png') || bannerStyle.endsWith('.webp')) {
+        const fullBannerUrl = getPublicStorageUrl(bannerStyle, 'media');
+        bannerStyle = `url('${fullBannerUrl}') center/cover no-repeat`;
+    }
+
+
+
+
+    // استخراج معلومات الأغنية والتأكد من وجود رابط فعال لها
+    // ملاحظة: عمود الأغنية في قاعدة البيانات هو song_url (jsonb) وليس song
+    let songObj = profile.song_url;
+    if (typeof songObj === 'string') {
+        try { songObj = JSON.parse(songObj); } catch(e) { /* نص عادي (رابط مباشر) */ }
+    }
+    const rawSongUrl = (songObj && typeof songObj === 'object')
+        ? (songObj.previewUrl || songObj.url)
+        : songObj;
+    const hasAudio = Boolean(rawSongUrl && rawSongUrl.trim() !== '' && rawSongUrl !== 'null');
+
+
+
+
+    return { avatarUrl, galleryImages, bannerStyle, hasAudio };
 }
 
 
+
+
 function buildGalleryCard(profile) {
-    const { avatarUrl, galleryImages } = resolveProfileMedia(profile);
+    const { avatarUrl, galleryImages, bannerStyle, hasAudio } = resolveProfileMedia(profile);
     const coverImage = galleryImages.length > 0 ? galleryImages[0] : avatarUrl;
     const hasVideo = Boolean(profile.video_url && profile.video_url.trim() !== '');
-    // song يُخزَّن ككائن JSON من نموذج التسجيل: { title, artist, artwork, previewUrl }
-    const hasAudio = Boolean(profile.song && profile.song.previewUrl);
     const safeName = profile.full_name || 'بدون اسم';
     const safeBio = profile.bio || 'لا توجد نبذة تعريفية.';
 
 
+
+
     const card = document.createElement('div');
     card.className = 'gallery-card';
-    card.addEventListener('click', () => openProfileModal(profile, avatarUrl, galleryImages));
+    card.addEventListener('click', () => openProfileModal(profile, avatarUrl, galleryImages, bannerStyle));
+
+
 
 
     card.innerHTML = `
@@ -218,12 +327,16 @@ function buildGalleryCard(profile) {
     `;
 
 
+
+
     const coverImg = document.createElement('img');
     coverImg.src = coverImage;
     coverImg.alt = safeName;
     coverImg.loading = 'lazy';
     coverImg.onerror = function() { this.src = FALLBACK_IMAGE; };
     card.querySelector('.card-media').prepend(coverImg);
+
+
 
 
     const avatarImg = document.createElement('img');
@@ -234,8 +347,12 @@ function buildGalleryCard(profile) {
     card.querySelector('.card-user-header').prepend(avatarImg);
 
 
+
+
     return card;
 }
+
+
 
 
 function renderGalleryCards(profilesList) {
@@ -243,10 +360,14 @@ function renderGalleryCards(profilesList) {
     if (!galleryGrid) return;
 
 
+
+
     if (profilesList.length === 0) {
         galleryGrid.innerHTML = '<p class="no-results">لم يتم العثور على أي بروفايلات مطابقة.</p>';
         return;
     }
+
+
 
 
     galleryGrid.innerHTML = '';
@@ -256,15 +377,34 @@ function renderGalleryCards(profilesList) {
 }
 
 
+
+
 // 7. النافذة المنبثقة (Modal)
-async function openProfileModal(profile, avatarUrl, galleryImages) {
+async function openProfileModal(profile, avatarUrl, galleryImages, bannerStyle) {
     if (!profile || !profile.id) return;
     activeProfileId = profile.id;
+
+
 
 
     const modalAvatar = document.getElementById('modalAvatar');
     const modalName = document.getElementById('modalName');
     const modalBio = document.getElementById('modalBio');
+    // العنصر في gallery.html هو .modal-header-bg وتم إعطاؤه id="modalBanner" لضمان عمل هذا السطر
+    const modalBanner = document.getElementById('modalBanner');
+
+
+
+
+    if (modalBanner) {
+        if (bannerStyle.startsWith('url') || bannerStyle.startsWith('linear-gradient') || bannerStyle.startsWith('#')) {
+            modalBanner.style.background = bannerStyle;
+        } else {
+            modalBanner.style.background = '#1d4ed8';
+        }
+    }
+
+
 
 
     if (modalAvatar) {
@@ -275,14 +415,43 @@ async function openProfileModal(profile, avatarUrl, galleryImages) {
     if (modalBio) modalBio.textContent = profile.bio || 'لا توجد نبذة تعريفية.';
 
 
-    // الأغنية مخزّنة ككائن JSON (title, artist, artwork, previewUrl) وليس كعمودين منفصلين
+
+
+    // معالجة وحل مشكلة عدم ظهور الأغنية
     const audioSection = document.getElementById('modalAudioSection');
     if (audioSection) {
-        if (profile.song && profile.song.previewUrl) {
-            const label = profile.song.artist
-                ? `${profile.song.title} — ${profile.song.artist}`
-                : (profile.song.title || 'أغنية مختارة');
-            setPreviewAudio(profile.song.previewUrl, label);
+        let songObj = profile.song_url;
+
+
+        // التحقق مما إذا كانت الأغنية مخزنة كنص JSON
+        if (typeof songObj === 'string') {
+            try { songObj = JSON.parse(songObj); } catch(e) { /* نص عادي (رابط مباشر) */ }
+        }
+
+
+
+
+        // استخراج الرابط سواء كان كائن {url/previewUrl, title, artist} أو نص مباشر
+        let rawSongUrl = (songObj && typeof songObj === 'object')
+            ? (songObj.previewUrl || songObj.url)
+            : songObj;
+        let finalSongUrl = '';
+
+
+
+
+        if (rawSongUrl) {
+            finalSongUrl = getPublicStorageUrl(rawSongUrl, 'media');
+        }
+
+
+
+
+        if (finalSongUrl && finalSongUrl !== FALLBACK_IMAGE) {
+            const label = songObj?.title
+                ? (songObj.artist ? `${songObj.title} — ${songObj.artist}` : songObj.title)
+                : 'أغنية مختارة';
+            setPreviewAudio(finalSongUrl, label);
             audioSection.style.display = 'block';
         } else {
             setPreviewAudio('', '');
@@ -291,6 +460,9 @@ async function openProfileModal(profile, avatarUrl, galleryImages) {
     }
 
 
+
+
+    // عرض ألبوم الصور
     const galleryGrid = document.getElementById('modalGalleryGrid');
     if (galleryGrid) {
         galleryGrid.innerHTML = '';
@@ -305,11 +477,16 @@ async function openProfileModal(profile, avatarUrl, galleryImages) {
     }
 
 
-    // الفيديو: يدعم الآن يوتيوب وGoogle Drive حسب video_type المخزّن مع البروفايل
+
+
+    // الفيديو
     const videoSection = document.getElementById('modalVideoSection');
     const videoContainer = document.getElementById('modalVideoContainer');
     if (videoSection && videoContainer) {
         videoContainer.innerHTML = '';
+
+
+
 
         if (profile.video_type === 'drive' && profile.video_url) {
             const driveId = extractDriveFileId(profile.video_url);
@@ -331,8 +508,12 @@ async function openProfileModal(profile, avatarUrl, galleryImages) {
     }
 
 
+
+
     document.getElementById('profileModal')?.classList.add('active');
 }
+
+
 
 
 function closeModal() {
@@ -344,6 +525,8 @@ function closeModal() {
 }
 
 
+
+
 // 8. تشغيل السكربت بعد اكتمال تحميل الصفحة
 document.addEventListener('DOMContentLoaded', async () => {
     // تهيئة الصوت
@@ -353,6 +536,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     previewDisc = document.getElementById('previewDisc');
 
 
+
+
     if (playBtn && audioEl) {
         playBtn.addEventListener('click', () => {
             if (!audioEl.src) return;
@@ -360,7 +545,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 audioEl.play().then(() => {
                     playBtn.innerText = '⏸';
                     if (previewDisc) previewDisc.classList.add('playing');
-                });
+                }).catch(err => console.error('خطأ تشغيل الصوت:', err));
             } else {
                 audioEl.pause();
                 playBtn.innerText = '▶';
@@ -370,9 +555,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
+
+
     // جلب البيانات والتحقق
     await checkAuthStatus();
     await fetchProfiles();
+
+
 
 
     // إعداد البحث
@@ -385,9 +574,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 250);
 
 
+
+
     document.getElementById('searchInput')?.addEventListener('input', (e) => {
         handleSearch(e.target.value.toLowerCase().trim());
     });
+
+
 
 
     // أحداث الإغلاق والخروج
@@ -398,6 +591,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeModal();
     });
+
+
 
 
     document.getElementById('logoutBtn')?.addEventListener('click', async () => {

@@ -8,9 +8,13 @@
     <title>معرض الطلاب - Amala GSD</title>
 
 
+
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+
 
 
     <!-- CSS Files -->
@@ -18,8 +22,11 @@
     <link rel="stylesheet" href="gallery_style.css">
 
 
+
+
 <!-- مكتبة Supabase JS SDK — يجب تحميلها قبل config.js وقبل أي سكربت آخر يعتمد عليها -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 
 <!-- ملف الإعدادات (بدون defer لضمان جاهزيته فوراً) -->
 <script src="config.js"></script>
@@ -32,8 +39,12 @@
 <body>
 
 
+
+
     <!-- عنصر تشغيل الصوت الخفي -->
     <audio id="previewAudioEl" preload="none"></audio>
+
+
 
 
     <header>
@@ -44,6 +55,8 @@
             </div>
 
 
+
+
             <nav>
                 <a href="main.html" data-i18n="nav_main">الرئيسية</a>
                 <a href="gallery.html" class="active" data-i18n="nav_gallery">المعرض</a>
@@ -51,11 +64,15 @@
             </nav>
 
 
+
+
             <div class="header-actions">
                 <div class="user-profile-nav" id="userProfileNav" style="display: none;">
                     <span id="navUserName" class="nav-user-name"></span>
                     <button id="logoutBtn" class="btn-logout" type="button">تسجيل الخروج</button>
                 </div>
+
+
 
 
                 <div class="custom-dropdown" id="themeDropdown">
@@ -76,6 +93,8 @@
                 </div>
 
 
+
+
                 <div class="custom-dropdown" id="langDropdown">
                     <button class="dropdown-btn" id="langDropdownBtn" type="button" title="Select Language">
                         🌐 <span id="currentLangLabel">AR</span>
@@ -90,10 +109,14 @@
     </header>
 
 
+
+
     <main class="gallery-container">
         <section class="gallery-hero">
             <h1 data-i18n="gallery_title">معرض الطلاب والذكريات</h1>
             <p data-i18n="gallery_desc">استكشف البروفايلات والصور واللحظات الجميلة التي شاركها طلاب الدفعة.</p>
+
+
 
 
             <div class="search-container">
@@ -103,25 +126,37 @@
         </section>
 
 
+
+
         <div class="gallery-grid" id="galleryGrid">
             <p class="loading-status">جاري تحميل بروفايلات المعرض...</p>
         </div>
     </main>
 
 
+
+
     <div class="modal-overlay" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="modalName">
         <button class="modal-close-outside" id="modalCloseBtn" type="button" aria-label="إغلاق">&times;</button>
 
 
+
+
         <div class="modal-card">
-            <div class="modal-header-bg">
+            <!-- تمت إضافة id="modalBanner" هنا: بدونه، gallery_control.js لا يجد العنصر
+                 ولا يستطيع تطبيق لون/تدرج/صورة البنر المحفوظة، ويبقى التدرج الافتراضي فقط -->
+            <div class="modal-header-bg" id="modalBanner">
                 <img id="modalAvatar" src="" alt="صورة الطالب الشخصية" class="modal-avatar">
             </div>
+
+
 
 
             <div class="modal-body">
                 <h2 id="modalName" class="modal-user-name">اسم الطالب</h2>
                 <p id="modalBio" class="modal-user-bio">النبذة التعريفية...</p>
+
+
 
 
                 <div class="modal-section audio-section" id="modalAudioSection" style="display: none;">
@@ -137,16 +172,22 @@
                 </div>
 
 
+
+
                 <div class="modal-section" id="modalGallerySection">
                     <h3>🖼️ معرض الصور</h3>
                     <div class="modal-gallery-grid" id="modalGalleryGrid"></div>
                 </div>
 
 
+
+
                 <div class="modal-section" id="modalVideoSection" style="display: none;">
                     <h3>🎬 فيديو التعريف</h3>
                     <div class="video-container" id="modalVideoContainer"></div>
                 </div>
+
+
 
 
                 <div class="modal-section reactions-section">
@@ -160,11 +201,15 @@
                 </div>
 
 
+
+
                 <div class="modal-section comments-section">
                     <h3>💬 التعليقات</h3>
                     <div class="comments-list" id="commentsList">
                         <p class="no-comments">لا توجد تعليقات بعد، كن أول من يعلق!</p>
                     </div>
+
+
 
 
                     <form id="commentForm" class="comment-form">
@@ -177,6 +222,8 @@
             </div>
         </div>
     </div>
+
+
 
 
     <!-- استدعاء التحكم بالنظام فقط برمجياً -->

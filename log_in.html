@@ -6,15 +6,21 @@
     <title>إنشاء البروفايل - Amala GSD</title>
 
 
+
+
     <!-- الخطوط -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
 
 
+
+
     <!-- CSS -->
     <link rel="stylesheet" href="log_in_style.css">
     <link rel="stylesheet" href="main_style.css">
+
+
 
 
     <!-- Supabase JS SDK & Config -->
@@ -24,9 +30,13 @@
 <body>
 
 
+
+
     <!-- الشريط العلوي (Top Bar) -->
     <header class="top-bar">
         <a href="main.html" class="top-logo">Amala GSD</a>
+
+
 
 
   <div class="header-actions">
@@ -47,6 +57,7 @@
                     </div>
                 </div>
 
+
                 <div class="custom-dropdown" id="langDropdown">
                     <button class="dropdown-btn" id="langDropdownBtn" title="Select Language">
                         🌐 <span id="currentLangLabel">EN</span>
@@ -57,12 +68,17 @@
                     </div>
                 </div>
 
+
         </div>
     </header>
 
 
+
+
     <!-- حاوية الصفحة الرئيسية (Page Wrap) -->
     <div class="page-wrap">
+
+
 
 
         <!-- لوحة المعاينة الحية (Live Preview Panel) -->
@@ -84,11 +100,15 @@
         </aside>
 
 
+
+
         <!-- كارت النموذج المتعدد الخطوات (Multi-Step Form) -->
         <main class="form-card">
             <div class="progress-container">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
+
+
 
 
             <div class="form-header">
@@ -100,7 +120,11 @@
             </div>
 
 
-            <form id="profileWizardForm">
+
+
+            <!-- novalidate: نُعطّل تحقق المتصفح التلقائي لأنه كان يمنع الإرسال بصمت
+                 (مثلاً بسبب حقل type="url") بدون إظهار أي رسالة واضحة للمستخدم -->
+            <form id="profileWizardForm" novalidate>
                 
                 <!-- الخطوة 0: الدخول أو إنشاء حساب (Auth Step) -->
                 <div class="form-step active-step" data-step="0">
@@ -112,7 +136,11 @@
                     </button>
 
 
+
+
                     <div class="divider"><span data-i18n="or_divider">أو</span></div>
+
+
 
 
                     <div class="auth-tabs">
@@ -121,10 +149,14 @@
                     </div>
 
 
+
+
                     <div class="input-group">
                         <label for="email" data-i18n="lbl_email">البريد الإلكتروني</label>
                         <input type="email" id="email" required placeholder="name@example.com">
                     </div>
+
+
 
 
                     <div class="input-group">
@@ -133,7 +165,11 @@
                     </div>
 
 
+
+
                     <div class="auth-msg" id="authMsg"></div>
+
+
 
 
                     <div class="btn-group single-btn">
@@ -142,9 +178,13 @@
                 </div>
 
 
+
+
                 <!-- الخطوة 1: الهوية والدور (Identity & Role) -->
                 <div class="form-step" data-step="1">
                     <h3 data-i18n="step1_title">الخطوة 1 من 4: الهوية والدور</h3>
+
+
 
 
                     <div class="input-group">
@@ -160,10 +200,14 @@
                     </div>
 
 
+
+
                     <div class="input-group">
                         <label for="fullName" data-i18n="lbl_fullname">الاسم الكامل</label>
                         <input type="text" id="fullName" required placeholder="مثال: محمد أحمد">
                     </div>
+
+
 
 
                     <div class="input-group">
@@ -172,10 +216,14 @@
                     </div>
 
 
+
+
                     <div class="btn-group">
                         <button type="button" class="btn btn-next" data-action="next" data-i18n="btn_next">التالي ←</button>
                     </div>
                 </div>
+
+
 
 
                 <!-- الخطوة 2: الربط الجغرافي والاجتماعي (Location & Social) -->
@@ -183,10 +231,14 @@
                     <h3 data-i18n="step2_title">الخطوة 2 من 4: الربط الجغرافي والاجتماعي</h3>
 
 
+
+
                     <div class="input-group">
                         <label for="city" data-i18n="lbl_city">المدينة والدولة</label>
                         <input type="text" id="city" placeholder="مثال: عمان، الأردن">
                     </div>
+
+
 
 
                     <div class="input-group">
@@ -200,8 +252,15 @@
 
 
 
+
+
+
+
+
                         </div>
                     </div>
+
+
 
 
                     <div class="social-grid">
@@ -218,6 +277,8 @@
                     </div>
 
 
+
+
                     <div class="btn-group">
                         <button type="button" class="btn btn-prev" data-action="prev" data-i18n="btn_prev">→ السابق</button>
                         <button type="button" class="btn btn-next" data-action="next" data-i18n="btn_next">التالي ←</button>
@@ -225,15 +286,21 @@
                 </div>
 
 
+
+
                 <!-- الخطوة 3: التخصيص البصري والسمعي (Visual & Audio) -->
                 <div class="form-step" data-step="3">
                     <h3 data-i18n="step3_title">الخطوة 3 من 4: التخصيص البصري والسمعي</h3>
+
+
 
 
                     <div class="input-group">
                         <label for="avatarInput" data-i18n="lbl_avatar">صورة البروفايل الشخصية</label>
                         <input type="file" id="avatarInput" accept="image/*">
                     </div>
+
+
 
 
                    <!-- قسم خيارات البنر -->
@@ -244,6 +311,8 @@
         <button type="button" class="banner-opt" data-banner-type="custom">لون مخصص</button>
         <button type="button" class="banner-opt" data-banner-type="image">رفع صورة</button>
     </div>
+
+
 
 
     <!-- إعدادات اللون المخصص والتدرج -->
@@ -257,11 +326,18 @@
     </div>
 
 
+
+
     <!-- إعداد رفع الصورة -->
     <div id="bannerImageControls" style="display: none; margin-top: 10px;">
         <input type="file" id="bannerImgInput" accept="image/*">
     </div>
 </div>
+
+
+
+
+
 
 
 
@@ -283,6 +359,8 @@
                     </div>
 
 
+
+
                     <div class="btn-group">
                         <button type="button" class="btn btn-prev" data-action="prev" data-i18n="btn_prev">→ السابق</button>
                         <button type="button" class="btn btn-next" data-action="next" data-i18n="btn_next">التالي ←</button>
@@ -290,9 +368,13 @@
                 </div>
 
 
+
+
                 <!-- الخطوة 4: المعرض والفيديو (Gallery & Video) -->
                 <div class="form-step" data-step="4">
                     <h3 data-i18n="step4_title">الخطوة 4 من 4: معرض الصور والفيديو</h3>
+
+
 
 
                     <div class="input-group">
@@ -301,15 +383,19 @@
                     </div>
 
 
+
+
                     <div class="input-group">
                         <label data-i18n="lbl_video_type">نوع الفيديو</label>
                         <div class="video-type-tabs">
                             <button type="button" class="video-tab active" data-vtype="youtube">YouTube</button>
                             <button type="button" class="video-tab" data-vtype="gdrive">Google Drive</button>
                         </div>
-                        <input type="url" id="videoUrlInput" placeholder="https://www.youtube.com/watch?v=..." style="margin-top: 8px;">
+                        <input type="text" id="videoUrlInput" placeholder="https://www.youtube.com/watch?v=..." style="margin-top: 8px;">
                         <p class="field-hint" data-i18n="video_hint">الصق رابط يوتيوب أو Google Drive (الرفع المباشر غير متاح حالياً)</p>
                     </div>
+
+
 
 
                     <div class="btn-group">
@@ -319,16 +405,16 @@
                 </div>
 
 
+
+
             </form>
         </main>
     </div>
+
+
 
 
     <!-- السكربت المرفق المتوافق -->
     <script src="log_in_control.js"></script>
 </body>
 </html>
-
-
-
-

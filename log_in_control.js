@@ -86,14 +86,22 @@
     };
 
 
+
+
     window.SIGNUP_TRANSLATIONS = translations;
+
+
 
 
     function safeSetItem(key, value) { try { localStorage.setItem(key, value); } catch (e) {} }
     function safeGetItem(key, fallback) { try { return localStorage.getItem(key) || fallback; } catch (e) { return fallback; } }
 
 
+
+
     const ICONS = { light: "☀️", dark: "🌙", auto: "🌓" };
+
+
 
 
     function applyTheme(themeChoice) {
@@ -120,6 +128,8 @@
     }
 
 
+
+
     function applyLanguage(lang) {
         if (!translations[lang]) lang = 'ar';
         document.documentElement.setAttribute('lang', lang);
@@ -127,6 +137,8 @@
        
         const currentLangLabel = document.getElementById('currentLangLabel');
         if (currentLangLabel) currentLangLabel.textContent = lang.toUpperCase();
+
+
 
 
         document.querySelectorAll('[data-i18n]').forEach(element => {
@@ -141,6 +153,8 @@
         });
 
 
+
+
         const langDropdown = document.getElementById('langDropdown');
         if (langDropdown) {
             langDropdown.querySelectorAll('.dropdown-item').forEach(item => {
@@ -153,11 +167,15 @@
     window.applyLanguage = applyLanguage;
 
 
+
+
     function setupDropdowns() {
         const themeDropdownBtn = document.getElementById('themeDropdownBtn');
         const themeDropdownContent = document.querySelector('#themeDropdown .dropdown-content');
         const langDropdownBtn = document.getElementById('langDropdownBtn');
         const langDropdownContent = document.querySelector('#langDropdown .dropdown-content');
+
+
 
 
         if (themeDropdownBtn && themeDropdownContent) {
@@ -175,6 +193,8 @@
         }
 
 
+
+
         if (langDropdownBtn && langDropdownContent) {
             langDropdownBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -190,11 +210,15 @@
         }
 
 
+
+
         document.addEventListener('click', () => {
             if (themeDropdownContent) themeDropdownContent.classList.remove('show');
             if (langDropdownContent) langDropdownContent.classList.remove('show');
         });
     }
+
+
 
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -203,6 +227,8 @@
         applyLanguage(safeGetItem('preferred_lang', 'ar'));
     });
 })();
+
+
 
 
 // --- دالة مساعدة عامة لجلب روابط الصور من Supabase Storage ---
@@ -217,14 +243,16 @@ function resolveStorageUrl(path, bucketName = 'avatars') {
 }
 
 
-// --- 2. إدارة التفاعل والربط مع Supabase والموسيقى ---
+
+
+// --- 2. إدارة التفاعل والربط مع Supabase والموسيقى (نسخة موحّدة - بدون تكرار) ---
 document.addEventListener('DOMContentLoaded', async () => {
     const getSupabase = () => window.getSupabaseClient ? window.getSupabaseClient() : window.supabase;
 
 
     let map, marker;
     let currentAudio = null;
-    let selectedSongUrl = null;
+    let selectedSong = null; // { previewUrl, title, artist } بدل نص فقط
     let searchDebounceTimer = null;
     window.USER_LOCATION = { lat: 31.9539, lng: 35.9106 };
 
@@ -304,7 +332,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    // --- ج. المعاينة الحية ---
+    // --- ج. المعاينة الحية (الاسم / النبذة / الدور / الصورة الشخصية) ---
     const fullNameInput = document.getElementById('fullName');
     const bioInput = document.getElementById('bio');
     const previewName = document.getElementById('previewName');
@@ -354,7 +382,84 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    // --- د. التسجيل والدخول ---
+    // --- د. البنر: خيارات (افتراضي / لون مخصص / صورة) + معاينة حية ---
+    const bannerOpts = document.querySelectorAll('.banner-opt');
+    const customColorControls = document.getElementById('customColorControls');
+    const bannerImageControls = document.getElementById('bannerImageControls');
+    const bannerColorPicker = document.getElementById('bannerColorPicker');
+    const bannerGradientCheck = document.getElementById('bannerGradientCheck');
+    const bannerImgInput = document.getElementById('bannerImgInput');
+    const previewBanner = document.getElementById('previewBanner');
+
+
+    let currentBannerType = 'default';
+    let bannerUploadedFile = null;
+
+
+    function updateBannerPreview() {
+        if (!previewBanner) return;
+
+
+        if (currentBannerType === 'default') {
+            previewBanner.style.background = '#1d4ed8';
+            previewBanner.style.backgroundImage = 'none';
+        } else if (currentBannerType === 'custom') {
+            const baseColor = bannerColorPicker ? bannerColorPicker.value : '#1d4ed8';
+            const isGradient = bannerGradientCheck ? bannerGradientCheck.checked : false;
+
+
+            if (isGradient) {
+                previewBanner.style.background = `linear-gradient(135deg, ${baseColor} 0%, #000000 100%)`;
+            } else {
+                previewBanner.style.background = baseColor;
+                previewBanner.style.backgroundImage = 'none';
+            }
+        } else if (currentBannerType === 'image') {
+            if (bannerUploadedFile) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewBanner.style.background = `url('${e.target.result}') center/cover no-repeat`;
+                };
+                reader.readAsDataURL(bannerUploadedFile);
+            }
+        }
+    }
+
+
+    bannerOpts.forEach(opt => {
+        opt.addEventListener('click', () => {
+            bannerOpts.forEach(b => b.classList.remove('active'));
+            opt.classList.add('active');
+
+
+            currentBannerType = opt.getAttribute('data-banner-type');
+
+
+            if (customColorControls) customColorControls.style.display = (currentBannerType === 'custom') ? 'block' : 'none';
+            if (bannerImageControls) bannerImageControls.style.display = (currentBannerType === 'image') ? 'block' : 'none';
+
+
+            updateBannerPreview();
+        });
+    });
+
+
+    if (bannerColorPicker) bannerColorPicker.addEventListener('input', updateBannerPreview);
+    if (bannerGradientCheck) bannerGradientCheck.addEventListener('change', updateBannerPreview);
+
+
+    if (bannerImgInput) {
+        bannerImgInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                bannerUploadedFile = file;
+                updateBannerPreview();
+            }
+        });
+    }
+
+
+    // --- هـ. التسجيل والدخول ---
     try {
         const supabase = getSupabase();
         if (supabase) {
@@ -366,8 +471,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
+    // --- تسجيل الدخول عبر Google (كان الزر بلا أي معالج حدث إطلاقاً) ---
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    if (googleLoginBtn) {
+        googleLoginBtn.addEventListener('click', async () => {
+            googleLoginBtn.disabled = true;
+            try {
+                const supabase = getSupabase();
+                const { error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        // بعد نجاح تسجيل الدخول عبر Google يعيد Supabase التوجيه إلى نفس صفحة اللوغ إن
+                        redirectTo: window.location.origin + window.location.pathname
+                    }
+                });
+                if (error) throw error;
+                // لا حاجة لأي كود إضافي هنا: المتصفح سينتقل إلى صفحة Google ثم يعود تلقائياً
+            } catch (err) {
+                const authMsg = document.getElementById('authMsg');
+                if (authMsg) {
+                    authMsg.textContent = "تعذّر تسجيل الدخول عبر Google: " + err.message;
+                    authMsg.className = "auth-msg error";
+                }
+                googleLoginBtn.disabled = false;
+            }
+        });
+    }
+
+
     const authSubmitBtn = document.getElementById('authSubmitBtn');
     let isSignupMode = true;
+
+
+    const tabSignupBtn = document.getElementById('tabSignupBtn');
+    const tabLoginBtn = document.getElementById('tabLoginBtn');
+    if (tabSignupBtn && tabLoginBtn) {
+        tabSignupBtn.addEventListener('click', () => {
+            isSignupMode = true;
+            tabSignupBtn.classList.add('active');
+            tabLoginBtn.classList.remove('active');
+        });
+        tabLoginBtn.addEventListener('click', () => {
+            isSignupMode = false;
+            tabLoginBtn.classList.add('active');
+            tabSignupBtn.classList.remove('active');
+        });
+    }
 
 
     if (authSubmitBtn) {
@@ -418,7 +567,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    // --- هـ. أزرار التنقل ---
+    // --- و. أزرار التنقل ---
     document.querySelectorAll('[data-action="next"]').forEach(btn => {
         btn.addEventListener('click', () => {
             const currentStep = btn.closest('.form-step');
@@ -437,7 +586,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
 
-    // --- و. البحث عن الأغاني عبر iTunes API ---
+    // --- ز. البحث عن الأغاني عبر iTunes API ---
     const songSearchInput = document.getElementById('songSearchInput');
     const songResults = document.getElementById('songResults');
     const songSelected = document.getElementById('songSelected');
@@ -491,11 +640,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
                         item.addEventListener('click', () => {
-                            selectedSongUrl = track.previewUrl;
+                            selectedSong = {
+                                previewUrl: track.previewUrl,
+                                title: track.trackName,
+                                artist: track.artistName
+                            };
                             if (selectedSongImg) selectedSongImg.src = track.artworkUrl100;
                             if (selectedSongTitle) selectedSongTitle.textContent = track.trackName;
                             if (selectedSongArtist) selectedSongArtist.textContent = track.artistName;
-                           
+
+
                             songResults.style.display = 'none';
                             if (songSelected) songSelected.style.display = 'flex';
                             songSearchInput.value = '';
@@ -519,13 +673,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (previewPlayBtn) {
         previewPlayBtn.addEventListener('click', () => {
-            if (!selectedSongUrl) return;
+            if (!selectedSong) return;
             if (currentAudio && !currentAudio.paused) {
                 currentAudio.pause();
                 previewPlayBtn.textContent = '▶';
             } else {
                 if (currentAudio) currentAudio.pause();
-                currentAudio = new Audio(selectedSongUrl);
+                currentAudio = new Audio(selectedSong.previewUrl);
                 currentAudio.play();
                 previewPlayBtn.textContent = '⏸';
                 currentAudio.onended = () => { previewPlayBtn.textContent = '▶'; };
@@ -540,7 +694,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 currentAudio.pause();
                 currentAudio = null;
             }
-            selectedSongUrl = null;
+            selectedSong = null;
             if (songSelected) songSelected.style.display = 'none';
             if (previewPlayBtn) previewPlayBtn.textContent = '▶';
             const previewSong = document.getElementById('previewSong');
@@ -549,179 +703,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    // --- ز. حفظ البيانات النهائية ---
-    const handleProfileSave = async (e) => {
-        if (e) e.preventDefault();
-        if (currentAudio) currentAudio.pause();
-
-
-        const saveBtns = document.querySelectorAll('#saveProfileBtn, #submitBtn, [data-action="save"]');
-        saveBtns.forEach(b => b.disabled = true);
-
-
-        try {
-            const supabase = getSupabase();
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error("المستخدم غير مسجل الدخول.");
-
-
-            const profilePayload = {
-                id: user.id,
-                full_name: document.getElementById('fullName')?.value.trim() || '',
-                role: document.querySelector('.role-card.selected')?.getAttribute('data-role-val') || 'student',
-                bio: document.getElementById('bio')?.value.trim() || null,
-                city: document.getElementById('city')?.value.trim() || null,
-                lat: window.USER_LOCATION.lat,
-                lng: window.USER_LOCATION.lng,
-                instagram: document.getElementById('instagram')?.value.trim() || null,
-                linkedin: document.getElementById('linkedin')?.value.trim() || null,
-                song_url: selectedSongUrl,
-                video_url: document.getElementById('videoUrlInput')?.value.trim() || null,
-                updated_at: new Date().toISOString()
-            };
-
-
-            const { error } = await supabase.from('profiles').upsert(profilePayload);
-            if (error) throw error;
-
-
-            alert("تم إنشاء البروفايل بنجاح! 🎉");
-            window.location.href = "main.html";
-
-
-        } catch (err) {
-            alert("حدث خطأ أثناء حفظ البروفايل: " + err.message);
-        } finally {
-            saveBtns.forEach(b => b.disabled = false);
-        }
-    };
-
-
-    const wizardForm = document.getElementById('profileWizardForm');
-    if (wizardForm) wizardForm.addEventListener('submit', handleProfileSave);
-
-
-    // --- ح. جلب وعرض بيانات المعرض ---
-    await loadGalleryImages();
-});
-
-
-// --- دالة جلب وعرض البطاقات في المعرض ---
-async function loadGalleryImages() {
-    const supabase = window.getSupabaseClient ? window.getSupabaseClient() : window.supabase;
-    const galleryContainer = document.getElementById('galleryContainer');
-    if (!supabase || !galleryContainer) return;
-
-
-    try {
-        const { data: profiles, error } = await supabase.from('profiles').select('*');
-        if (error) throw error;
-
-
-        galleryContainer.innerHTML = '';
-
-
-        profiles.forEach(profile => {
-            const avatarUrl = resolveStorageUrl(profile.avatar_url, 'avatars') || 'https://via.placeholder.com/150?text=No+Image';
-
-
-            const card = document.createElement('div');
-            card.className = 'student-card';
-            card.innerHTML = `
-                <img src="${avatarUrl}" alt="${profile.full_name || 'صورة الطالب'}" class="student-img" loading="eager" />
-                <h3>${profile.full_name || 'بدون اسم'}</h3>
-                <p>${profile.bio || ''}</p>
-            `;
-            galleryContainer.appendChild(card);
-        });
-    } catch (err) {
-        console.error("خطأ في تحميل المعرض:", err.message);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', async () => {
-    const getSupabase = () => window.getSupabaseClient ? window.getSupabaseClient() : window.supabase;
-
-
-    // --- متغيرات البنر والـ Preview ---
-    const bannerOpts = document.querySelectorAll('.banner-opt');
-    const customColorControls = document.getElementById('customColorControls');
-    const bannerImageControls = document.getElementById('bannerImageControls');
-    const bannerColorPicker = document.getElementById('bannerColorPicker');
-    const bannerGradientCheck = document.getElementById('bannerGradientCheck');
-    const bannerImgInput = document.getElementById('bannerImgInput');
-    const previewBanner = document.getElementById('previewBanner');
-
-
-    let currentBannerType = 'default';
-    let bannerUploadedFile = null;
-
-
-    // --- إدارة خيارات البنر والتحديث المباشر للمعاينة ---
-    function updateBannerPreview() {
-        if (!previewBanner) return;
-
-
-        if (currentBannerType === 'default') {
-            previewBanner.style.background = '#1d4ed8'; // لون أزرق افتراضي
-            previewBanner.style.backgroundImage = 'none';
-        } 
-        else if (currentBannerType === 'custom') {
-            const baseColor = bannerColorPicker ? bannerColorPicker.value : '#1d4ed8';
-            const isGradient = bannerGradientCheck ? bannerGradientCheck.checked : false;
-
-
-            if (isGradient) {
-                previewBanner.style.background = `linear-gradient(135deg, ${baseColor} 0%, #000000 100%)`;
-            } else {
-                previewBanner.style.background = baseColor;
-                previewBanner.style.backgroundImage = 'none';
-            }
-        } 
-        else if (currentBannerType === 'image') {
-            if (bannerUploadedFile) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    previewBanner.style.background = `url('${e.target.result}') center/cover no-repeat`;
-                };
-                reader.readAsDataURL(bannerUploadedFile);
-            }
-        }
-    }
-
-
-    bannerOpts.forEach(opt => {
-        opt.addEventListener('click', () => {
-            bannerOpts.forEach(b => b.classList.remove('active'));
-            opt.classList.add('active');
-            
-            currentBannerType = opt.getAttribute('data-banner-type');
-
-
-            if (customColorControls) customColorControls.style.display = (currentBannerType === 'custom') ? 'block' : 'none';
-            if (bannerImageControls) bannerImageControls.style.display = (currentBannerType === 'image') ? 'block' : 'none';
-
-
-            updateBannerPreview();
-        });
-    });
-
-
-    if (bannerColorPicker) bannerColorPicker.addEventListener('input', updateBannerPreview);
-    if (bannerGradientCheck) bannerGradientCheck.addEventListener('change', updateBannerPreview);
-    
-    if (bannerImgInput) {
-        bannerImgInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                bannerUploadedFile = file;
-                updateBannerPreview();
-            }
-        });
-    }
-
-
-    // --- حفظ الصور في Supabase Storage ---
+    // --- ح. رفع الملفات إلى Supabase Storage ---
     async function uploadFileToStorage(file, bucket) {
         if (!file) return null;
         const supabase = getSupabase();
@@ -738,12 +720,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    // --- حل مشكلة زر الحفظ وإرسال البيانات ---
+    // رفع عدة صور معرض دفعة واحدة (يرجع مصفوفة بالمسارات المرفوعة بنجاح فقط)
+    async function uploadGalleryFiles(fileList, bucket) {
+        if (!fileList || fileList.length === 0) return [];
+        const uploads = Array.from(fileList).map(file => uploadFileToStorage(file, bucket));
+        const results = await Promise.all(uploads);
+        return results.filter(path => path !== null);
+    }
+
+
+    // --- ط. حفظ البيانات النهائية (معالج واحد فقط، بلا تكرار) ---
     const handleProfileSave = async (e) => {
-        if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
+        if (e) e.preventDefault();
+        if (currentAudio) currentAudio.pause();
 
 
         const saveBtns = document.querySelectorAll('#saveProfileBtn, #submitBtn, [data-action="save"]');
@@ -752,21 +741,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
             const supabase = getSupabase();
-            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("المستخدم غير مسجل الدخول.");
 
 
-            if (userError || !user) throw new Error("يرجى تسجيل الدخول أولاً لحفظ البيانات.");
-
-
-            // 1. رفع صورة البروفايل والصورة الشخصية إذا تم اختيارهما
-            const avatarInput = document.getElementById('avatarInput');
+            // 1. رفع الصورة الشخصية
             let avatarPath = null;
             if (avatarInput && avatarInput.files[0]) {
                 avatarPath = await uploadFileToStorage(avatarInput.files[0], 'avatars');
             }
 
 
-            let bannerValue = '#1d4ed8'; // أزرق افتراضي
+            // 2. تجهيز البنر (لون / تدرج / رفع صورة)
+            let bannerValue = '#1d4ed8';
             if (currentBannerType === 'custom') {
                 const color = bannerColorPicker ? bannerColorPicker.value : '#1d4ed8';
                 const isGrad = bannerGradientCheck ? bannerGradientCheck.checked : false;
@@ -777,55 +764,72 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
 
-            // 2. تجهيز البيانات للحفظ
+            // 3. رفع صور معرض الذكريات (حتى 5 صور)
+            const galleryInput = document.getElementById('galleryInput');
+            const galleryPaths = await uploadGalleryFiles(galleryInput?.files, 'media');
+
+
+            // 4. تجهيز بيانات الأغنية (jsonb)
+            const songPayload = selectedSong
+                ? { url: selectedSong.previewUrl, title: selectedSong.title, artist: selectedSong.artist }
+                : null;
+
+
             const profilePayload = {
                 id: user.id,
                 full_name: document.getElementById('fullName')?.value.trim() || '',
                 role: document.querySelector('.role-card.selected')?.getAttribute('data-role-val') || 'student',
                 bio: document.getElementById('bio')?.value.trim() || null,
                 city: document.getElementById('city')?.value.trim() || null,
-                lat: window.USER_LOCATION?.lat || 31.9539,
-                lng: window.USER_LOCATION?.lng || 35.9106,
+                lat: window.USER_LOCATION.lat,
+                lng: window.USER_LOCATION.lng,
                 instagram: document.getElementById('instagram')?.value.trim() || null,
                 linkedin: document.getElementById('linkedin')?.value.trim() || null,
                 avatar_url: avatarPath,
                 banner_style: bannerValue,
-                song_url: window.selectedSongUrl || null,
+                song_url: songPayload,
+                gallery: galleryPaths,
                 video_url: document.getElementById('videoUrlInput')?.value.trim() || null,
+                video_type: document.querySelector('.video-tab.active')?.getAttribute('data-vtype') || 'youtube',
                 updated_at: new Date().toISOString()
             };
 
 
-            // 3. إرسال إلى Supabase
             const { error } = await supabase.from('profiles').upsert(profilePayload);
             if (error) throw error;
 
 
-            alert("تم حفظ البروفايل والبنر بنجاح! 🎉");
+            alert("تم إنشاء البروفايل بنجاح! 🎉");
             window.location.href = "gallery.html";
 
 
         } catch (err) {
-            alert("حدث خطأ أثناء الحفظ: " + err.message);
+            alert("حدث خطأ أثناء حفظ البروفايل: " + err.message);
         } finally {
             saveBtns.forEach(b => b.disabled = false);
         }
     };
 
 
-    // ربط الحدث بالنموذج وبأزرار الحفظ المباشرة
-    const profileForm = document.getElementById('profileWizardForm');
-    if (profileForm) profileForm.addEventListener('submit', handleProfileSave);
+    const wizardForm = document.getElementById('profileWizardForm');
+    if (wizardForm) wizardForm.addEventListener('submit', handleProfileSave);
 
 
-    document.querySelectorAll('#saveProfileBtn, #submitBtn, [data-action="save"]').forEach(btn => {
-        btn.addEventListener('click', handleProfileSave);
+    // ربط مباشر إضافي بالزر نفسه، احتياطاً إن مُنع حدث submit من قِبل المتصفح
+    // (كان يحدث سابقاً بصمت بسبب تحقق HTML5 التلقائي على حقل الفيديو)
+    const saveProfileBtnDirect = document.getElementById('saveProfileBtn');
+    if (saveProfileBtnDirect) {
+        saveProfileBtnDirect.addEventListener('click', (e) => {
+            handleProfileSave(e);
+        });
+    }
+
+
+    // فيديو: التبديل بين YouTube و Google Drive
+    document.querySelectorAll('.video-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.video-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+        });
     });
 });
-
-
-
-
-
-
-
