@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="main_style.css">
 </head>
 <body>
+    <!-- calm, low-opacity dot background — see .dot-field in main_style.css -->
+    <div class="dot-field" aria-hidden="true"></div>
+
     <header>
         <div class="header-container">
             <div class="logo">
@@ -89,10 +92,19 @@
         </div>
 
         <a href="gallery.html" class="cta-btn" data-i18n="hero_cta">Browse the gallery and write your message</a>
+
+        <div class="scroll-cue">
+            <button type="button" id="scrollCueBtn" aria-label="Scroll to the study location section">
+                <span data-i18n="scroll_cue">Keep scrolling</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 5v14M5 12l7 7 7-7"/>
+                </svg>
+            </button>
+        </div>
     </section>
 
     <!-- STUDY LOCATION MAP -->
-    <section class="location-section" id="location">
+    <section class="location-section reveal" id="location">
         <h2 class="section-title" data-i18n="location_title">Where do we learn?</h2>
         <p class="section-desc" data-i18n="location_desc">
             A map showing the center and the rooms where we held cohort sessions and hands-on workshops.
@@ -123,8 +135,8 @@
 
     <!-- GALLERY SHOWCASE -->
     <main class="gallery-section" id="gallery">
-        <h2 class="section-title" data-i18n="memories_title">Our memories</h2>
-        <div class="group-memories">
+        <h2 class="section-title reveal" data-i18n="memories_title">Our memories</h2>
+        <div class="group-memories reveal reveal-stagger">
             <div class="memory-card">
                 <img src="Photo/WhatsApp Image 2026-07-08 at 7.10.31 PM.jpeg" alt="Opening session of the cohort" loading="lazy">
                 <div class="card-body">
@@ -150,8 +162,8 @@
 
         <!-- TEACHERS & MENTORS -->
         <div class="teachers-section">
-            <h2 class="section-title" data-i18n="teachers_title">Our teachers</h2>
-            <div class="teachers-grid">
+            <h2 class="section-title reveal" data-i18n="teachers_title">Our teachers</h2>
+            <div class="teachers-grid reveal reveal-stagger">
                 <div class="teacher-card">
                     <img src="Photo/WhatsApp Image 2026-07-08 at 6.37.59 PM.jpeg" alt="Waqar Khattab" loading="lazy">
                     <h3>Waqar Khattab</h3>
@@ -177,7 +189,7 @@
                 </div>
             </div>
 
-            <div class="teachers-cta">
+            <div class="teachers-cta reveal">
                 <a href="gallery.html" class="cta-btn" data-i18n="hero_cta">Browse the gallery and write your message</a>
             </div>
         </div>
@@ -200,6 +212,55 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script src="auth_header.js" defer></script>
+
+    <!-- Scroll-reveal + soft page-transition enhancement (self-contained, doesn't touch main_control.js / app.js) -->
+    <script>
+        (function () {
+            // Scroll-triggered reveal for sections/cards marked .reveal
+            var revealTargets = document.querySelectorAll('.reveal');
+            if ('IntersectionObserver' in window && revealTargets.length) {
+                var observer = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+                revealTargets.forEach(function (el) { observer.observe(el); });
+            } else {
+                revealTargets.forEach(function (el) { el.classList.add('is-visible'); });
+            }
+
+            // Scroll-down cue under the hero CTA
+            var scrollCueBtn = document.getElementById('scrollCueBtn');
+            if (scrollCueBtn) {
+                scrollCueBtn.addEventListener('click', function () {
+                    var target = document.getElementById('location');
+                    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            }
+
+            // Soft cross-page transition via the View Transitions API.
+            // Progressive enhancement only: unsupported browsers just navigate normally.
+            if (document.startViewTransition) {
+                document.addEventListener('click', function (e) {
+                    var link = e.target.closest('a[href]');
+                    if (!link) return;
+                    var url;
+                    try { url = new URL(link.href, window.location.href); } catch (err) { return; }
+                    if (url.origin !== window.location.origin) return;
+                    if (link.target === '_blank' || link.hasAttribute('download')) return;
+                    if (link.getAttribute('href').startsWith('#')) return;
+
+                    e.preventDefault();
+                    document.startViewTransition(function () {
+                        window.location.href = link.href;
+                    });
+                });
+            }
+        })();
+    </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
