@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Students Map - Amala Educational Program, Cohort 8" />
+  <title>خريطة الطلاب</title>
+  <link rel="icon" href="Photo/light_mood_ICON.png" type="image/png">
+
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
+
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+
+  <!-- Leaflet.markercluster CSS (تجميع الدبابيس المتطابقة/المتقاربة) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+
+  <!-- main_style.css first so it can define the shared theme variables
+       (--bg-color, --primary-color, etc); global_map_style.css loads
+       after so its page-specific rules win instead of being silently
+       overridden by main_style's more generic ones. -->
+  <link rel="stylesheet" href="main_style.css" />
+  <link rel="stylesheet" href="global_map_style.css" />
+
+
+  <!--
+    ملاحظة مهمة: leaflet.markercluster مبنية بصيغة UMD وتتوقع أن تجد
+    "L" كمتغيّر عالمي (window.L) لتُلحق نفسها به (L.markerClusterGroup).
+    تحميلها عبر importmap/ESM (esm.sh) غير مضمون لأنه قد يحمّل نسخة
+    "leaflet" مختلفة عن التي يستوردها global_map_control.js، فتفشل
+    الإضافة بصمت أو يظهر خطأ "L.markerClusterGroup is not a function".
+    لذلك نحمّل leaflet + leaflet.markercluster هنا بوسم <script> عادي
+    (UMD) قبل تحميل الموديول، فتُلحق كلتاهما نفسها بـ window.L بأمان،
+    والموديول أدناه يستخدم window.L بدل استيراد leaflet من جديد.
+  -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+
+  <script type="importmap">
+  {
+    "imports": {
+      "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
+    }
+  }
+  </script>
+</head>
+<body>
+
+
+  <!-- الهيدر الخاص بك -->
+  <header>
+    <div class="header-container">
+        <div class="logo">
+            <img src="Photo/light_mood_ICON.png" alt="AMALA GSD Light Logo" class="logo-light">
+            <img src="Photo/night_mode_ICON.png" alt="AMALA GSD Dark Logo" class="logo-dark">
+            <span class="beta-badge" data-i18n="beta_badge">Beta</span>
+        </div>
+
+
+        <nav>
+            <a href="main.html" data-i18n="nav_main">Main</a>
+            <a href="global_map.html" class="active" data-i18n="nav_global_map">Global Map</a>
+            <a href="gallery.html" data-i18n="nav_gallery">Gallery</a>
+            <a href="alumni.html" data-i18n="nav_about">About Us</a>
+        </nav>
+
+
+        <div class="header-actions">
+            <div class="custom-dropdown" id="themeDropdown">
+                <button class="dropdown-btn" id="themeDropdownBtn" title="Select Theme">
+                    <span class="celestial-toggle" id="celestialToggle">
+                        <svg class="celestial-icon sun-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <g class="sun-rays">
+                                <line x1="12" y1="1" x2="12" y2="4"></line>
+                                <line x1="12" y1="1" x2="12" y2="4" transform="rotate(45 12 12)"></line>
+                                <line x1="12" y1="1" x2="12" y2="4" transform="rotate(90 12 12)"></line>
+                                <line x1="12" y1="1" x2="12" y2="4" transform="rotate(135 12 12)"></line>
+                                <line x1="12" y1="1" x2="12" y2="4" transform="rotate(180 12 12)"></line>
+                                <line x1="12" y1="1" x2="12" y2="4" transform="rotate(225 12 12)"></line>
+                                <line x1="12" y1="1" x2="12" y2="4" transform="rotate(270 12 12)"></line>
+                                <line x1="12" y1="1" x2="12" y2="4" transform="rotate(315 12 12)"></line>
+                            </g>
+                            <circle class="sun-core" cx="12" cy="12" r="5"></circle>
+                        </svg>
+                        <svg class="celestial-icon moon-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <defs>
+                                <mask id="moonMask">
+                                    <rect x="0" y="0" width="24" height="24" fill="#fff"></rect>
+                                    <circle cx="15" cy="8" r="7" fill="#000"></circle>
+                                </mask>
+                            </defs>
+                            <circle class="star" cx="5" cy="7" r="0.8"></circle>
+                            <circle class="star" cx="9.5" cy="3.5" r="0.6"></circle>
+                            <circle class="star" cx="18" cy="8" r="0.7"></circle>
+                            <circle class="moon-core" cx="12" cy="12" r="7" mask="url(#moonMask)"></circle>
+                        </svg>
+                        <span class="auto-badge" aria-hidden="true">A</span>
+                    </span>
+                </button>
+                <div class="dropdown-content">
+                    <button class="dropdown-item" data-theme-val="light">
+                        <img src="Photo/sun_ICON.png" alt="Light"> Light
+                    </button>
+                    <button class="dropdown-item" data-theme-val="dark">
+                        <img src="Photo/moon_ICON.png" alt="Dark"> Dark
+                    </button>
+                    <button class="dropdown-item" data-theme-val="auto">
+                        <img src="Photo/auto_ICON.png" alt="Auto"> Auto (Time)
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="custom-dropdown" id="langDropdown">
+                <button class="dropdown-btn" id="langDropdownBtn" title="Select Language">
+                    🌐 <span id="currentLangLabel">EN</span>
+                </button>
+                <div class="dropdown-content">
+                    <button class="dropdown-item" data-lang-val="en">English</button>
+                    <button class="dropdown-item" data-lang-val="ar">العربية</button>
+                </div>
+            </div>
+
+
+            <div id="authHeaderSlot"></div>
+        </div>
+    </div>
+  </header>
+
+
+  <!-- حاوية الخريطة تحت الهيدر -->
+  <div id="globe-container">
+    <div id="status"></div>
+  </div>
+
+
+  <!-- main_control.js is not modified — we just include it here too so
+       this page gets the exact same day/night + language behaviour as
+       main.html (it wasn't linked on this page before, which is why
+       the toggle in the header had no effect on this page). -->
+  <script src="main_control.js" defer></script>
+
+
+  <!-- Supabase auth state -> header avatar / sign-in link (same include
+       as the other pages, so the header stays consistent everywhere) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="auth_header.js" defer></script>
+
+
+  <script type="module" src="global_map_control.js"></script>
+</body>
+</html>
+
+

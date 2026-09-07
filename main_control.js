@@ -36,7 +36,7 @@
             footer_text: "© 2026 All rights reserved for Amala Educational Program - this page was coded by <b>Wisam Appsas</b>",
             gallery_title: "Our Memory Gallery",
             gallery_desc: "Explore all the beautiful moments shared by our cohort.",
-            search_placeholder: "🔍 Search memories by name or title...",
+            search_placeholder: "Search memories by name or title...",
             add_memory_title: "Add New Memory",
             input_your_name: "Your Name",
             lbl_profile_pic: "Profile Picture:",
@@ -47,6 +47,7 @@
             btn_publish: "Publish Memory",
             badge_author: "Author",
             beta_badge: "Beta",
+            scroll_cue: "Keep scrolling",
             about_eyebrow: "Cohort 8th",
             about_headline: "Our Story, Our Journey",
             about_quote: "Every batch leaves a mark. Here's a look at where we came from, what we believe in, and the people who made this journey possible.",
@@ -101,7 +102,7 @@
             footer_text: "© 2026 جميع الحقوق محفوظة لبرنامج أمل التعليمي - تم برمجة هذه الصفحة بواسطة <b>وسام عباصا</b>",
             gallery_title: "معرض ذكرياتنا",
             gallery_desc: "استكشف أروع اللحظات التي شاركها أعضاء دفعتنا.",
-            search_placeholder: "🔍 ابحث عن الذكريات بالاسم أو العنوان...",
+            search_placeholder: "ابحث عن الذكريات بالاسم أو العنوان...",
             add_memory_title: "إضافة ذاكرة جديدة",
             input_your_name: "اسمك",
             lbl_profile_pic: "الصورة الشخصية:",
@@ -112,6 +113,7 @@
             btn_publish: "نشر الذاكرة",
             badge_author: "الناشر",
             beta_badge: "نسخة تجريبية",
+            scroll_cue: "استمر بالتمرير",
             about_eyebrow: "الدفعة الثامنة",
             about_headline: "قصتنا، رحلتنا",
             about_quote: "كل دفعة تترك بصمتها. هذه لمحة عن بدايتنا، وما نؤمن به، والأشخاص الذين جعلوا هذه الرحلة ممكنة.",
@@ -132,11 +134,13 @@
         }
     };
 
+
     function safeSetItem(key, value) {
         try {
             localStorage.setItem(key, value);
         } catch (e) {}
     }
+
 
     function safeGetItem(key, fallback) {
         try {
@@ -146,29 +150,31 @@
         }
     }
 
+
     const themeDropdownBtn = document.getElementById('themeDropdownBtn');
-    const currentThemeIcon = document.getElementById('currentThemeIcon');
+    // Animated sun/moon toggle wrapper (replaces the old single <img id="currentThemeIcon">).
+    // We never touch the inner SVGs directly — we just flip these two classes and
+    // main_style.css (.celestial-toggle) does the sliding/fading/rotating.
+    const celestialToggle = document.getElementById('celestialToggle');
     const themeDropdown = document.getElementById('themeDropdown');
     const themeDropdownContent = themeDropdown ? themeDropdown.querySelector('.dropdown-content') : null;
+
 
     const langDropdownBtn = document.getElementById('langDropdownBtn');
     const currentLangLabel = document.getElementById('currentLangLabel');
     const langDropdown = document.getElementById('langDropdown');
     const langDropdownContent = langDropdown ? langDropdown.querySelector('.dropdown-content') : null;
 
-    const ICONS = {
-        light: "Photo/sun_ICON.png",
-        dark: "Photo/moon_ICON.png",
-        auto: "Photo/auto_ICON.png"
-    };
 
     function applyTheme(themeChoice) {
         let effectiveTheme = themeChoice;
+
 
         if (themeChoice === 'auto') {
             const hour = new Date().getHours();
             effectiveTheme = (hour >= 6 && hour < 18) ? 'light' : 'dark';
         }
+
 
         if (effectiveTheme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
@@ -176,9 +182,12 @@
             document.documentElement.removeAttribute('data-theme');
         }
 
-        if (currentThemeIcon) {
-            currentThemeIcon.src = ICONS[themeChoice] || ICONS.light;
+
+        if (celestialToggle) {
+            celestialToggle.classList.toggle('is-dark', effectiveTheme === 'dark');
+            celestialToggle.classList.toggle('is-auto', themeChoice === 'auto');
         }
+
 
         if (themeDropdown) {
             themeDropdown.querySelectorAll('.dropdown-item').forEach(item => {
@@ -186,23 +195,29 @@
             });
         }
 
+
         safeSetItem('preferred_theme', themeChoice);
     }
+
 
     function applyLanguage(lang) {
         if (!translations[lang]) lang = 'ar';
 
+
         document.documentElement.setAttribute('lang', lang);
         document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+
 
         if (currentLangLabel) {
             currentLangLabel.textContent = lang.toUpperCase();
         }
 
+
         document.querySelectorAll('[data-i18n]').forEach(element => {
             const key = element.getAttribute('data-i18n');
             const value = translations[lang][key];
             if (!value) return;
+
 
             if (element.tagName === 'INPUT' && element.hasAttribute('placeholder')) {
                 element.setAttribute('placeholder', value);
@@ -211,14 +226,17 @@
             }
         });
 
+
         if (langDropdown) {
             langDropdown.querySelectorAll('.dropdown-item').forEach(item => {
                 item.classList.toggle('active', item.getAttribute('data-lang-val') === lang);
             });
         }
 
+
         safeSetItem('preferred_lang', lang);
     }
+
 
     function setupDropdowns() {
         if (themeDropdownBtn && themeDropdownContent) {
@@ -228,6 +246,7 @@
                 themeDropdownContent.classList.toggle('show');
             });
 
+
             themeDropdown.querySelectorAll('.dropdown-item').forEach(item => {
                 item.addEventListener('click', () => {
                     applyTheme(item.getAttribute('data-theme-val'));
@@ -236,12 +255,14 @@
             });
         }
 
+
         if (langDropdownBtn && langDropdownContent) {
             langDropdownBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (themeDropdownContent) themeDropdownContent.classList.remove('show');
                 langDropdownContent.classList.toggle('show');
             });
+
 
             langDropdown.querySelectorAll('.dropdown-item').forEach(item => {
                 item.addEventListener('click', () => {
@@ -251,11 +272,13 @@
             });
         }
 
+
         document.addEventListener('click', () => {
             if (themeDropdownContent) themeDropdownContent.classList.remove('show');
             if (langDropdownContent) langDropdownContent.classList.remove('show');
         });
     }
+
 
     document.addEventListener('DOMContentLoaded', () => {
         setupDropdowns();

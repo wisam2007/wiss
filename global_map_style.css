@@ -1,0 +1,327 @@
+/* ============================================================
+   GLOBAL MAP STYLE
+   This file only adds what main_style.css does not already
+   provide. It never redefines --bg-color / --card-bg / etc,
+   it reads the same custom properties main_style.css sets on
+   :root and [data-theme="dark"], so switching theme from the
+   header dropdown re-colors the map page automatically.
+
+
+   Load order matters: main_style.css must be linked BEFORE this
+   file so these page-specific rules are the ones that win.
+   ============================================================ */
+
+
+html, body {
+    height: 100%;
+}
+
+
+body {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: var(--bg-color);
+}
+
+
+/* header already comes from main_style.css (sticky, themed);
+   we just make sure it never shrinks in the flex column */
+header {
+    flex: 0 0 auto;
+}
+
+
+#globe-container {
+    position: relative;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0; /* required so the flex child can actually shrink to fill height in Firefox/Safari */
+    background-color: var(--bg-color);
+}
+
+
+#globe-container .leaflet-container {
+    background-color: var(--bg-color);
+    font-family: 'Tajawal', sans-serif;
+}
+
+
+#status {
+    position: absolute;
+    top: 15px;
+    inset-inline-end: 15px;
+    z-index: 999;
+    background: var(--header-bg);
+    color: var(--text-color);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid var(--border-color);
+    pointer-events: none;
+}
+
+
+#status:empty {
+    display: none;
+}
+
+
+/* ============================================================
+   STUDENT PIN
+   ============================================================ */
+.student-pin-container {
+    background: transparent;
+    border: none;
+}
+
+
+.student-pin-avatar {
+    box-sizing: border-box; /* keep the border INSIDE the 42x42 box instead of enlarging it past the marker's icon frame */
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 0 10px rgba(2, 132, 199, 0.55), var(--shadow);
+    background-color: var(--card-bg);
+    cursor: pointer;
+    overflow: hidden; /* extra safety net so a stray oversized image can never poke past the circle */
+    transform-origin: center bottom;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+
+.student-pin-avatar img {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+}
+
+
+.student-pin-avatar:hover {
+    transform: scale(1.12);
+    border-color: var(--primary-hover);
+    box-shadow: 0 0 16px rgba(2, 132, 199, 0.75), var(--shadow);
+}
+
+
+/* Little "pop" played on tap/click, on top of the hover scale above */
+@keyframes pin-pop {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(1.35) translateY(-6px); }
+    60%  { transform: scale(0.92); }
+    100% { transform: scale(1); }
+}
+
+
+.student-pin-avatar.pin-bounce {
+    animation: pin-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+
+/* ============================================================
+   MARKER CLUSTER
+   Shown instead of overlapping pins when 2+ profiles share the
+   same (or very close) coordinates. Tapping a cluster zooms in;
+   at max zoom, identical points fan out (spiderfy) so every
+   profile stays reachable instead of hiding under the top pin.
+   ============================================================ */
+.custom-cluster {
+    background: transparent;
+    border: none;
+}
+
+
+.custom-cluster .cluster-icon {
+    box-sizing: border-box;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid var(--card-bg);
+    box-shadow: 0 0 10px rgba(2, 132, 199, 0.55), var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+.custom-cluster:hover .cluster-icon {
+    transform: scale(1.12);
+    background-color: var(--primary-hover);
+    box-shadow: 0 0 16px rgba(2, 132, 199, 0.75), var(--shadow);
+}
+
+
+/* Leaflet.markercluster's own "spider leg" lines connecting a
+   fanned-out cluster to its origin point, retinted to the theme */
+.leaflet-cluster-spider-leg {
+    stroke: var(--text-muted) !important;
+}
+
+
+/* ============================================================
+   POPUP — small profile card shown when a pin is clicked
+   ============================================================ */
+.leaflet-popup-content-wrapper {
+    background: var(--card-bg);
+    color: var(--text-color);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    padding: 0;
+    overflow: hidden;
+}
+
+
+.leaflet-popup-content {
+    margin: 0;
+    width: 220px !important;
+}
+
+
+.leaflet-popup-tip {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: none;
+}
+
+
+.leaflet-popup-close-button {
+    color: #ffffff !important;
+    z-index: 2;
+    font-size: 18px !important;
+    padding: 6px 8px 0 0 !important;
+}
+
+
+.student-popup {
+    font-family: 'Tajawal', sans-serif;
+    text-align: center;
+}
+
+
+.student-popup-banner {
+    height: 46px;
+    background: linear-gradient(45deg, var(--primary-color), #a855f7);
+}
+
+
+.student-popup-avatar {
+    box-sizing: border-box;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center center;
+    aspect-ratio: 1 / 1;
+    margin: -40px auto 0 auto;
+    display: block;
+    border: 3px solid var(--card-bg);
+    box-shadow: var(--shadow);
+    background-color: var(--card-bg);
+}
+
+
+.student-popup-body {
+    padding: 10px 16px 16px 16px;
+}
+
+
+.student-popup-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-color);
+    margin-bottom: 2px;
+}
+
+
+.student-popup-city {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+
+/* ============================================================
+   LEAFLET CHROME — retint the built-in controls to match theme
+   ============================================================ */
+.leaflet-control-zoom a {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+
+.leaflet-control-zoom a:hover {
+    background-color: var(--border-color) !important;
+}
+
+
+/* Tile attribution: CARTO/OpenStreetMap require this text as a
+   condition of using their free tiles, so we shrink it to be
+   unobtrusive instead of removing it outright (display:none risks
+   violating the tile provider's terms of use). */
+.leaflet-control-attribution {
+    background: var(--header-bg) !important;
+    color: var(--text-muted) !important;
+    font-size: 0.65rem !important;
+    padding: 1px 6px !important;
+    opacity: 0.6;
+    line-height: 1.4;
+}
+
+
+.leaflet-control-attribution:hover {
+    opacity: 1;
+}
+
+
+.leaflet-control-attribution a {
+    color: var(--text-color) !important;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .student-pin-avatar.pin-bounce {
+        animation: none;
+    }
+}
+
+
+@media (max-width: 768px) {
+    #status {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+
+
+    .student-pin-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+
+    .leaflet-control-attribution {
+        font-size: 0.55rem !important;
+    }
+}
+
+
+
+

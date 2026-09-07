@@ -8,20 +8,14 @@
     <title>معرض الطلاب - Amala GSD</title>
 
 
-
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 
-
-
     <!-- CSS Files -->
     <link rel="stylesheet" href="main_style.css">
     <link rel="stylesheet" href="gallery_style.css">
-
-
 
 
 <!-- مكتبة Supabase JS SDK — يجب تحميلها قبل config.js وقبل أي سكربت آخر يعتمد عليها -->
@@ -39,12 +33,35 @@
 <body>
 
 
+    <!-- شمس/قمر متحركة في الخلفية — نفس عنصر main.html، الـ CSS مشترك في main_style.css -->
+    <div class="sky-layer" aria-hidden="true">
+        <svg class="sky-body sky-sun" viewBox="0 0 100 100" focusable="false">
+            <g class="sky-sun-rays">
+                <line x1="50" y1="4" x2="50" y2="20"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(45 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(90 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(135 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(180 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(225 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(270 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(315 50 50)"></line>
+            </g>
+            <circle cx="50" cy="50" r="26"></circle>
+        </svg>
+        <svg class="sky-body sky-moon" viewBox="0 0 100 100" focusable="false">
+            <defs>
+                <mask id="skyMoonMask">
+                    <rect x="0" y="0" width="100" height="100" fill="#fff"></rect>
+                    <circle cx="62" cy="34" r="28" fill="#000"></circle>
+                </mask>
+            </defs>
+            <circle cx="50" cy="50" r="28" mask="url(#skyMoonMask)"></circle>
+        </svg>
+    </div>
 
 
     <!-- عنصر تشغيل الصوت الخفي -->
     <audio id="previewAudioEl" preload="none"></audio>
-
-
 
 
     <header>
@@ -55,15 +72,12 @@
             </div>
 
 
-
-
             <nav>
                 <a href="main.html" data-i18n="nav_main">الرئيسية</a>
+                <a href="global_map.html" data-i18n="nav_global_map">Global Map</a>
                 <a href="gallery.html" class="active" data-i18n="nav_gallery">المعرض</a>
                 <a href="alumni.html" data-i18n="nav_about">عن الدفعة</a>
             </nav>
-
-
 
 
             <div class="header-actions">
@@ -73,11 +87,37 @@
                 </div>
 
 
-
-
                 <div class="custom-dropdown" id="themeDropdown">
                     <button class="dropdown-btn" id="themeDropdownBtn" type="button" title="Select Theme">
-                        <img src="Photo/auto_ICON.png" alt="Theme Icon" class="dropdown-icon" id="currentThemeIcon">
+                        <!-- أيقونة الشمس/القمر المتحركة، نفس التي في main.html -->
+                        <span class="celestial-toggle" id="celestialToggle">
+                            <svg class="celestial-icon sun-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <g class="sun-rays">
+                                    <line x1="12" y1="1" x2="12" y2="4"></line>
+                                    <line x1="12" y1="1" x2="12" y2="4" transform="rotate(45 12 12)"></line>
+                                    <line x1="12" y1="1" x2="12" y2="4" transform="rotate(90 12 12)"></line>
+                                    <line x1="12" y1="1" x2="12" y2="4" transform="rotate(135 12 12)"></line>
+                                    <line x1="12" y1="1" x2="12" y2="4" transform="rotate(180 12 12)"></line>
+                                    <line x1="12" y1="1" x2="12" y2="4" transform="rotate(225 12 12)"></line>
+                                    <line x1="12" y1="1" x2="12" y2="4" transform="rotate(270 12 12)"></line>
+                                    <line x1="12" y1="1" x2="12" y2="4" transform="rotate(315 12 12)"></line>
+                                </g>
+                                <circle class="sun-core" cx="12" cy="12" r="5"></circle>
+                            </svg>
+                            <svg class="celestial-icon moon-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <defs>
+                                    <mask id="moonMaskGallery">
+                                        <rect x="0" y="0" width="24" height="24" fill="#fff"></rect>
+                                        <circle cx="15" cy="8" r="7" fill="#000"></circle>
+                                    </mask>
+                                </defs>
+                                <circle class="star" cx="5" cy="7" r="0.8"></circle>
+                                <circle class="star" cx="9.5" cy="3.5" r="0.6"></circle>
+                                <circle class="star" cx="18" cy="8" r="0.7"></circle>
+                                <circle class="moon-core" cx="12" cy="12" r="7" mask="url(#moonMaskGallery)"></circle>
+                            </svg>
+                            <span class="auto-badge" aria-hidden="true">A</span>
+                        </span>
                     </button>
                     <div class="dropdown-content">
                         <button class="dropdown-item" type="button" data-theme-val="light">
@@ -93,11 +133,13 @@
                 </div>
 
 
-
-
                 <div class="custom-dropdown" id="langDropdown">
                     <button class="dropdown-btn" id="langDropdownBtn" type="button" title="Select Language">
-                        🌐 <span id="currentLangLabel">AR</span>
+                        <svg class="icon-svg globe-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"></path>
+                        </svg>
+                        <span id="currentLangLabel">AR</span>
                     </button>
                     <div class="dropdown-content">
                         <button class="dropdown-item" type="button" data-lang-val="ar">العربية</button>
@@ -109,23 +151,18 @@
     </header>
 
 
-
-
     <main class="gallery-container">
         <section class="gallery-hero">
             <h1 data-i18n="gallery_title">معرض الطلاب والذكريات</h1>
             <p data-i18n="gallery_desc">استكشف البروفايلات والصور واللحظات الجميلة التي شاركها طلاب الدفعة.</p>
 
 
-
-
             <div class="search-container">
                 <label for="searchInput" class="visually-hidden">بحث عن طالب</label>
-                <input type="text" id="searchInput" class="custom-input" data-i18n="search_placeholder" placeholder="🔍 ابحث عن طالب بالاسم أو النبذة التعريفية...">
+                <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                <input type="text" id="searchInput" class="custom-input" data-i18n="search_placeholder" placeholder="ابحث عن طالب بالاسم أو النبذة التعريفية...">
             </div>
         </section>
-
-
 
 
         <div class="gallery-grid" id="galleryGrid">
@@ -134,22 +171,16 @@
     </main>
 
 
-
-
     <div class="modal-overlay" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="modalName">
-        <button class="modal-close-outside" id="modalCloseBtn" type="button" aria-label="إغلاق">&times;</button>
-
-
+        <button class="modal-close-outside" id="modalCloseBtn" type="button" aria-label="إغلاق">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
 
 
         <div class="modal-card">
-            <!-- تمت إضافة id="modalBanner" هنا: بدونه، gallery_control.js لا يجد العنصر
-                 ولا يستطيع تطبيق لون/تدرج/صورة البنر المحفوظة، ويبقى التدرج الافتراضي فقط -->
             <div class="modal-header-bg" id="modalBanner">
                 <img id="modalAvatar" src="" alt="صورة الطالب الشخصية" class="modal-avatar">
             </div>
-
-
 
 
             <div class="modal-body">
@@ -157,13 +188,23 @@
                 <p id="modalBio" class="modal-user-bio">النبذة التعريفية...</p>
 
 
+                <!-- روابط التواصل: تُعرض فقط إذا توفر رابط لينكدإن أو إنستغرام في قاعدة البيانات -->
+                <div class="modal-socials" id="modalSocials"></div>
 
 
                 <div class="modal-section audio-section" id="modalAudioSection" style="display: none;">
-                    <h3>🎵 الأغنية المفضلة</h3>
+                    <h3>
+                        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                        الأغنية المفضلة
+                    </h3>
                     <div class="audio-player-card">
+                        <button type="button" class="disc-play-btn" id="discPlayBtn" aria-label="تشغيل">
+                            <svg class="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+                            <svg class="pause-icon" viewBox="0 0 24 24" style="display:none"><path d="M7 5h4v14H7zM13 5h4v14h-4z"></path></svg>
+                        </button>
                         <div class="preview-disc" id="previewDisc">
-                            <button type="button" class="disc-play-btn" id="discPlayBtn" aria-label="play preview">▶</button>
+                            <div class="disc-grooves"></div>
+                            <div class="disc-label"></div>
                         </div>
                         <div class="audio-info">
                             <p class="preview-song" id="previewSong">جاري التحميل...</p>
@@ -172,49 +213,65 @@
                 </div>
 
 
-
-
                 <div class="modal-section" id="modalGallerySection">
-                    <h3>🖼️ معرض الصور</h3>
+                    <h3>
+                        <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path></svg>
+                        معرض الصور
+                    </h3>
                     <div class="modal-gallery-grid" id="modalGalleryGrid"></div>
                 </div>
 
 
-
-
                 <div class="modal-section" id="modalVideoSection" style="display: none;">
-                    <h3>🎬 فيديو التعريف</h3>
+                    <h3>
+                        <svg class="icon-svg" viewBox="0 0 24 24"><rect x="2" y="6" width="15" height="12" rx="2"></rect><path d="m17 10 5-3v10l-5-3"></path></svg>
+                        فيديو التعريف
+                    </h3>
                     <div class="video-container" id="modalVideoContainer"></div>
                 </div>
 
 
-
-
                 <div class="modal-section reactions-section">
-                    <h3>✨ التفاعلات</h3>
+                    <h3>
+                        <svg class="icon-svg filled" viewBox="0 0 24 24"><path d="M12 2l1.8 5.5L19 9l-5.2 1.5L12 16l-1.8-5.5L5 9l5.2-1.5L12 2z"></path><path d="M19 14l.9 2.6L22 17l-2.1.8L19 20l-.9-2.2L16 17l2.1-.4L19 14z"></path></svg>
+                        التفاعلات
+                    </h3>
+                    <p class="reactions-hint">تفاعل واحد لكل زائر — اضغط على تفاعل آخر للتبديل، أو اضغط على تفاعلك الحالي لإزالته.</p>
                     <div class="reactions-bar" id="reactionsBar">
-                        <button class="reaction-btn" type="button" data-reaction-type="like">❤️ <span id="count-like">0</span></button>
-                        <button class="reaction-btn" type="button" data-reaction-type="laugh">😆 <span id="count-laugh">0</span></button>
-                        <button class="reaction-btn" type="button" data-reaction-type="sad">😢 <span id="count-sad">0</span></button>
-                        <button class="reaction-btn" type="button" data-reaction-type="smile">😊 <span id="count-smile">0</span></button>
+                        <button class="reaction-btn" type="button" data-reaction-type="like">
+                            <svg class="icon-svg filled" viewBox="0 0 24 24"><path d="M12 21s-6.7-4.35-9.3-8.1C.8 9.9 1.9 6.3 5.1 5.2c2-.7 4 .1 5 1.8 1-1.7 3-2.5 5-1.8 3.2 1.1 4.3 4.7 2.4 7.7C18.7 16.65 12 21 12 21z"></path></svg>
+                            <span id="count-like">0</span>
+                        </button>
+                        <button class="reaction-btn" type="button" data-reaction-type="laugh">
+                            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M8 10h.01M16 10h.01M7.5 14a5 5 0 0 0 9 0"></path></svg>
+                            <span id="count-laugh">0</span>
+                        </button>
+                        <button class="reaction-btn" type="button" data-reaction-type="sad">
+                            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M8 10h.01M16 10h.01M8.5 16a5 5 0 0 1 7 0"></path></svg>
+                            <span id="count-sad">0</span>
+                        </button>
+                        <button class="reaction-btn" type="button" data-reaction-type="smile">
+                            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M8 10h.01M16 10h.01M8 14a5 5 0 0 0 8 0"></path></svg>
+                            <span id="count-smile">0</span>
+                        </button>
                     </div>
                 </div>
 
 
-
-
                 <div class="modal-section comments-section">
-                    <h3>💬 التعليقات</h3>
+                    <h3>
+                        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-4.2-1.1L3 20l1.1-5.3A8.38 8.38 0 0 1 3 11.5 8.5 8.5 0 0 1 11.5 3 8.38 8.38 0 0 1 21 11.5z"></path></svg>
+                        التعليقات
+                    </h3>
                     <div class="comments-list" id="commentsList">
                         <p class="no-comments">لا توجد تعليقات بعد، كن أول من يعلق!</p>
                     </div>
 
 
-
-
                     <form id="commentForm" class="comment-form">
+                        <input type="text" id="commentAuthor" placeholder="اسمك (اختياري)" class="comment-input text-input comment-author-input" maxlength="60">
                         <div class="comment-input-wrapper">
-                            <input type="text" id="commentText" placeholder="اكتب تعليقك هنا..." required class="comment-input text-input">
+                            <input type="text" id="commentText" placeholder="اكتب تعليقك هنا..." required class="comment-input text-input" maxlength="500">
                             <button type="submit" class="btn-send-comment">إرسال</button>
                         </div>
                     </form>
@@ -224,9 +281,24 @@
     </div>
 
 
+    <!-- نافذة تكبير الصور (Lightbox) -->
+    <div class="lightbox-overlay" id="lightboxOverlay" role="dialog" aria-modal="true">
+        <button class="lightbox-close" id="lightboxClose" type="button" aria-label="إغلاق الصورة">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+        <button class="lightbox-nav lightbox-prev" id="lightboxPrev" type="button" aria-label="الصورة السابقة">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <img id="lightboxImage" src="" alt="صورة مكبرة">
+        <button class="lightbox-nav lightbox-next" id="lightboxNext" type="button" aria-label="الصورة التالية">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="lightbox-counter" id="lightboxCounter"></div>
+    </div>
 
 
-    <!-- استدعاء التحكم بالنظام فقط برمجياً -->
+    <!-- التحكم بالنظام: الثيم/اللغة (مشترك مع main.html)، ثم منطق المعرض -->
+    <script src="main_control.js" defer></script>
     <script src="gallery_control.js" defer></script>
 </body>
 </html>

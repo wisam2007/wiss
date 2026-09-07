@@ -14,6 +14,7 @@
     --dot-gap: 26px;
 }
 
+
 [data-theme="dark"] {
     --bg-color: #0f172a;
     --card-bg: #1e293b;
@@ -27,15 +28,18 @@
     --dot-color: rgba(56, 189, 248, 0.08);
 }
 
+
 html {
     scroll-behavior: smooth;
 }
+
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
+
 
 body {
     font-family: 'Tajawal', sans-serif;
@@ -45,6 +49,7 @@ body {
     text-align: start;
     position: relative;
 }
+
 
 /* ---------------------------------------------------------------
    DOT BACKGROUND
@@ -65,14 +70,106 @@ body {
     opacity: 0.9;
 }
 
+
+/* ---------------------------------------------------------------
+   AMBIENT SKY — sun / moon drifting across the background
+   Reusable on ANY page that links this stylesheet (main + gallery).
+   Purely decorative: aria-hidden + pointer-events off, sits behind
+   everything (z-index: -1), fades between sun/moon with the theme.
+   --------------------------------------------------------------- */
+.sky-layer {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: -1;
+}
+
+
+.sky-body {
+    position: absolute;
+    top: 8%;
+    left: 100%;
+    --sky-size: 180px;
+    width: var(--sky-size);
+    height: var(--sky-size);
+    filter: blur(1px);
+    animation: sky-drift 60s linear infinite;
+    transition: opacity 0.8s ease;
+}
+
+
+.sky-sun {
+    color: #f59e0b;
+    opacity: 0.14;
+}
+
+
+.sky-sun circle {
+    fill: currentColor;
+    filter: drop-shadow(0 0 45px currentColor);
+}
+
+
+.sky-sun-rays {
+    transform-origin: 50px 50px;
+}
+
+
+.sky-sun-rays line {
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+}
+
+
+.sky-moon {
+    color: #94a3b8;
+    opacity: 0;
+}
+
+
+.sky-moon circle {
+    fill: currentColor;
+    filter: drop-shadow(0 0 40px currentColor);
+}
+
+
+[data-theme="dark"] .sky-sun {
+    opacity: 0;
+}
+
+
+[data-theme="dark"] .sky-moon {
+    opacity: 0.16;
+}
+
+
+@keyframes sky-drift {
+    from { transform: translateX(0); }
+    to   { transform: translateX(calc(-100vw - var(--sky-size))); }
+}
+
+
+@media (max-width: 768px) {
+    .sky-body {
+        --sky-size: 120px;
+        top: 5%;
+    }
+}
+
+
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
+    .sky-layer { display: none; }
 }
+
 
 body, header, .memory-card, .teacher-card, footer, nav a,
 .dropdown-btn, .dropdown-content, .detail-chip, .location-card, .location-map {
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
+
 
 header {
     position: sticky;
@@ -88,6 +185,7 @@ header {
     z-index: 1000;
 }
 
+
 .header-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -96,6 +194,7 @@ header {
     align-items: center;
     padding: 15px 20px;
 }
+
 
 .logo {
     font-weight: 900;
@@ -106,15 +205,18 @@ header {
     gap: 5px;
 }
 
+
 .logo img {
     height: 50px;
     width: auto;
 }
 
+
 .logo-light { display: block; }
 .logo-dark { display: none; }
 [data-theme="dark"] .logo-light { display: none; }
 [data-theme="dark"] .logo-dark { display: block; }
+
 
 .beta-badge {
     display: inline-block;
@@ -130,10 +232,12 @@ header {
     white-space: nowrap;
 }
 
+
 nav {
     display: flex;
     gap: 25px;
 }
+
 
 nav a {
     position: relative;
@@ -143,6 +247,7 @@ nav a {
     font-size: 0.95rem;
     padding-bottom: 4px;
 }
+
 
 nav a::after {
     content: "";
@@ -157,15 +262,19 @@ nav a::after {
     transition: transform 0.25s ease;
 }
 
+
 [dir="rtl"] nav a::after { transform-origin: left; }
+
 
 nav a:hover, nav a.active {
     color: var(--primary-color);
 }
 
+
 nav a:hover::after, nav a.active::after {
     transform: scaleX(1);
 }
+
 
 .header-actions {
     display: flex;
@@ -173,10 +282,12 @@ nav a:hover::after, nav a.active::after {
     gap: 15px;
 }
 
+
 .custom-dropdown {
     position: relative;
     display: inline-block;
 }
+
 
 .dropdown-btn {
     background: transparent;
@@ -192,15 +303,181 @@ nav a:hover::after, nav a.active::after {
     font-weight: bold;
 }
 
+
 .dropdown-btn:hover {
     background-color: var(--border-color);
 }
+
 
 .dropdown-icon {
     width: 20px;
     height: 20px;
     object-fit: contain;
 }
+
+
+/* ============================================================
+   THEME TOGGLE ICON — animated sun/moon (replaces the static
+   swapped-PNG dropdown-icon). main_control.js only ever toggles
+   "is-dark" / "is-auto" on #celestialToggle; everything else here
+   handles the slide + fade + rotate.
+   ============================================================ */
+.celestial-toggle {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+
+.celestial-icon {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.45s ease;
+}
+
+
+.sun-icon {
+    color: #f59e0b;
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+}
+
+
+.sun-rays {
+    transform-origin: 12px 12px;
+    animation: sun-spin 16s linear infinite;
+}
+
+
+.sun-rays line {
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+}
+
+
+.sun-core {
+    fill: currentColor;
+}
+
+
+.moon-icon {
+    color: #cbd5e1;
+    transform: translateY(60%) rotate(-40deg);
+    opacity: 0;
+}
+
+
+.moon-core {
+    fill: currentColor;
+}
+
+
+.star {
+    fill: #fef9c3;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+
+.celestial-toggle.is-dark .sun-icon {
+    transform: translateY(-60%) rotate(55deg);
+    opacity: 0;
+}
+
+
+.celestial-toggle.is-dark .sun-rays {
+    animation-play-state: paused;
+}
+
+
+.celestial-toggle.is-dark .moon-icon {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+}
+
+
+.celestial-toggle.is-dark .star {
+    opacity: 1;
+}
+
+
+.celestial-toggle.is-dark .star:nth-of-type(1) { transition-delay: 0.1s; }
+.celestial-toggle.is-dark .star:nth-of-type(2) { transition-delay: 0.25s; }
+.celestial-toggle.is-dark .star:nth-of-type(3) { transition-delay: 0.4s; }
+
+
+@keyframes sun-spin {
+    to { transform: rotate(360deg); }
+}
+
+
+.auto-badge {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    font-size: 6px;
+    font-weight: 900;
+    line-height: 7px;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.4);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+}
+
+
+[dir="rtl"] .auto-badge {
+    right: auto;
+    left: -1px;
+}
+
+
+.celestial-toggle.is-auto .auto-badge {
+    opacity: 1;
+    transform: scale(1);
+}
+
+
+/* ============================================================
+   INLINE ICONS — replace text emoji across the page
+   ============================================================ */
+.icon-svg {
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: -0.15em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+}
+
+
+.icon-svg.filled {
+    fill: currentColor;
+    stroke: none;
+}
+
+
+.globe-icon {
+    width: 16px;
+    height: 16px;
+}
+
 
 .dropdown-content {
     display: none;
@@ -216,14 +493,17 @@ nav a:hover::after, nav a.active::after {
     overflow: hidden;
 }
 
+
 [dir="rtl"] .dropdown-content {
     right: auto;
     left: 0;
 }
 
+
 .dropdown-content.show {
     display: block;
 }
+
 
 .dropdown-item {
     width: 100%;
@@ -239,14 +519,17 @@ nav a:hover::after, nav a.active::after {
     font-size: 0.9rem;
 }
 
+
 .dropdown-item:hover {
     background-color: var(--border-color);
 }
+
 
 .dropdown-item img {
     width: 18px;
     height: 18px;
 }
+
 
 .dropdown-item.active {
     background-color: rgba(2, 132, 199, 0.1);
@@ -254,12 +537,14 @@ nav a:hover::after, nav a.active::after {
     font-weight: bold;
 }
 
+
 .hero {
     padding: 120px 20px 80px 20px;
     text-align: center;
     max-width: 800px;
     margin: 0 auto;
 }
+
 
 .hero h1 {
     font-size: 3rem;
@@ -272,12 +557,14 @@ nav a:hover::after, nav a.active::after {
     -webkit-text-fill-color: transparent;
 }
 
+
 .hero p {
     font-size: 1.2rem;
     color: var(--text-muted);
     margin-bottom: 40px;
     line-height: 1.8;
 }
+
 
 /* KEY DETAILS CHIPS */
 .key-details {
@@ -287,6 +574,7 @@ nav a:hover::after, nav a.active::after {
     gap: 12px;
     margin-bottom: 45px;
 }
+
 
 .detail-chip {
     display: flex;
@@ -301,15 +589,20 @@ nav a:hover::after, nav a.active::after {
     box-shadow: var(--shadow);
 }
 
+
 .detail-icon {
     font-size: 1.1rem;
+    color: var(--primary-color);
+    display: inline-flex;
 }
+
 
 @keyframes pulse-animation {
     0% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.5); }
     70% { box-shadow: 0 0 0 15px rgba(2, 132, 199, 0); }
     100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0); }
 }
+
 
 .cta-btn {
     display: inline-block;
@@ -325,10 +618,12 @@ nav a:hover::after, nav a.active::after {
     animation: pulse-animation 2s infinite;
 }
 
+
 .cta-btn:hover {
     background-color: var(--primary-hover);
     transform: translateY(-2px);
 }
+
 
 /* SCROLL-DOWN CUE — small, quiet nudge under the hero CTA */
 .scroll-cue {
@@ -336,6 +631,7 @@ nav a:hover::after, nav a.active::after {
     justify-content: center;
     margin-top: 46px;
 }
+
 
 .scroll-cue button {
     background: none;
@@ -350,21 +646,25 @@ nav a:hover::after, nav a.active::after {
     font-size: 0.8rem;
 }
 
+
 .scroll-cue svg {
     width: 18px;
     height: 18px;
     animation: scroll-cue-bob 1.8s ease-in-out infinite;
 }
 
+
 @keyframes scroll-cue-bob {
     0%, 100% { transform: translateY(0); opacity: 0.55; }
     50% { transform: translateY(6px); opacity: 1; }
 }
 
+
 @media (prefers-reduced-motion: reduce) {
     .cta-btn { animation: none; }
     .scroll-cue svg { animation: none; }
 }
+
 
 /* STUDY LOCATION SECTION */
 .location-section {
@@ -372,6 +672,7 @@ nav a:hover::after, nav a.active::after {
     margin: 0 auto;
     padding: 20px 20px 70px 20px;
 }
+
 
 .section-desc {
     text-align: center;
@@ -381,12 +682,14 @@ nav a:hover::after, nav a.active::after {
     font-size: 1rem;
 }
 
+
 .location-content {
     display: grid;
     grid-template-columns: 1.4fr 1fr;
     gap: 25px;
     align-items: stretch;
 }
+
 
 .location-map {
     border-radius: 12px;
@@ -397,6 +700,7 @@ nav a:hover::after, nav a.active::after {
     min-height: 260px;
 }
 
+
 .location-map img {
     width: 100%;
     height: 100%;
@@ -404,6 +708,7 @@ nav a:hover::after, nav a.active::after {
     object-fit: cover;
     display: block;
 }
+
 
 .location-card {
     background-color: var(--card-bg);
@@ -417,16 +722,21 @@ nav a:hover::after, nav a.active::after {
     gap: 25px;
 }
 
+
 .location-row {
     display: flex;
     align-items: flex-start;
     gap: 14px;
 }
 
+
 .location-icon {
     font-size: 1.4rem;
     line-height: 1;
+    color: var(--primary-color);
+    display: inline-flex;
 }
+
 
 .location-row h4 {
     font-size: 0.95rem;
@@ -435,10 +745,12 @@ nav a:hover::after, nav a.active::after {
     font-weight: 700;
 }
 
+
 .location-row p {
     font-size: 1.05rem;
     font-weight: 500;
 }
+
 
 .gallery-section {
     max-width: 1200px;
@@ -447,6 +759,7 @@ nav a:hover::after, nav a.active::after {
     border-top: 1px solid var(--border-color);
 }
 
+
 .section-title {
     text-align: center;
     font-size: 1.8rem;
@@ -454,12 +767,14 @@ nav a:hover::after, nav a.active::after {
     font-weight: 700;
 }
 
+
 .group-memories {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 30px;
     margin-bottom: 70px;
 }
+
 
 .memory-card {
     background-color: var(--card-bg);
@@ -472,11 +787,13 @@ nav a:hover::after, nav a.active::after {
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
+
 .memory-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15);
     border-color: var(--primary-color);
 }
+
 
 .memory-card img {
     width: 100%;
@@ -486,13 +803,16 @@ nav a:hover::after, nav a.active::after {
     transition: transform 0.5s ease;
 }
 
+
 .memory-card:hover img {
     transform: scale(1.05);
 }
 
+
 .card-body {
     padding: 20px;
 }
+
 
 .card-body .memory-name {
     font-weight: 700;
@@ -501,14 +821,17 @@ nav a:hover::after, nav a.active::after {
     color: var(--text-color);
 }
 
+
 .card-body p {
     color: var(--text-muted);
     font-size: 0.95rem;
 }
 
+
 .teachers-section {
     margin-top: 50px;
 }
+
 
 .teachers-grid {
     display: grid;
@@ -516,6 +839,7 @@ nav a:hover::after, nav a.active::after {
     gap: 25px;
     justify-content: center;
 }
+
 
 .teacher-card {
     background-color: var(--card-bg);
@@ -532,10 +856,12 @@ nav a:hover::after, nav a.active::after {
     transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
+
 [data-theme="dark"] .teacher-card:hover {
     border-color: var(--primary-color);
     box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
 }
+
 
 .teacher-card img {
     width: 140px;
@@ -547,11 +873,13 @@ nav a:hover::after, nav a.active::after {
     box-shadow: var(--shadow);
 }
 
+
 .teacher-card h3 {
     font-size: 1.2rem;
     margin-bottom: 5px;
     font-weight: 700;
 }
+
 
 .teacher-card blockquote {
     font-style: italic;
@@ -567,14 +895,17 @@ nav a:hover::after, nav a.active::after {
     transition: bottom 0.35s ease;
 }
 
+
 .teacher-card:hover blockquote {
     bottom: 0;
 }
+
 
 .teachers-cta {
     text-align: center;
     margin-top: 50px;
 }
+
 
 footer {
     border-top: 1px solid var(--border-color);
@@ -586,6 +917,7 @@ footer {
     margin-top: 40px;
 }
 
+
 .footer-links {
     display: flex;
     flex-wrap: wrap;
@@ -594,6 +926,7 @@ footer {
     margin-bottom: 18px;
 }
 
+
 .footer-links a {
     color: var(--text-muted);
     text-decoration: none;
@@ -601,13 +934,16 @@ footer {
     font-weight: 500;
 }
 
+
 .footer-links a:hover {
     color: var(--primary-color);
 }
 
+
 footer b {
     color: var(--primary-color);
 }
+
 
 /* AUTH HEADER WIDGET */
 .auth-header-signin {
@@ -621,9 +957,12 @@ footer b {
     white-space: nowrap;
 }
 
+
 .auth-header-signin:hover { background-color: var(--primary-hover); }
 
+
 .auth-header-dropdown { position: relative; }
+
 
 .auth-header-btn {
     background: none;
@@ -633,6 +972,7 @@ footer b {
     line-height: 0;
 }
 
+
 .auth-header-btn img {
     width: 38px;
     height: 38px;
@@ -640,6 +980,7 @@ footer b {
     object-fit: cover;
     border: 2px solid var(--primary-color);
 }
+
 
 .auth-header-menu {
     display: none;
@@ -655,8 +996,10 @@ footer b {
     z-index: 1001;
 }
 
+
 [dir="rtl"] .auth-header-menu { right: auto; left: 0; }
 .auth-header-menu.show { display: block; }
+
 
 .auth-header-menu a, .auth-header-menu button {
     display: block;
@@ -671,7 +1014,9 @@ footer b {
     cursor: pointer;
 }
 
+
 .auth-header-menu a:hover, .auth-header-menu button:hover { background-color: var(--border-color); }
+
 
 /* ---------------------------------------------------------------
    SCROLL REVEAL
@@ -685,25 +1030,30 @@ footer b {
     transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
+
 .reveal.is-visible {
     opacity: 1;
     transform: translateY(0);
 }
+
 
 .reveal-stagger.is-visible .memory-card,
 .reveal-stagger.is-visible .teacher-card {
     animation: reveal-rise 0.6s ease both;
 }
 
+
 .reveal-stagger .memory-card:nth-child(1), .reveal-stagger .teacher-card:nth-child(1) { animation-delay: 0.02s; }
 .reveal-stagger .memory-card:nth-child(2), .reveal-stagger .teacher-card:nth-child(2) { animation-delay: 0.10s; }
 .reveal-stagger .memory-card:nth-child(3), .reveal-stagger .teacher-card:nth-child(3) { animation-delay: 0.18s; }
 .reveal-stagger .memory-card:nth-child(4), .reveal-stagger .teacher-card:nth-child(4) { animation-delay: 0.26s; }
 
+
 @keyframes reveal-rise {
     from { opacity: 0; transform: translateY(18px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
 
 @media (prefers-reduced-motion: reduce) {
     .reveal, .reveal-stagger .memory-card, .reveal-stagger .teacher-card {
@@ -713,6 +1063,7 @@ footer b {
         transition: none !important;
     }
 }
+
 
 /* ---------------------------------------------------------------
    PAGE TRANSITIONS (View Transitions API)
@@ -728,13 +1079,16 @@ footer b {
     }
 }
 
+
 @keyframes page-fade-out {
     to { opacity: 0; transform: scale(0.98) translateY(6px); }
 }
 
+
 @keyframes page-fade-in {
     from { opacity: 0; transform: scale(1.01) translateY(-6px); }
 }
+
 
 @media (max-width: 768px) {
     nav {

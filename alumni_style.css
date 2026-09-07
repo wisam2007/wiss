@@ -4,12 +4,18 @@
     --warm-gold: #f59e0b;
 }
 
+
+
+
 .about-hero {
     max-width: 780px;
     margin: 0 auto;
     padding: 100px 24px 70px 24px;
     text-align: center;
 }
+
+
+
 
 .about-eyebrow {
     display: inline-block;
@@ -23,6 +29,9 @@
     margin-bottom: 22px;
 }
 
+
+
+
 .about-headline {
     font-size: 2.6rem;
     font-weight: 900;
@@ -33,6 +42,9 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
+
+
+
 
 .about-quote {
     position: relative;
@@ -45,11 +57,17 @@
     padding: 0 10px;
 }
 
+
+
+
 .vision-section {
     max-width: 1100px;
     margin: 0 auto;
     padding: 40px 24px 80px 24px;
 }
+
+
+
 
 .vision-intro {
     text-align: center;
@@ -60,16 +78,25 @@
     color: var(--text-color);
 }
 
+
+
+
 .vision-intro .highlight {
     color: var(--primary-color);
     font-weight: 700;
 }
+
+
+
 
 .vision-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 24px;
 }
+
+
+
 
 .vision-card {
     background-color: var(--card-bg);
@@ -81,11 +108,17 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
+
+
+
 .vision-card:hover {
     transform: translateY(-6px);
     border-color: var(--primary-color);
     box-shadow: 0 14px 25px rgba(2, 132, 199, 0.15);
 }
+
+
+
 
 .vision-icon {
     display: inline-flex;
@@ -93,11 +126,27 @@
     justify-content: center;
     width: 56px;
     height: 56px;
-    font-size: 1.6rem;
     border-radius: 50%;
     background: linear-gradient(135deg, rgba(2,132,199,0.12), rgba(168,85,247,0.12));
     margin-bottom: 18px;
+    color: var(--primary-color);
 }
+
+
+
+
+.vision-icon svg {
+    width: 26px;
+    height: 26px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+
 
 .vision-card h3 {
     font-size: 1.1rem;
@@ -106,17 +155,26 @@
     color: var(--text-color);
 }
 
+
+
+
 .vision-card p {
     font-size: 0.92rem;
     line-height: 1.7;
     color: var(--text-muted);
 }
 
+
+
+
 .journey-section {
     max-width: 900px;
     margin: 0 auto;
     padding: 20px 24px 80px 24px;
 }
+
+
+
 
 .journey-card {
     background: linear-gradient(160deg, var(--card-bg), rgba(2, 132, 199, 0.04));
@@ -126,11 +184,32 @@
     text-align: center;
 }
 
+
+
+
 .journey-icon {
-    font-size: 2rem;
-    display: block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 14px;
+    color: var(--primary-color);
 }
+
+
+
+
+.journey-icon svg {
+    width: 34px;
+    height: 34px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+
 
 .journey-card h2 {
     font-size: 1.4rem;
@@ -139,11 +218,17 @@
     color: var(--text-color);
 }
 
+
+
+
 .journey-card p {
     font-size: 1rem;
     line-height: 1.95;
     color: var(--text-muted);
 }
+
+
+
 
 .thanks-section {
     max-width: 1000px;
@@ -151,17 +236,36 @@
     padding: 20px 24px 100px 24px;
 }
 
+
+
+
 .thanks-heading {
     text-align: center;
     max-width: 640px;
     margin: 0 auto 50px auto;
 }
 
+
+
+
 .thanks-icon {
-    font-size: 2.2rem;
-    display: block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 10px;
+    color: var(--warm-accent);
 }
+
+
+
+
+.thanks-icon svg {
+    width: 32px;
+    height: 32px;
+}
+
+
+
 
 .thanks-heading h2 {
     font-size: 1.7rem;
@@ -170,17 +274,26 @@
     margin-bottom: 14px;
 }
 
+
+
+
 .thanks-heading p {
     font-size: 0.98rem;
     line-height: 1.8;
     color: var(--text-muted);
 }
 
+
+
+
 .thanks-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 28px;
 }
+
+
+
 
 .thanks-card {
     position: relative;
@@ -194,14 +307,23 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+
+
+
 [dir="rtl"] .thanks-card {
     border-radius: 18px 4px 4px 18px;
 }
+
+
+
 
 .thanks-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 16px 30px rgba(225, 29, 72, 0.12);
 }
+
+
+
 
 .thanks-mark {
     position: absolute;
@@ -214,6 +336,9 @@
     pointer-events: none;
 }
 
+
+
+
 .thanks-badge {
     display: inline-block;
     font-size: 1rem;
@@ -222,12 +347,18 @@
     margin-bottom: 14px;
 }
 
+
+
+
 .thanks-card p {
     position: relative;
     font-size: 0.95rem;
     line-height: 1.85;
     color: var(--text-color);
 }
+
+
+
 
 @media (max-width: 600px) {
     .about-headline {
@@ -244,8 +375,226 @@
     }
 }
 
+
+
+
 @media (prefers-reduced-motion: reduce) {
     .vision-card, .thanks-card {
         transition: none;
+    }
+}
+
+
+
+
+/* ================= Celestial theme toggle (sun/moon) ================= */
+.celestial-toggle {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+
+.celestial-icon {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.45s ease;
+}
+
+
+.sun-icon {
+    color: #f59e0b;
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+}
+
+
+.sun-rays {
+    transform-origin: 12px 12px;
+    animation: sun-spin 16s linear infinite;
+}
+
+
+.sun-rays line {
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+}
+
+
+.sun-core {
+    fill: currentColor;
+}
+
+
+.moon-icon {
+    color: #cbd5e1;
+    transform: translateY(60%) rotate(-40deg);
+    opacity: 0;
+}
+
+
+.moon-core {
+    fill: currentColor;
+}
+
+
+.star {
+    fill: #fef9c3;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+
+.celestial-toggle.is-dark .sun-icon {
+    transform: translateY(-60%) rotate(55deg);
+    opacity: 0;
+}
+
+
+.celestial-toggle.is-dark .sun-rays {
+    animation-play-state: paused;
+}
+
+
+.celestial-toggle.is-dark .moon-icon {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+}
+
+
+.celestial-toggle.is-dark .star {
+    opacity: 1;
+}
+
+
+.celestial-toggle.is-dark .star:nth-of-type(1) { transition-delay: 0.1s; }
+.celestial-toggle.is-dark .star:nth-of-type(2) { transition-delay: 0.25s; }
+.celestial-toggle.is-dark .star:nth-of-type(3) { transition-delay: 0.4s; }
+
+
+@keyframes sun-spin {
+    to { transform: rotate(360deg); }
+}
+
+
+.auto-badge {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    font-size: 6px;
+    font-weight: 900;
+    line-height: 7px;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.4);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+}
+
+
+[dir="rtl"] .auto-badge {
+    right: auto;
+    left: -1px;
+}
+
+
+.celestial-toggle.is-auto .auto-badge {
+    opacity: 1;
+    transform: scale(1);
+}
+
+
+.lang-globe-icon {
+    vertical-align: -3px;
+    margin-inline-end: 4px;
+}
+
+
+/* ================= طبقة الخلفية السماوية (شمس/قمر متحركة) ================= */
+.sky-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+}
+
+
+.sky-body {
+    position: absolute;
+    top: 15%;
+    width: 80px;
+    height: 80px;
+    opacity: 0.8;
+    animation: skyMove 60s linear infinite;
+}
+
+
+.sky-sun {
+    fill: #f59e0b;
+    stroke: #f59e0b;
+    stroke-width: 3;
+    stroke-linecap: round;
+}
+
+
+.sky-moon {
+    fill: #e2e8f0;
+    display: none;
+}
+
+
+[data-theme="dark"] .sky-sun {
+    display: none;
+}
+
+
+[data-theme="dark"] .sky-moon {
+    display: block;
+}
+
+
+@keyframes skyMove {
+    0% {
+        right: -120px;
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+    100% {
+        right: 100%;
+        transform: translateY(0);
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .sky-body {
+        animation: none;
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .celestial-icon, .sun-rays, .star {
+        transition: none;
+        animation: none;
     }
 }

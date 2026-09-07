@@ -4,45 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إنشاء البروفايل - Amala GSD</title>
-
-
-
-
     <!-- الخطوط -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
-
-
-
-
     <!-- CSS -->
     <link rel="stylesheet" href="log_in_style.css">
     <link rel="stylesheet" href="main_style.css">
-
-
-
-
     <!-- Supabase JS SDK & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
 </head>
 <body>
-
-
-
-
+    <!-- Ambient sky: a large sun (light mode) or moon (dark mode) drifting
+         slowly from right to left across the whole page, behind every
+         section. Purely decorative - see .sky-layer in main_style.css. -->
+    <div class="sky-layer" aria-hidden="true">
+        <svg class="sky-body sky-sun" viewBox="0 0 100 100" focusable="false">
+            <g class="sky-sun-rays">
+                <line x1="50" y1="4" x2="50" y2="20"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(45 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(90 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(135 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(180 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(225 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(270 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(315 50 50)"></line>
+            </g>
+            <circle cx="50" cy="50" r="26"></circle>
+        </svg>
+        <svg class="sky-body sky-moon" viewBox="0 0 100 100" focusable="false">
+            <defs>
+                <mask id="skyMoonMask">
+                    <rect x="0" y="0" width="100" height="100" fill="#fff"></rect>
+                    <circle cx="62" cy="34" r="28" fill="#000"></circle>
+                </mask>
+            </defs>
+            <circle cx="50" cy="50" r="28" mask="url(#skyMoonMask)"></circle>
+        </svg>
+    </div>
     <!-- الشريط العلوي (Top Bar) -->
     <header class="top-bar">
         <a href="main.html" class="top-logo">Amala GSD</a>
-
-
-
-
-  <div class="header-actions">
+        <div class="header-actions">
                 <div class="custom-dropdown" id="themeDropdown">
                     <button class="dropdown-btn" id="themeDropdownBtn" title="Select Theme">
-                        <img src="Photo/auto_ICON.png" alt="Theme Icon" class="dropdown-icon" id="currentThemeIcon">
+                        <!--
+                            Animated sun/moon toggle, same as on main.html.
+                            log_in_control.js only ever toggles "is-dark" / "is-auto"
+                            on this wrapper - the animation itself lives in main_style.css.
+                        -->
+                        <span class="celestial-toggle" id="celestialToggle">
+                            <svg class="celestial-icon sun-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <g class="sun-rays">
+                                    <line x1="12" y1="1" x2="12" y2="4"></line>
+                                    <line x1="12" y1="1" x2="12" y2="4" transform="rotate(45 12 12)"></line>
+                                    <line x1="12" y1="1" x2="12" y2="4" transform="rotate(90 12 12)"></line>
+                                    <line x1="12" y1="1" x2="12" y2="4" transform="rotate(135 12 12)"></line>
+                                    <line x1="12" y1="1" x2="12" y2="4" transform="rotate(180 12 12)"></line>
+                                    <line x1="12" y1="1" x2="12" y2="4" transform="rotate(225 12 12)"></line>
+                                    <line x1="12" y1="1" x2="12" y2="4" transform="rotate(270 12 12)"></line>
+                                    <line x1="12" y1="1" x2="12" y2="4" transform="rotate(315 12 12)"></line>
+                                </g>
+                                <circle class="sun-core" cx="12" cy="12" r="5"></circle>
+                            </svg>
+                            <svg class="celestial-icon moon-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <defs>
+                                    <mask id="moonMask">
+                                        <rect x="0" y="0" width="24" height="24" fill="#fff"></rect>
+                                        <circle cx="15" cy="8" r="7" fill="#000"></circle>
+                                    </mask>
+                                </defs>
+                                <circle class="star" cx="5" cy="7" r="0.8"></circle>
+                                <circle class="star" cx="9.5" cy="3.5" r="0.6"></circle>
+                                <circle class="star" cx="18" cy="8" r="0.7"></circle>
+                                <circle class="moon-core" cx="12" cy="12" r="7" mask="url(#moonMask)"></circle>
+                            </svg>
+                            <span class="auto-badge" aria-hidden="true">A</span>
+                        </span>
                     </button>
                     <div class="dropdown-content">
                         <button class="dropdown-item" data-theme-val="light">
@@ -56,8 +95,6 @@
                         </button>
                     </div>
                 </div>
-
-
                 <div class="custom-dropdown" id="langDropdown">
                     <button class="dropdown-btn" id="langDropdownBtn" title="Select Language">
                         🌐 <span id="currentLangLabel">EN</span>
@@ -67,27 +104,17 @@
                         <button class="dropdown-item" data-lang-val="ar">العربية</button>
                     </div>
                 </div>
-
-
         </div>
     </header>
-
-
-
-
     <!-- حاوية الصفحة الرئيسية (Page Wrap) -->
     <div class="page-wrap">
-
-
-
-
         <!-- لوحة المعاينة الحية (Live Preview Panel) -->
         <aside class="preview-panel">
             <div class="preview-label" data-i18n="preview_label">معاينة حية</div>
             <div class="preview-card">
                 <div class="preview-banner" id="previewBanner"></div>
                 <div class="preview-avatar-wrap">
-                    <img src="https://via.placeholder.com/84" alt="Avatar" class="preview-avatar" id="previewAvatarImg">
+                    <img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84'%3E%3Crect width='100%25' height='100%25' fill='%23e2e8f0'/%3E%3Ccircle cx='42' cy='32' r='16' fill='%2394a3b8'/%3E%3Cellipse cx='42' cy='78' rx='28' ry='22' fill='%2394a3b8'/%3E%3C/svg%3E" alt="Avatar" class="preview-avatar" id="previewAvatarImg">
                     <div class="preview-disc" id="previewDisc">
                         <button type="button" class="disc-play-btn" id="discPlayBtn">▶</button>
                     </div>
@@ -98,19 +125,11 @@
                 <p class="preview-song" id="previewSong"></p>
             </div>
         </aside>
-
-
-
-
         <!-- كارت النموذج المتعدد الخطوات (Multi-Step Form) -->
         <main class="form-card">
             <div class="progress-container">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
-
-
-
-
             <div class="form-header">
                 <h2 data-i18n="form_title">إنشاء البروفايل الشخصي</h2>
                 <p data-i18n="form_subtitle">أكمل الخطوات التالية للانضمام إلى معرض الطلاب</p>
@@ -118,75 +137,41 @@
                     تم استرجاع مسودة محفوظة من زيارة سابقة ✓
                 </div>
             </div>
-
-
-
-
             <!-- novalidate: نُعطّل تحقق المتصفح التلقائي لأنه كان يمنع الإرسال بصمت
                  (مثلاً بسبب حقل type="url") بدون إظهار أي رسالة واضحة للمستخدم -->
             <form id="profileWizardForm" novalidate>
-                
+
+
                 <!-- الخطوة 0: الدخول أو إنشاء حساب (Auth Step) -->
                 <div class="form-step active-step" data-step="0">
                     <h3 data-i18n="step0_title">الدخول أو إنشاء حساب</h3>
-                    
+
+
                     <button type="button" class="btn-google" id="googleLoginBtn">
                         <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" width="18">
                         <span data-i18n="google_btn">المتابعة عبر Google</span>
                     </button>
-
-
-
-
                     <div class="divider"><span data-i18n="or_divider">أو</span></div>
-
-
-
-
                     <div class="auth-tabs">
                         <button type="button" class="auth-tab active" id="tabSignupBtn" data-i18n="tab_signup">حساب جديد</button>
                         <button type="button" class="auth-tab" id="tabLoginBtn" data-i18n="tab_login">لدي حساب</button>
                     </div>
-
-
-
-
                     <div class="input-group">
                         <label for="email" data-i18n="lbl_email">البريد الإلكتروني</label>
                         <input type="email" id="email" required placeholder="name@example.com">
                     </div>
-
-
-
-
                     <div class="input-group">
                         <label for="password" data-i18n="lbl_password">كلمة المرور</label>
                         <input type="password" id="password" required placeholder="••••••••">
                     </div>
-
-
-
-
                     <div class="auth-msg" id="authMsg"></div>
-
-
-
-
                     <div class="btn-group single-btn">
                         <button type="button" class="btn btn-next" id="authSubmitBtn" data-i18n="btn_create_account">إنشاء الحساب</button>
                     </div>
                 </div>
-
-
-
-
                 <!-- الخطوة 1: الهوية والدور (Identity & Role) -->
                 <div class="form-step" data-step="1">
                     <h3 data-i18n="step1_title">الخطوة 1 من 4: الهوية والدور</h3>
-
-
-
-
                     <div class="input-group">
                         <label>الدور في المنصة</label>
                         <div class="role-select">
@@ -200,22 +185,17 @@
                     </div>
 
 
-
-
                     <div class="input-group">
                         <label for="fullName" data-i18n="lbl_fullname">الاسم الكامل</label>
                         <input type="text" id="fullName" required placeholder="مثال: محمد أحمد">
                     </div>
 
 
-
-
                     <div class="input-group">
-                        <label for="bio" data-i18n="lbl_bio">نبذة عنك (Bio)</label>
-                        <textarea id="bio" placeholder="اكتب نبذة قصيرة تتحدث فيها عن نفسك..."></textarea>
+                        <label for="bio"><span data-i18n="lbl_bio">نبذة عنك (Bio)</span><span class="required-mark">*</span></label>
+                        <textarea id="bio" required placeholder="اكتب نبذة قصيرة تتحدث فيها عن نفسك..."></textarea>
+                        <div class="field-status" id="bioStatus"></div>
                     </div>
-
-
 
 
                     <div class="btn-group">
@@ -224,13 +204,9 @@
                 </div>
 
 
-
-
                 <!-- الخطوة 2: الربط الجغرافي والاجتماعي (Location & Social) -->
                 <div class="form-step" data-step="2">
                     <h3 data-i18n="step2_title">الخطوة 2 من 4: الربط الجغرافي والاجتماعي</h3>
-
-
 
 
                     <div class="input-group">
@@ -239,44 +215,28 @@
                     </div>
 
 
-
-
                     <div class="input-group">
                         <button type="button" class="btn btn-prev" id="locateBtn" style="width: 100%; margin-bottom: 10px;" data-i18n="btn_locate">تحديد الدبوس على الخريطة</button>
                         <div class="map-picker" id="mapPicker">
                             <!-- مكتبة Leaflet للخرائط -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-
-
-
-
-
-
-
-
-
                         </div>
                     </div>
-
-
 
 
                     <div class="social-grid">
                         <div class="input-group">
-                            <label for="instagram" data-i18n="lbl_instagram">انستقرام</label>
-                            <input type="text" id="instagram" placeholder="username">
+                            <label for="instagram"><span data-i18n="lbl_instagram">انستقرام</span><span class="required-mark">*</span></label>
+                            <input type="text" id="instagram" required placeholder="username أو رابط الحساب">
+                            <div class="field-status" id="instagramStatus"></div>
                         </div>
                         <div class="input-group">
                             <label for="linkedin" data-i18n="lbl_linkedin">LinkedIn</label>
-                            <input type="text" id="linkedin" placeholder="username">
+                            <input type="text" id="linkedin" placeholder="username أو رابط الحساب">
+                            <div class="field-status" id="linkedinStatus"></div>
                         </div>
-                        
-                        
                     </div>
-
-
 
 
                     <div class="btn-group">
@@ -286,46 +246,46 @@
                 </div>
 
 
-
-
                 <!-- الخطوة 3: التخصيص البصري والسمعي (Visual & Audio) -->
                 <div class="form-step" data-step="3">
                     <h3 data-i18n="step3_title">الخطوة 3 من 4: التخصيص البصري والسمعي</h3>
 
 
-
-
                     <div class="input-group">
-                        <label for="avatarInput" data-i18n="lbl_avatar">صورة البروفايل الشخصية</label>
-                        <input type="file" id="avatarInput" accept="image/*">
+                        <label for="avatarInput"><span data-i18n="lbl_avatar">صورة البروفايل الشخصية</span><span class="required-mark">*</span></label>
+                        <input type="file" id="avatarInput" required accept="image/*">
+                        <div class="field-status" id="avatarStatus"></div>
                     </div>
-
-
 
 
                    <!-- قسم خيارات البنر -->
 <div class="banner-options-container">
-    <label>تصميم البنر:</label>
+    <label><span data-i18n="lbl_banner">تصميم البنر</span>:</label>
     <div class="banner-opts-group">
-        <button type="button" class="banner-opt active" data-banner-type="default">أزرق افتراضي</button>
-        <button type="button" class="banner-opt" data-banner-type="custom">لون مخصص</button>
-        <button type="button" class="banner-opt" data-banner-type="image">رفع صورة</button>
+        <button type="button" class="banner-opt active" data-banner-type="default" data-i18n="banner_default">أزرق افتراضي</button>
+        <button type="button" class="banner-opt" data-banner-type="custom" data-i18n="banner_custom">لون مخصص</button>
+        <button type="button" class="banner-opt" data-banner-type="image" data-i18n="banner_image">رفع صورة</button>
     </div>
 
 
-
-
-    <!-- إعدادات اللون المخصص والتدرج -->
+    <!-- إعدادات التدرج ثنائي اللون واتجاهه -->
     <div id="customColorControls" style="display: none; margin-top: 10px;">
-        <label>اختر اللون الرئيسي:</label>
-        <input type="color" id="bannerColorPicker" value="#1d4ed8">
-        
-        <label style="margin-right: 15px;">
-            <input type="checkbox" id="bannerGradientCheck"> تدرج فرعي (Gradient)
-        </label>
+        <div class="gradient-colors-row">
+            <div class="gradient-color-box">
+                <label for="bannerColor1">اللون الأول</label>
+                <input type="color" id="bannerColor1" value="#1d4ed8">
+            </div>
+            <div class="gradient-color-box">
+                <label for="bannerColor2">اللون الثاني</label>
+                <input type="color" id="bannerColor2" value="#a855f7">
+            </div>
+        </div>
+        <div class="gradient-direction-row">
+            <label for="bannerDirection">اتجاه التدرج</label>
+            <input type="range" id="bannerDirection" min="0" max="360" step="1" value="135">
+            <span class="direction-value" id="bannerDirectionLabel">135°</span>
+        </div>
     </div>
-
-
 
 
     <!-- إعداد رفع الصورة -->
@@ -333,14 +293,6 @@
         <input type="file" id="bannerImgInput" accept="image/*">
     </div>
 </div>
-
-
-
-
-
-
-
-
 
 
                     <div class="input-group">
@@ -359,8 +311,6 @@
                     </div>
 
 
-
-
                     <div class="btn-group">
                         <button type="button" class="btn btn-prev" data-action="prev" data-i18n="btn_prev">→ السابق</button>
                         <button type="button" class="btn btn-next" data-action="next" data-i18n="btn_next">التالي ←</button>
@@ -368,34 +318,56 @@
                 </div>
 
 
-
-
                 <!-- الخطوة 4: المعرض والفيديو (Gallery & Video) -->
                 <div class="form-step" data-step="4">
                     <h3 data-i18n="step4_title">الخطوة 4 من 4: معرض الصور والفيديو</h3>
 
 
-
-
                     <div class="input-group">
-                        <label for="galleryInput" data-i18n="lbl_gallery">صور الذكريات (من 1 إلى 5 صور)</label>
-                        <input type="file" id="galleryInput" accept="image/*" multiple>
+                        <label for="galleryInput"><span data-i18n="lbl_gallery">صور الذكريات (من 1 إلى 15 صورة)</span><span class="required-mark">*</span></label>
+                        <input type="file" id="galleryInput" required accept="image/*" multiple>
+                        <div class="gallery-count-hint" id="galleryCountHint"></div>
+                        <div class="field-status" id="galleryStatus"></div>
                     </div>
 
 
-
-
                     <div class="input-group">
-                        <label data-i18n="lbl_video_type">نوع الفيديو</label>
-                        <div class="video-type-tabs">
-                            <button type="button" class="video-tab active" data-vtype="youtube">YouTube</button>
-                            <button type="button" class="video-tab" data-vtype="gdrive">Google Drive</button>
+                        <label data-i18n="lbl_video_links">روابط الفيديو (حتى 3 روابط)</label>
+                        <p class="field-hint" data-i18n="video_hint" style="margin-bottom: 10px;">الصق روابط يوتيوب أو Google Drive (الرفع المباشر غير متاح حالياً) — جميعها اختيارية</p>
+
+
+                        <div class="video-link-block" data-video-index="1">
+                            <div class="video-link-title" data-i18n="video_first">الفيديو الأول</div>
+                            <div class="video-type-tabs">
+                                <button type="button" class="video-tab active" data-vtype="youtube">YouTube</button>
+                                <button type="button" class="video-tab" data-vtype="gdrive">Google Drive</button>
+                            </div>
+                            <input type="text" class="video-url-input" placeholder="https://www.youtube.com/watch?v=...">
+                            <div class="field-status" data-video-status></div>
                         </div>
-                        <input type="text" id="videoUrlInput" placeholder="https://www.youtube.com/watch?v=..." style="margin-top: 8px;">
-                        <p class="field-hint" data-i18n="video_hint">الصق رابط يوتيوب أو Google Drive (الرفع المباشر غير متاح حالياً)</p>
+
+
+                        <div class="video-link-block" data-video-index="2">
+                            <div class="video-link-title" data-i18n="video_second">الفيديو الثاني</div>
+                            <div class="video-type-tabs">
+                                <button type="button" class="video-tab active" data-vtype="youtube">YouTube</button>
+                                <button type="button" class="video-tab" data-vtype="gdrive">Google Drive</button>
+                            </div>
+                            <input type="text" class="video-url-input" placeholder="https://www.youtube.com/watch?v=...">
+                            <div class="field-status" data-video-status></div>
+                        </div>
+
+
+                        <div class="video-link-block" data-video-index="3">
+                            <div class="video-link-title" data-i18n="video_third">الفيديو الثالث</div>
+                            <div class="video-type-tabs">
+                                <button type="button" class="video-tab active" data-vtype="youtube">YouTube</button>
+                                <button type="button" class="video-tab" data-vtype="gdrive">Google Drive</button>
+                            </div>
+                            <input type="text" class="video-url-input" placeholder="https://www.youtube.com/watch?v=...">
+                            <div class="field-status" data-video-status></div>
+                        </div>
                     </div>
-
-
 
 
                     <div class="btn-group">
@@ -405,13 +377,9 @@
                 </div>
 
 
-
-
             </form>
         </main>
     </div>
-
-
 
 
     <!-- السكربت المرفق المتوافق -->

@@ -85,12 +85,29 @@
 .search-container {
     max-width: 500px;
     margin: 25px auto 0 auto;
+    position: relative;
+}
+
+
+.search-icon {
+    position: absolute;
+    top: 50%;
+    inset-inline-start: 18px;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: var(--text-muted);
+    stroke-width: 2;
+    stroke-linecap: round;
+    pointer-events: none;
 }
 
 
 .custom-input {
     width: 100%;
     padding: 12px 18px;
+    padding-inline-start: 42px;
     border: 1.5px solid var(--border-color);
     border-radius: 50px;
     font-size: 0.95rem;
@@ -105,6 +122,16 @@
 .custom-input:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15);
+}
+
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
 }
 
 
@@ -123,6 +150,24 @@
     padding: 40px;
     color: var(--text-muted);
     font-size: 1.1rem;
+}
+
+
+.error-status {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #ef4444;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+
+.error-status svg {
+    width: 22px;
+    height: 22px;
 }
 
 
@@ -183,6 +228,9 @@
 
 
 .card-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     font-size: 0.75rem;
     background-color: rgba(0, 0, 0, 0.65);
     color: #ffffff;
@@ -190,6 +238,15 @@
     border-radius: 20px;
     backdrop-filter: blur(4px);
     font-weight: 600;
+}
+
+
+.card-badge svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
 }
 
 
@@ -282,8 +339,6 @@
     border: none;
     background-color: rgba(255, 255, 255, 0.9);
     color: #1e293b;
-    font-size: 1.6rem;
-    line-height: 1;
     cursor: pointer;
     z-index: 2001;
     display: flex;
@@ -353,8 +408,50 @@
 .modal-user-bio {
     color: var(--text-muted);
     font-size: 0.95rem;
-    margin-bottom: 20px;
+    margin-bottom: 14px;
     line-height: 1.6;
+}
+
+
+/* روابط التواصل (لينكدإن / إنستغرام) */
+.modal-socials {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+
+.modal-socials:empty {
+    display: none;
+    margin: 0;
+}
+
+
+.social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+
+.social-link:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+
+.social-link svg {
+    width: 18px;
+    height: 18px;
 }
 
 
@@ -371,65 +468,104 @@
     font-weight: 700;
     margin-bottom: 14px;
     color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 
-/* مشغل الصوت والأغاني */
+.modal-section h3 .icon-svg {
+    color: var(--primary-color);
+    width: 1.05em;
+    height: 1.05em;
+}
+
+
+/* ==========================================
+   مشغل الصوت — قرص دوّار + زر تشغيل مثلثي بجانبه
+   ========================================== */
 .audio-player-card {
     display: flex;
     align-items: center;
     gap: 16px;
     background-color: var(--bg-color);
-    padding: 12px 18px;
+    padding: 14px 18px;
     border-radius: 14px;
     border: 1px solid var(--border-color);
 }
 
 
-.preview-disc {
-    width: 48px;
-    height: 48px;
+.disc-play-btn {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: repeating-radial-gradient(circle, #333 0, #333 2px, #111 3px, #111 6px);
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    transition: transform 0.3s linear;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+
+.disc-play-btn:hover {
+    transform: scale(1.08);
+    background-color: var(--primary-hover);
+}
+
+
+.disc-play-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
+
+/* القرص: أسود مع أخاديد دائرية وتسمية مركزية بلون الهوية، يدور فقط أثناء التشغيل */
+.preview-disc {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #2c2c2c, #0a0a0a 70%);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.disc-grooves {
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background:
+        repeating-radial-gradient(circle, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 4px);
+}
+
+
+.disc-label {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), #a855f7);
+    border: 2px solid #111;
 }
 
 
 .preview-disc.playing {
-    animation: rotate-disc 3s linear infinite;
+    animation: rotate-disc 3.2s linear infinite;
 }
 
 
 @keyframes rotate-disc {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
-}
-
-
-.disc-play-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: var(--primary-color);
-    color: #ffffff;
-    border: none;
-    font-size: 0.85rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s ease, background-color 0.2s ease;
-}
-
-
-.disc-play-btn:hover {
-    transform: scale(1.1);
-    background-color: var(--primary-hover);
 }
 
 
@@ -462,12 +598,115 @@
     object-fit: cover;
     border-radius: 8px;
     cursor: pointer;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 
 .modal-gallery-grid img:hover {
     opacity: 0.85;
+    transform: scale(1.03);
+}
+
+
+/* ==========================================
+   Lightbox — تكبير صور المعرض مع أسهم تنقل
+   ========================================== */
+.lightbox-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.88);
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+}
+
+
+.lightbox-overlay.active {
+    display: flex;
+}
+
+
+.lightbox-overlay img {
+    max-width: min(90vw, 900px);
+    max-height: 85vh;
+    border-radius: 10px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: modal-pop 0.2s ease;
+}
+
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    inset-inline-end: 20px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(255,255,255,0.12);
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.lightbox-close:hover {
+    background-color: rgba(255,255,255,0.25);
+}
+
+
+.lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(255,255,255,0.12);
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+
+.lightbox-nav:hover {
+    background-color: rgba(255,255,255,0.25);
+}
+
+
+.lightbox-prev { inset-inline-start: 16px; }
+.lightbox-next { inset-inline-end: 16px; }
+
+
+[dir="rtl"] .lightbox-prev svg { transform: scaleX(-1); }
+[dir="rtl"] .lightbox-next svg { transform: scaleX(-1); }
+
+
+.lightbox-counter {
+    position: absolute;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffffff;
+    background-color: rgba(255,255,255,0.12);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+
+@media (max-width: 600px) {
+    .lightbox-nav { width: 40px; height: 40px; }
+    .lightbox-prev { inset-inline-start: 6px; }
+    .lightbox-next { inset-inline-end: 6px; }
 }
 
 
@@ -491,6 +730,13 @@
 }
 
 
+.reactions-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: -8px 0 12px 0;
+}
+
+
 .reactions-bar {
     display: flex;
     flex-wrap: wrap;
@@ -509,7 +755,13 @@
     color: var(--text-color);
     font-size: 0.95rem;
     cursor: pointer;
-    transition: transform 0.15s ease, border-color 0.2s ease;
+    transition: transform 0.15s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+
+.reaction-btn svg {
+    width: 17px;
+    height: 17px;
 }
 
 
@@ -530,6 +782,7 @@
     background-color: rgba(2, 132, 199, 0.12);
     border-color: var(--primary-color);
     font-weight: 700;
+    color: var(--primary-color);
 }
 
 
@@ -587,6 +840,11 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+}
+
+
+.comment-author-input {
+    width: 100%;
 }
 
 
@@ -650,5 +908,7 @@
         padding: 65px 18px 20px 18px;
     }
 }
+
+
 
 

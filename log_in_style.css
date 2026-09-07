@@ -408,6 +408,7 @@ body {
 .input-group input[type="url"],
 .input-group input[type="email"],
 .input-group input[type="password"],
+.input-group select,
 .input-group textarea {
     width: 100%;
     padding: 12px 14px;
@@ -424,7 +425,7 @@ body {
 .input-group textarea { resize: vertical; min-height: 80px; }
 
 
-.input-group input:focus, .input-group textarea:focus {
+.input-group input:focus, .input-group textarea:focus, .input-group select:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
 }
@@ -571,7 +572,10 @@ body {
 .social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
 
 
-.banner-options { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+/* تم إصلاح تطابق اسم الكلاس: كان HTML يستخدم banner-opts-group بينما
+   كان هذا التنسيق معرّفاً على banner-options (اسم مختلف تماماً)، لذلك
+   كانت الأزرار تُعرض بدون flex/gap كما هو مقصود */
+.banner-opts-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
 
 
 .banner-opt {
@@ -665,5 +669,135 @@ body {
 }
 
 
+/* ================================
+   إضافات: الحقول الإلزامية + التحقق من الروابط + البنر ثنائي اللون + روابط الفيديو المتعددة
+   ================================ */
 
 
+.required-mark {
+    color: var(--danger-color);
+    margin-inline-start: 4px;
+    font-weight: 900;
+}
+
+
+.input-group input.field-invalid,
+.input-group textarea.field-invalid {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+
+.input-group input.field-valid,
+.input-group textarea.field-valid {
+    border-color: var(--success-color);
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+
+
+.field-status {
+    font-size: 0.78rem;
+    margin-top: 6px;
+    min-height: 1.1em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+
+.field-status.valid { color: var(--success-color); }
+.field-status.invalid { color: var(--danger-color); }
+.field-status.checking { color: var(--text-muted); }
+.field-status.unverified { color: #b45309; }
+
+
+.gradient-colors-row {
+    display: flex;
+    gap: 14px;
+    margin-top: 12px;
+}
+
+
+.gradient-color-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+
+.gradient-color-box label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+
+.gradient-color-box input[type="color"] {
+    width: 100%;
+    height: 40px;
+    padding: 2px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--input-bg);
+    cursor: pointer;
+}
+
+
+.gradient-direction-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+
+.gradient-direction-row label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+
+.gradient-direction-row input[type="range"] {
+    flex: 1;
+    accent-color: var(--primary-color);
+}
+
+
+.gradient-direction-row .direction-value {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    min-width: 42px;
+    text-align: center;
+}
+
+
+.video-link-block {
+    border: 1px dashed var(--border-color);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+
+.video-link-block:last-child { margin-bottom: 0; }
+
+
+.video-link-block .video-link-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+
+.gallery-count-hint {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+}
+
+
+.gallery-count-hint.limit-reached { color: var(--danger-color); font-weight: 700; }
