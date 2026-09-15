@@ -286,3 +286,354 @@
         applyLanguage(safeGetItem('preferred_lang', 'ar'));
     });
 })();
+/* ==========================================
+   enhancements.js
+   يُضاف بعد main_control.js / app.js / gallery_control.js
+   لا يُعدّل أي دالة موجودة، فقط يضيف سلوك جديد
+   ========================================== */
+(function () {
+    'use strict';
+
+
+    /* ---------- 1. Parallax خفيف للخلفية عبر الماوس ---------- */
+    function initParallax() {
+        var dotField = document.querySelector('.dot-field');
+        var skyLayer = document.querySelector('.sky-layer');
+        if (!dotField && !skyLayer) return;
+
+
+        // على الموبايل نتجاهل تأثير الماوس (لا يوجد hover دقيق)
+        if (window.matchMedia('(hover: none)').matches) return;
+
+
+        window.addEventListener('mousemove', function (e) {
+            var x = (e.clientX / window.innerWidth - 0.5);
+            var y = (e.clientY / window.innerHeight - 0.5);
+
+
+            if (dotField) {
+                dotField.style.transform =
+                    'translate(' + (x * 14) + 'px, ' + (y * 14) + 'px)';
+            }
+            if (skyLayer) {
+                skyLayer.style.transform =
+                    'translate(' + (x * -8) + 'px, ' + (y * -8) + 'px)';
+            }
+        }, { passive: true });
+    }
+
+
+    /* ---------- 2. تأخير متسلسل تلقائي لعناصر reveal-stagger ---------- */
+    function initStaggerDelays() {
+        document.querySelectorAll('.reveal-stagger').forEach(function (group) {
+            Array.from(group.children).forEach(function (child, i) {
+                child.style.setProperty('--reveal-delay', String(i * 90));
+            });
+        });
+    }
+
+
+    /* ---------- 3. Skeleton loading أثناء جلب البروفايلات ---------- */
+    // يبني بطاقات هيكلية مؤقتة داخل #galleryGrid إن وُجد، إلى أن يستبدلها
+    // gallery_control.js عند renderGalleryCards الفعلي.
+    function showGallerySkeletons(count) {
+        var grid = document.getElementById('galleryGrid');
+        if (!grid) return;
+        var html = '';
+        for (var i = 0; i < (count || 6); i++) {
+            html += '' +
+                '<div class="skeleton-card" aria-hidden="true">' +
+                '  <div class="skeleton-media"></div>' +
+                '  <div class="skeleton-lines">' +
+                '    <div class="skeleton-line w-60"></div>' +
+                '    <div class="skeleton-line w-90"></div>' +
+                '    <div class="skeleton-line w-40"></div>' +
+                '  </div>' +
+                '</div>';
+        }
+        grid.innerHTML = html;
+    }
+
+
+    // نلاحظ أول تغيير حقيقي في galleryGrid (عندما تُستبدل الهياكل بالبطاقات
+    // الفعلية) لنطبّق reveal-stagger على النتيجة تلقائيًا.
+    function watchGalleryGridReplacement() {
+        var grid = document.getElementById('galleryGrid');
+        if (!grid || !('MutationObserver' in window)) return;
+
+
+        var observer = new MutationObserver(function () {
+            var isSkeleton = grid.querySelector('.skeleton-card');
+            if (isSkeleton) return; // ما زالت الهياكل المؤقتة
+
+
+            grid.classList.add('reveal-stagger');
+            initStaggerDelays();
+            requestAnimationFrame(function () {
+                grid.classList.add('is-visible');
+            });
+        });
+
+
+        observer.observe(grid, { childList: true });
+    }
+
+
+    /* ---------- 4. Ripple effect على الأزرار ---------- */
+    function attachRipple(selector) {
+        document.querySelectorAll(selector).forEach(function (btn) {
+            if (btn.dataset.rippleBound) return;
+            btn.dataset.rippleBound = '1';
+
+
+            btn.addEventListener('click', function (e) {
+                var rect = btn.getBoundingClientRect();
+                var span = document.createElement('span');
+                var size = Math.max(rect.width, rect.height);
+                var x = (e.clientX || rect.left + rect.width / 2) - rect.left - size / 2;
+                var y = (e.clientY || rect.top + rect.height / 2) - rect.top - size / 2;
+
+
+                span.className = 'ripple';
+                span.style.width = span.style.height = size + 'px';
+                span.style.left = x + 'px';
+                span.style.top = y + 'px';
+
+
+                btn.appendChild(span);
+                span.addEventListener('animationend', function () {
+                    span.remove();
+                });
+            });
+        });
+    }
+
+
+    function initRipples() {
+        attachRipple('.cta-btn, .btn-send-comment, .disc-play-btn, .reaction-btn, .social-link');
+        // لبعض الأزرار المولّدة ديناميكيًا لاحقًا (بطاقات المعرض تُبنى عبر JS)
+        var grid = document.getElementById('galleryGrid');
+        if (grid && 'MutationObserver' in window) {
+            new MutationObserver(function () {
+                attachRipple('.reaction-btn, .social-link');
+            }).observe(grid, { childList: true, subtree: true });
+        }
+    }
+
+
+    /* ---------- 5. Fade سلس عند تبديل صور الـ Lightbox ---------- */
+    function initLightboxFade() {
+        var img = document.getElementById('lightboxImage');
+        var prevBtn = document.getElementById('lightboxPrev');
+        var nextBtn = document.getElementById('lightboxNext');
+        if (!img) return;
+
+
+        function fadeSwitch(triggerFn) {
+            img.classList.add('is-switching');
+            setTimeout(function () {
+                triggerFn();
+                img.classList.remove('is-switching');
+            }, 120);
+        }
+
+
+        // نعترض النقر قبل أن يصل لمستمع gallery_control.js الأصلي
+        // بإضافة مستمع تمويه بسيط لا يمنع السلوك الأصلي، فقط يضيف الفويد.
+        [prevBtn, nextBtn].forEach(function (btn) {
+            if (!btn) return;
+            btn.addEventListener('click', function () {
+                img.classList.add('is-switching');
+                setTimeout(function () {
+                    img.classList.remove('is-switching');
+                }, 200);
+            });
+        });
+    }
+
+
+    /* ---------- تشغيل كل التحسينات بعد تحميل DOM ---------- */
+    document.addEventListener('DOMContentLoaded', function () {
+        initParallax();
+        initStaggerDelays();
+        initRipples();
+        initLightboxFade();
+        watchGalleryGridReplacement();
+
+
+        // إن وُجدت شبكة معرض فارغة عند التحميل، أظهر الهياكل المؤقتة فورًا
+        var grid = document.getElementById('galleryGrid');
+        if (grid && grid.children.length === 0) {
+            showGallerySkeletons(6);
+        }
+    });
+
+
+    // إتاحة الدالة عالميًا لو أراد أحد استدعاءها يدويًا قبل fetchProfiles
+    window.showGallerySkeletons = showGallerySkeletons;
+})();
+
+// enhancements.js
+// تحسينات بصرية إضافية — لا يعدّل main_control.js / app.js / gallery_control.js
+// يعمل بشكل مستقل ويكتفي بإضافة سلوك تدريجي فوق ما هو موجود.
+
+
+(function () {
+    'use strict';
+
+
+    /* ------------------------------------------------
+       1. خلفية تفاعلية (Parallax عند تحريك الماوس)
+       ------------------------------------------------ */
+    var dotField = document.querySelector('.dot-field');
+    if (dotField && window.matchMedia('(hover: hover)').matches) {
+        var rafId = null;
+        document.addEventListener('mousemove', function (e) {
+            if (rafId) return;
+            rafId = requestAnimationFrame(function () {
+                var x = (e.clientX / window.innerWidth - 0.5) * 15;
+                var y = (e.clientY / window.innerHeight - 0.5) * 15;
+                dotField.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+                rafId = null;
+            });
+        });
+    }
+
+
+    /* ------------------------------------------------
+       2. ضبط تأخير الظهور المتسلسل لعناصر .reveal-stagger
+       ------------------------------------------------ */
+    document.querySelectorAll('.reveal-stagger').forEach(function (container) {
+        Array.prototype.forEach.call(container.children, function (child, i) {
+            child.style.setProperty('--i', i);
+        });
+    });
+
+
+    /* ------------------------------------------------
+       3. Skeleton loading لبطاقات المعرض (gallery.html)
+       يعمل فقط إن وُجد #galleryGrid في الصفحة، ويُزال تلقائيًا
+       بمجرد أن يملأ gallery_control.js الشبكة ببطاقات حقيقية.
+       ------------------------------------------------ */
+    var galleryGrid = document.getElementById('galleryGrid');
+    if (galleryGrid) {
+        function buildSkeletonCard() {
+            var card = document.createElement('div');
+            card.className = 'skeleton-card';
+            card.innerHTML =
+                '<div class="skeleton-media"></div>' +
+                '<div class="skeleton-content">' +
+                '  <div class="skeleton-line short"></div>' +
+                '  <div class="skeleton-line long"></div>' +
+                '  <div class="skeleton-line long"></div>' +
+                '</div>';
+            return card;
+        }
+
+
+        function showSkeletons(count) {
+            var fragment = document.createDocumentFragment();
+            for (var i = 0; i < count; i++) fragment.appendChild(buildSkeletonCard());
+            galleryGrid.innerHTML = '';
+            galleryGrid.appendChild(fragment);
+        }
+
+
+        // اعرض الهياكل العظمية فورًا، ثم راقب الشبكة: أول تحديث حقيقي لمحتواها
+        // (بطاقات .gallery-card أو رسالة خطأ/عدم نتائج) يوقف المراقبة تلقائيًا.
+        showSkeletons(6);
+
+
+        var stopWatching = new MutationObserver(function () {
+            var hasRealContent = galleryGrid.querySelector('.gallery-card, .no-results, .error-status');
+            if (hasRealContent) {
+                stopWatching.disconnect();
+            }
+        });
+        stopWatching.observe(galleryGrid, { childList: true });
+    }
+
+
+    /* ------------------------------------------------
+       4. Ripple عند الضغط على أزرار محددة
+       ------------------------------------------------ */
+    var RIPPLE_SELECTOR = '.disc-play-btn, .reaction-btn, .cta-btn, .btn-send-comment';
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest(RIPPLE_SELECTOR);
+        if (!btn) return;
+
+
+        var rect = btn.getBoundingClientRect();
+        var size = Math.max(rect.width, rect.height);
+        var ripple = document.createElement('span');
+        ripple.className = 'ripple-effect';
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+        ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+
+
+        btn.appendChild(ripple);
+        ripple.addEventListener('animationend', function () {
+            ripple.remove();
+        });
+    });
+
+
+    /* ------------------------------------------------
+       5. Lightbox: fade بين الصور + سحب (swipe) على الموبايل
+       يعتمد فقط على عناصر DOM الموجودة في gallery_control.js
+       ولا يستبدل منطقه، فقط يضيف حركة fade وسحب باللمس.
+       ------------------------------------------------ */
+    var lightboxImg = document.getElementById('lightboxImage');
+    var lightboxOverlay = document.getElementById('lightboxOverlay');
+    var lightboxPrev = document.getElementById('lightboxPrev');
+    var lightboxNext = document.getElementById('lightboxNext');
+
+
+    if (lightboxImg) {
+        // fade خفيف عند تغيّر مصدر الصورة (سواء عبر الأسهم أو لوحة المفاتيح)
+        var imgObserver = new MutationObserver(function () {
+            lightboxImg.classList.add('is-swapping');
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    lightboxImg.classList.remove('is-swapping');
+                });
+            });
+        });
+        imgObserver.observe(lightboxImg, { attributes: true, attributeFilter: ['src'] });
+    }
+
+
+    if (lightboxOverlay && lightboxPrev && lightboxNext) {
+        var touchStartX = 0;
+        var touchEndX = 0;
+        var SWIPE_THRESHOLD = 40;
+
+
+        lightboxOverlay.addEventListener('touchstart', function (e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+
+        lightboxOverlay.addEventListener('touchend', function (e) {
+            touchEndX = e.changedTouches[0].screenX;
+            var delta = touchEndX - touchStartX;
+            if (Math.abs(delta) < SWIPE_THRESHOLD) return;
+
+
+            var isRtl = document.documentElement.dir === 'rtl';
+            if (delta < 0) {
+                (isRtl ? lightboxPrev : lightboxNext).click();
+            } else {
+                (isRtl ? lightboxNext : lightboxPrev).click();
+            }
+        }, { passive: true });
+    }
+})();
+
+
+
+
+
+
+

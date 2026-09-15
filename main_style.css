@@ -39,7 +39,199 @@ html {
     margin: 0;
     padding: 0;
 }
+/* ==========================================
+   enhancements.css
+   تحسينات بصرية إضافية — لا تُعدّل main_style.css أو gallery_style.css
+   ========================================== */
 
+
+/* --------------------------------------------
+   0. سلاسة عامة عند تبديل الثيم (فاتح/غامق)
+   -------------------------------------------- */
+html {
+    transition: background-color .4s ease, color .4s ease;
+}
+body,
+header,
+.gallery-card,
+.modal-card,
+.teacher-card,
+.memory-card,
+.detail-chip,
+.location-card,
+.custom-input {
+    transition: background-color .4s ease, color .4s ease, border-color .4s ease, box-shadow .4s ease;
+}
+
+
+/* --------------------------------------------
+   1. خلفية تفاعلية (Parallax عند تحريك الماوس)
+   -------------------------------------------- */
+.dot-field {
+    transition: transform .3s ease-out;
+    will-change: transform;
+}
+
+
+/* --------------------------------------------
+   2. Reveal احترافي أكثر (اتجاه الحركة + تأخير متسلسل)
+   -------------------------------------------- */
+.reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .6s cubic-bezier(.16,1,.3,1), transform .6s cubic-bezier(.16,1,.3,1);
+}
+.reveal.is-visible {
+    opacity: 1;
+    transform: none;
+}
+/* عناصر داخل حاويات reveal-stagger تُدفع بترتيب زمني حسب --i (يُضبط عبر JS) */
+.reveal-stagger > * {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity .55s cubic-bezier(.16,1,.3,1), transform .55s cubic-bezier(.16,1,.3,1);
+    transition-delay: calc(var(--i, 0) * 90ms);
+}
+.reveal-stagger.is-visible > * {
+    opacity: 1;
+    transform: none;
+}
+
+
+/* --------------------------------------------
+   3. Skeleton Loading لبطاقات المعرض أثناء الجلب من Supabase
+   -------------------------------------------- */
+.skeleton-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.skeleton-media,
+.skeleton-line {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--border-color);
+}
+.skeleton-media {
+    height: 210px;
+}
+.skeleton-content {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.skeleton-line {
+    height: 14px;
+    border-radius: 6px;
+}
+.skeleton-line.short { width: 55%; }
+.skeleton-line.long { width: 90%; }
+.skeleton-media::after,
+.skeleton-line::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.35),
+        transparent
+    );
+    animation: skeleton-shimmer 1.4s infinite;
+}
+[data-theme="dark"] .skeleton-media::after,
+[data-theme="dark"] .skeleton-line::after {
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.08),
+        transparent
+    );
+}
+@keyframes skeleton-shimmer {
+    100% { transform: translateX(100%); }
+}
+
+
+/* --------------------------------------------
+   4. Modal أكثر سلاسة: blur تدريجي + stagger للعناصر الداخلية
+   -------------------------------------------- */
+.modal-overlay {
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition: backdrop-filter .3s ease, -webkit-backdrop-filter .3s ease, background-color .3s ease;
+}
+.modal-overlay.active {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+.modal-card > * {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: modal-item-in .45s cubic-bezier(.16,1,.3,1) forwards;
+}
+.modal-card > *:nth-child(1) { animation-delay: .05s; }
+.modal-card > *:nth-child(2) { animation-delay: .12s; }
+.modal-card > *:nth-child(3) { animation-delay: .19s; }
+.modal-card > *:nth-child(4) { animation-delay: .26s; }
+@keyframes modal-item-in {
+    to { opacity: 1; transform: none; }
+}
+
+
+/* --------------------------------------------
+   5. Micro-interactions: ripple على الأزرار + hover عمق
+   -------------------------------------------- */
+.disc-play-btn,
+.reaction-btn,
+.cta-btn,
+.btn-send-comment {
+    position: relative;
+    overflow: hidden;
+}
+.ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(255,255,255,0.55);
+    transform: scale(0);
+    animation: ripple-anim .55s ease-out forwards;
+    pointer-events: none;
+}
+@keyframes ripple-anim {
+    to {
+        transform: scale(2.6);
+        opacity: 0;
+    }
+}
+
+
+/* زر الدعوة الرئيسي: تدرّج متحرك خفيف بدل لون ثابت */
+.cta-btn {
+    background-size: 200% 200%;
+    background-image: linear-gradient(120deg, var(--primary-color), #a855f7, var(--primary-color));
+    transition: background-position .6s ease, transform .2s ease, box-shadow .2s ease;
+}
+.cta-btn:hover {
+    background-position: 100% 50%;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(2, 132, 199, 0.25);
+}
+
+
+/* --------------------------------------------
+   6. Lightbox: انتقال fade بين الصور
+   -------------------------------------------- */
+#lightboxImage {
+    transition: opacity .18s ease;
+}
+#lightboxImage.is-swapping {
+    opacity: 0;
+}
 
 body {
     font-family: 'Tajawal', sans-serif;

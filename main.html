@@ -11,10 +11,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="main_style.css">
     <link rel="stylesheet" href="gallery_style.css">
+    <!-- تحسينات الواجهة الإضافية (parallax / reveal / skeleton / micro-interactions) -->
+    <link rel="stylesheet" href="enhancements.css">
 </head>
 <body>
     <!-- calm, low-opacity dot background — see .dot-field in main_style.css -->
     <div class="dot-field" aria-hidden="true"></div>
+
+
 
 
     <header>
@@ -26,12 +30,16 @@
             </div>
 
 
+
+
             <nav>
                 <a href="main.html" class="active" data-i18n="nav_main">Main</a>
                 <a href="global_map.html" data-i18n="nav_global_map">Global Map</a>
                 <a href="gallery.html" data-i18n="nav_gallery">Gallery</a>
                 <a href="alumni.html" data-i18n="nav_about">About Us</a>
             </nav>
+
+
 
 
             <div class="header-actions">
@@ -83,6 +91,8 @@
                 </div>
 
 
+
+
                 <div class="custom-dropdown" id="langDropdown">
                     <button class="dropdown-btn" id="langDropdownBtn" title="Select Language">
                         <svg class="icon-svg globe-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -96,6 +106,8 @@
                         <button class="dropdown-item" data-lang-val="ar">العربية</button>
                     </div>
                 </div>
+
+
 
 
                 <!-- shows "Sign in" for guests, or the user's avatar + menu once logged in -->
@@ -130,6 +142,8 @@
 </div>
 
 
+
+
     <!-- HERO + KEY DETAILS -->
     <section class="hero">
         <h1 data-i18n="hero_title">Cohort 8 — Grade 2: The Learning Journey</h1>
@@ -138,6 +152,8 @@
             Amala educational program. Here we gather the leading hands-on initiatives, field photos, and inspiring
             moments that shaped our learning path and strengthened our community impact.
         </p>
+
+
 
 
         <div class="key-details">
@@ -168,7 +184,11 @@
         </div>
 
 
+
+
         <a href="gallery.html" class="cta-btn" data-i18n="hero_cta">Browse the gallery and write your message</a>
+
+
 
 
         <div class="scroll-cue">
@@ -182,6 +202,8 @@
     </section>
 
 
+
+
     <!-- STUDY LOCATION MAP -->
     <section class="location-section reveal" id="location">
         <h2 class="section-title" data-i18n="location_title">Where do we learn?</h2>
@@ -190,11 +212,19 @@
         </p>
 
 
+
+
         <div class="location-content">
-            <div class="location-map">
-                <img src="Photo/study_location_map.jpeg" alt="Amala study location map" loading="lazy">
-            </div>
-            <div class="location-card">
+            <a class="location-map"
+               href="https://www.google.com/maps/search/?api=1&query=31.9568355,35.9227876"
+               target="_blank" rel="noopener"
+               aria-label="فتح الموقع في خرائط جوجل">
+                <img src="Photo/WhatsApp Image 2026-09-06 at 8.36.52 PM.jpeg" alt="Amala study location map" loading="lazy">
+            </a>
+            <a class="location-card"
+               href="https://www.google.com/maps/search/?api=1&query=31.9568355,35.9227876"
+               target="_blank" rel="noopener"
+               aria-label="فتح الموقع في خرائط جوجل">
                 <div class="location-row">
                     <span class="location-icon" aria-hidden="true">
                         <svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
@@ -213,9 +243,11 @@
                         <p data-i18n="location_value_2">Group and individual field activities</p>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
     </section>
+
+
 
 
     <!-- GALLERY SHOWCASE -->
@@ -246,6 +278,8 @@
         </div>
 
 
+
+
         <!-- TEACHERS & MENTORS -->
         <div class="teachers-section">
             <h2 class="section-title reveal" data-i18n="teachers_title">Our teachers</h2>
@@ -257,6 +291,8 @@
                 </div>
 
 
+
+
                 <div class="teacher-card">
                     <img src="Photo/WhatsApp Image 2026-08-24 at 4.45.10 PM.jpeg" alt="Abdel-Hamid Adam" loading="lazy">
                     <h3>Abdel-Hamid Adam</h3>
@@ -264,11 +300,15 @@
                 </div>
 
 
+
+
                 <div class="teacher-card">
                     <img src="Photo/hgfd.png" alt="Rahaf" loading="lazy">
                     <h3>Rahaf</h3>
                     <blockquote class="quote" data-i18n="quote_common">"Thank you all"</blockquote>
                 </div>
+
+
 
 
                 <div class="teacher-card">
@@ -279,11 +319,15 @@
             </div>
 
 
+
+
             <div class="teachers-cta reveal">
                 <a href="gallery.html" class="cta-btn" data-i18n="hero_cta">Browse the gallery and write your message</a>
             </div>
         </div>
     </main>
+
+
 
 
     <footer>
@@ -297,14 +341,22 @@
     </footer>
 
 
+
+
     <script src="main_control.js" defer></script>
     <script src="app.js" defer></script>
+
+
 
 
     <!-- Supabase auth state -> header avatar / sign-in link -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script src="auth_header.js" defer></script>
+
+
+    <!-- تحسينات الواجهة الإضافية: parallax، reveal متدرج، ripple، سلاسة تبديل الثيمات -->
+    <script src="enhancements.js" defer></script>
 
 
     <!-- Scroll-reveal + soft page-transition enhancement (self-contained, doesn't touch main_control.js / app.js) -->
@@ -327,6 +379,8 @@
             }
 
 
+
+
             // Scroll-down cue under the hero CTA
             var scrollCueBtn = document.getElementById('scrollCueBtn');
             if (scrollCueBtn) {
@@ -335,6 +389,8 @@
                     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 });
             }
+
+
 
 
             // Soft cross-page transition via the View Transitions API.
@@ -350,6 +406,8 @@
                     if (link.getAttribute('href').startsWith('#')) return;
 
 
+
+
                     e.preventDefault();
                     document.startViewTransition(function () {
                         window.location.href = link.href;
@@ -360,9 +418,13 @@
     </script>
 
 
+
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-analytics.js";
+
+
 
 
         const firebaseConfig = {
@@ -376,8 +438,14 @@
         };
 
 
+
+
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
     </script>
 </body>
 </html>
+
+
+
+
