@@ -22,26 +22,11 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 
 
-  <!-- main_style.css first so it can define the shared theme variables
-       (--bg-color, --primary-color, etc); global_map_style.css loads
-       after so its page-specific rules win instead of being silently
-       overridden by main_style's more generic ones. -->
-  <link rel="stylesheet" href="main_style.css" />
-  <link rel="stylesheet" href="global_map_style.css" />
+  <link rel="stylesheet" href="style.css" />
 
-
-  <!--
-    ملاحظة مهمة: leaflet.markercluster مبنية بصيغة UMD وتتوقع أن تجد
-    "L" كمتغيّر عالمي (window.L) لتُلحق نفسها به (L.markerClusterGroup).
-    تحميلها عبر importmap/ESM (esm.sh) غير مضمون لأنه قد يحمّل نسخة
-    "leaflet" مختلفة عن التي يستوردها global_map_control.js، فتفشل
-    الإضافة بصمت أو يظهر خطأ "L.markerClusterGroup is not a function".
-    لذلك نحمّل leaflet + leaflet.markercluster هنا بوسم <script> عادي
-    (UMD) قبل تحميل الموديول، فتُلحق كلتاهما نفسها بـ window.L بأمان،
-    والموديول أدناه يستخدم window.L بدل استيراد leaflet من جديد.
-  -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="enhancements.js" defer></script>
 
 
   <script type="importmap">
@@ -54,7 +39,7 @@
 </head>
 <body>
 
-
+    <div class="dot-field" aria-hidden="true"></div>
   <!-- الهيدر الخاص بك -->
   <header>
     <div class="header-container">
@@ -142,21 +127,16 @@
   </div>
 
 
-  <!-- main_control.js is not modified — we just include it here too so
-       this page gets the exact same day/night + language behaviour as
-       main.html (it wasn't linked on this page before, which is why
-       the toggle in the header had no effect on this page). -->
-  <script src="main_control.js" defer></script>
-
-
   <!-- Supabase auth state -> header avatar / sign-in link (same include
        as the other pages, so the header stays consistent everywhere) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script src="auth_header.js" defer></script>
+ 
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="core.js" defer></script>
+<script src="translator.js" defer></script>
 
 
-  <script type="module" src="global_map_control.js"></script>
+
 </body>
 </html>
 

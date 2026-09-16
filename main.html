@@ -9,10 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="main_style.css">
-    <link rel="stylesheet" href="gallery_style.css">
-    <!-- تحسينات الواجهة الإضافية (parallax / reveal / skeleton / micro-interactions) -->
-    <link rel="stylesheet" href="enhancements.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="enhancements.js" defer></script>
 </head>
 <body>
     <!-- calm, low-opacity dot background — see .dot-field in main_style.css -->
@@ -219,7 +217,7 @@
                href="https://www.google.com/maps/search/?api=1&query=31.9568355,35.9227876"
                target="_blank" rel="noopener"
                aria-label="فتح الموقع في خرائط جوجل">
-                <img src="Photo/WhatsApp Image 2026-09-06 at 8.36.52 PM.jpeg" alt="Amala study location map" loading="lazy">
+                <img src="Photo/map.jpeg" alt="Amala study location map" loading="lazy">
             </a>
             <a class="location-card"
                href="https://www.google.com/maps/search/?api=1&query=31.9568355,35.9227876"
@@ -343,82 +341,9 @@
 
 
 
-    <script src="main_control.js" defer></script>
-    <script src="app.js" defer></script>
-
-
-
-
-    <!-- Supabase auth state -> header avatar / sign-in link -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js"></script>
-    <script src="auth_header.js" defer></script>
-
-
-    <!-- تحسينات الواجهة الإضافية: parallax، reveal متدرج، ripple، سلاسة تبديل الثيمات -->
-    <script src="enhancements.js" defer></script>
-
-
-    <!-- Scroll-reveal + soft page-transition enhancement (self-contained, doesn't touch main_control.js / app.js) -->
-    <script>
-        (function () {
-            // Scroll-triggered reveal for sections/cards marked .reveal
-            var revealTargets = document.querySelectorAll('.reveal');
-            if ('IntersectionObserver' in window && revealTargets.length) {
-                var observer = new IntersectionObserver(function (entries) {
-                    entries.forEach(function (entry) {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('is-visible');
-                            observer.unobserve(entry.target);
-                        }
-                    });
-                }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-                revealTargets.forEach(function (el) { observer.observe(el); });
-            } else {
-                revealTargets.forEach(function (el) { el.classList.add('is-visible'); });
-            }
-
-
-
-
-            // Scroll-down cue under the hero CTA
-            var scrollCueBtn = document.getElementById('scrollCueBtn');
-            if (scrollCueBtn) {
-                scrollCueBtn.addEventListener('click', function () {
-                    var target = document.getElementById('location');
-                    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                });
-            }
-
-
-
-
-            // Soft cross-page transition via the View Transitions API.
-            // Progressive enhancement only: unsupported browsers just navigate normally.
-            if (document.startViewTransition) {
-                document.addEventListener('click', function (e) {
-                    var link = e.target.closest('a[href]');
-                    if (!link) return;
-                    var url;
-                    try { url = new URL(link.href, window.location.href); } catch (err) { return; }
-                    if (url.origin !== window.location.origin) return;
-                    if (link.target === '_blank' || link.hasAttribute('download')) return;
-                    if (link.getAttribute('href').startsWith('#')) return;
-
-
-
-
-                    e.preventDefault();
-                    document.startViewTransition(function () {
-                        window.location.href = link.href;
-                    });
-                });
-            }
-        })();
-    </script>
-
-
-
+   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="core.js" defer></script>
+<script src="translator.js" defer></script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";

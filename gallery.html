@@ -13,27 +13,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 
-    <!-- CSS Files -->
-    <link rel="stylesheet" href="main_style.css">
-    <link rel="stylesheet" href="gallery_style.css">
-
-
-<!-- مكتبة Supabase JS SDK — يجب تحميلها قبل config.js وقبل أي سكربت آخر يعتمد عليها -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-
-<!-- ملف الإعدادات (بدون defer لضمان جاهزيته فوراً) -->
-<script src="config.js"></script>
-<script>
-    // تهيئة صريحة ومبكرة لعميل Supabase بعد تحميل المكتبة والإعدادات مباشرة،
-    // بدل الاعتماد فقط على التهيئة الكسولة داخل gallery_control.js
-    window.getSupabaseClient();
-</script>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="enhancements.js" defer></script>
 </head>
 <body>
 
 
-    <!-- شمس/قمر متحركة في الخلفية — نفس عنصر main.html، الـ CSS مشترك في main_style.css -->
+    <div class="dot-field" aria-hidden="true"></div>
+
+
     <div class="sky-layer" aria-hidden="true">
         <svg class="sky-body sky-sun" viewBox="0 0 100 100" focusable="false">
             <g class="sky-sun-rays">
@@ -49,18 +38,12 @@
             <circle cx="50" cy="50" r="26"></circle>
         </svg>
         <svg class="sky-body sky-moon" viewBox="0 0 100 100" focusable="false">
-            <defs>
-                <mask id="skyMoonMask">
-                    <rect x="0" y="0" width="100" height="100" fill="#fff"></rect>
-                    <circle cx="62" cy="34" r="28" fill="#000"></circle>
-                </mask>
-            </defs>
+            <defs><mask id="skyMoonMask"><rect width="100" height="100" fill="#fff"></rect><circle cx="62" cy="34" r="28" fill="#000"></circle></mask></defs>
             <circle cx="50" cy="50" r="28" mask="url(#skyMoonMask)"></circle>
         </svg>
     </div>
 
 
-    <!-- عنصر تشغيل الصوت الخفي -->
     <audio id="previewAudioEl" preload="none"></audio>
 
 
@@ -81,15 +64,8 @@
 
 
             <div class="header-actions">
-                <div class="user-profile-nav" id="userProfileNav" style="display: none;">
-                    <span id="navUserName" class="nav-user-name"></span>
-                    <button id="logoutBtn" class="btn-logout" type="button">تسجيل الخروج</button>
-                </div>
-
-
                 <div class="custom-dropdown" id="themeDropdown">
                     <button class="dropdown-btn" id="themeDropdownBtn" type="button" title="Select Theme">
-                        <!-- أيقونة الشمس/القمر المتحركة، نفس التي في main.html -->
                         <span class="celestial-toggle" id="celestialToggle">
                             <svg class="celestial-icon sun-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                 <g class="sun-rays">
@@ -105,12 +81,7 @@
                                 <circle class="sun-core" cx="12" cy="12" r="5"></circle>
                             </svg>
                             <svg class="celestial-icon moon-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <defs>
-                                    <mask id="moonMaskGallery">
-                                        <rect x="0" y="0" width="24" height="24" fill="#fff"></rect>
-                                        <circle cx="15" cy="8" r="7" fill="#000"></circle>
-                                    </mask>
-                                </defs>
+                                <defs><mask id="moonMaskGallery"><rect width="24" height="24" fill="#fff"></rect><circle cx="15" cy="8" r="7" fill="#000"></circle></mask></defs>
                                 <circle class="star" cx="5" cy="7" r="0.8"></circle>
                                 <circle class="star" cx="9.5" cy="3.5" r="0.6"></circle>
                                 <circle class="star" cx="18" cy="8" r="0.7"></circle>
@@ -158,19 +129,20 @@
 
 
             <div class="search-container">
-                <label for="searchInput" class="visually-hidden">بحث عن طالب</label>
+                <label for="searchInput" class="visually-hidden" data-i18n="search_placeholder">بحث عن طالب</label>
                 <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
-                <input type="text" id="searchInput" class="custom-input" data-i18n="search_placeholder" placeholder="ابحث عن طالب بالاسم أو النبذة التعريفية...">
+                <input type="text" id="searchInput" class="custom-input" data-i18n-placeholder="search_placeholder" placeholder="ابحث عن طالب بالاسم أو النبذة التعريفية...">
             </div>
         </section>
 
 
         <div class="gallery-grid" id="galleryGrid">
-            <p class="loading-status">جاري تحميل بروفايلات المعرض...</p>
+            <p class="loading-status" data-i18n="loading_gallery">جاري تحميل بروفايلات المعرض...</p>
         </div>
     </main>
 
 
+    <!-- Profile Modal -->
     <div class="modal-overlay" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="modalName">
         <button class="modal-close-outside" id="modalCloseBtn" type="button" aria-label="إغلاق">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -184,21 +156,20 @@
 
 
             <div class="modal-body">
-                <h2 id="modalName" class="modal-user-name">اسم الطالب</h2>
-                <p id="modalBio" class="modal-user-bio">النبذة التعريفية...</p>
+                <h2 id="modalName" class="modal-user-name"></h2>
+                <p id="modalBio" class="modal-user-bio"></p>
 
 
-                <!-- روابط التواصل: تُعرض فقط إذا توفر رابط لينكدإن أو إنستغرام في قاعدة البيانات -->
                 <div class="modal-socials" id="modalSocials"></div>
 
 
                 <div class="modal-section audio-section" id="modalAudioSection" style="display: none;">
                     <h3>
                         <svg class="icon-svg" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
-                        الأغنية المفضلة
+                        <span data-i18n="modal_song_title">الأغنية المفضلة</span>
                     </h3>
                     <div class="audio-player-card">
-                        <button type="button" class="disc-play-btn" id="discPlayBtn" aria-label="تشغيل">
+                        <button type="button" class="disc-play-btn" id="discPlayBtn" aria-label="play">
                             <svg class="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
                             <svg class="pause-icon" viewBox="0 0 24 24" style="display:none"><path d="M7 5h4v14H7zM13 5h4v14h-4z"></path></svg>
                         </button>
@@ -207,7 +178,7 @@
                             <div class="disc-label"></div>
                         </div>
                         <div class="audio-info">
-                            <p class="preview-song" id="previewSong">جاري التحميل...</p>
+                            <p class="preview-song" id="previewSong">—</p>
                         </div>
                     </div>
                 </div>
@@ -216,7 +187,7 @@
                 <div class="modal-section" id="modalGallerySection">
                     <h3>
                         <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path></svg>
-                        معرض الصور
+                        <span data-i18n="modal_gallery_title">معرض الصور</span>
                     </h3>
                     <div class="modal-gallery-grid" id="modalGalleryGrid"></div>
                 </div>
@@ -225,7 +196,7 @@
                 <div class="modal-section" id="modalVideoSection" style="display: none;">
                     <h3>
                         <svg class="icon-svg" viewBox="0 0 24 24"><rect x="2" y="6" width="15" height="12" rx="2"></rect><path d="m17 10 5-3v10l-5-3"></path></svg>
-                        فيديو التعريف
+                        <span data-i18n="modal_video_title">فيديو التعريف</span>
                     </h3>
                     <div class="video-container" id="modalVideoContainer"></div>
                 </div>
@@ -234,9 +205,9 @@
                 <div class="modal-section reactions-section">
                     <h3>
                         <svg class="icon-svg filled" viewBox="0 0 24 24"><path d="M12 2l1.8 5.5L19 9l-5.2 1.5L12 16l-1.8-5.5L5 9l5.2-1.5L12 2z"></path><path d="M19 14l.9 2.6L22 17l-2.1.8L19 20l-.9-2.2L16 17l2.1-.4L19 14z"></path></svg>
-                        التفاعلات
+                        <span data-i18n="modal_reactions_title">التفاعلات</span>
                     </h3>
-                    <p class="reactions-hint">تفاعل واحد لكل زائر — اضغط على تفاعل آخر للتبديل، أو اضغط على تفاعلك الحالي لإزالته.</p>
+                    <p class="reactions-hint" data-i18n="modal_reactions_hint">تفاعل واحد لكل زائر — اضغط على تفاعل آخر للتبديل، أو اضغط على تفاعلك الحالي لإزالته.</p>
                     <div class="reactions-bar" id="reactionsBar">
                         <button class="reaction-btn" type="button" data-reaction-type="like">
                             <svg class="icon-svg filled" viewBox="0 0 24 24"><path d="M12 21s-6.7-4.35-9.3-8.1C.8 9.9 1.9 6.3 5.1 5.2c2-.7 4 .1 5 1.8 1-1.7 3-2.5 5-1.8 3.2 1.1 4.3 4.7 2.4 7.7C18.7 16.65 12 21 12 21z"></path></svg>
@@ -261,18 +232,18 @@
                 <div class="modal-section comments-section">
                     <h3>
                         <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-4.2-1.1L3 20l1.1-5.3A8.38 8.38 0 0 1 3 11.5 8.5 8.5 0 0 1 11.5 3 8.38 8.38 0 0 1 21 11.5z"></path></svg>
-                        التعليقات
+                        <span data-i18n="modal_comments_title">التعليقات</span>
                     </h3>
                     <div class="comments-list" id="commentsList">
-                        <p class="no-comments">لا توجد تعليقات بعد، كن أول من يعلق!</p>
+                        <p class="no-comments" data-i18n="comments_empty">لا توجد تعليقات بعد، كن أول من يعلق!</p>
                     </div>
 
 
                     <form id="commentForm" class="comment-form">
-                        <input type="text" id="commentAuthor" placeholder="اسمك (اختياري)" class="comment-input text-input comment-author-input" maxlength="60">
+                        <input type="text" id="commentAuthor" data-i18n-placeholder="comment_author_placeholder" placeholder="اسمك (اختياري)" class="comment-input text-input comment-author-input" maxlength="60">
                         <div class="comment-input-wrapper">
-                            <input type="text" id="commentText" placeholder="اكتب تعليقك هنا..." required class="comment-input text-input" maxlength="500">
-                            <button type="submit" class="btn-send-comment">إرسال</button>
+                            <input type="text" id="commentText" data-i18n-placeholder="comment_text_placeholder" placeholder="اكتب تعليقك هنا..." required class="comment-input text-input" maxlength="500">
+                            <button type="submit" class="btn-send-comment" data-i18n="comment_send">إرسال</button>
                         </div>
                     </form>
                 </div>
@@ -281,24 +252,41 @@
     </div>
 
 
-    <!-- نافذة تكبير الصور (Lightbox) -->
+    <!-- Lightbox -->
     <div class="lightbox-overlay" id="lightboxOverlay" role="dialog" aria-modal="true">
         <button class="lightbox-close" id="lightboxClose" type="button" aria-label="إغلاق الصورة">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
-        <button class="lightbox-nav lightbox-prev" id="lightboxPrev" type="button" aria-label="الصورة السابقة">
+        <button class="lightbox-nav lightbox-prev" id="lightboxPrev" type="button" aria-label="prev">
             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         </button>
-        <img id="lightboxImage" src="" alt="صورة مكبرة">
-        <button class="lightbox-nav lightbox-next" id="lightboxNext" type="button" aria-label="الصورة التالية">
+        <img id="lightboxImage" src="" alt="zoom">
+        <button class="lightbox-nav lightbox-next" id="lightboxNext" type="button" aria-label="next">
             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
         </button>
         <div class="lightbox-counter" id="lightboxCounter"></div>
     </div>
 
 
-    <!-- التحكم بالنظام: الثيم/اللغة (مشترك مع main.html)، ثم منطق المعرض -->
-    <script src="main_control.js" defer></script>
-    <script src="gallery_control.js" defer></script>
+    <!-- ========================= FOOTER ========================= -->
+    <footer>
+        <div class="footer-user-actions" id="footerUserActions" style="display: none;">
+            <a href="edit_profile.html" class="btn-edit-profile" data-i18n="edit_profile">✎ تعديل البروفايل</a>
+            <button id="logoutBtn" class="btn-logout" type="button" data-i18n="logout">تسجيل الخروج</button>
+            <button id="deleteProfileBtn" class="btn-delete-profile" type="button" data-i18n="delete_profile">🗑 حذف البروفايل</button>
+        </div>
+
+
+        <div class="footer-links">
+            <a href="https://amala.org" target="_blank" rel="noopener" data-i18n="footer_link_1">الصفحة الرسمية لأمالا</a>
+            <a href="gallery.html" data-i18n="footer_link_2">معرض الأعمال</a>
+            <a href="#" data-i18n="footer_link_3">الشروط والخصوصية</a>
+            <a href="#" data-i18n="footer_link_4">وسائل التواصل الاجتماعي</a>
+        </div>
+        <p data-i18n="footer_text">© 2026 جميع الحقوق محفوظة لبرنامج أمل التعليمي - تم برمجة هذه الصفحة بواسطة <b>وسام عباصا</b></p>
+    </footer>
+
+
+    <script src="core.js" defer></script>
 </body>
 </html>

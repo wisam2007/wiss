@@ -52,7 +52,12 @@
             link_invalid_msg: "الرابط غير صحيح أو الصيغة غير مدعومة",
             link_unverified_msg: "الصيغة صحيحة، لكن لا يمكن التأكد من وجود الحساب فعليًا من المتصفح",
             video_valid_msg: "تم التحقق: الفيديو موجود فعليًا",
-            video_invalid_msg: "لم يتم العثور على فيديو بهذا الرابط"
+            video_invalid_msg: "لم يتم العثور على فيديو بهذا الرابط",
+            lbl_role_platform: "الدور في المنصة",
+            banner_color1: "اللون الأول",
+            banner_color2: "اللون الثاني",
+            banner_direction: "اتجاه التدرج",
+
         },
         en: {
             preview_label: "Live preview",
@@ -105,7 +110,12 @@
             link_invalid_msg: "Invalid link or unsupported format",
             link_unverified_msg: "Format looks valid, but the account's existence can't be confirmed from the browser",
             video_valid_msg: "Verified: the video exists",
-            video_invalid_msg: "No video found at this link"
+            video_invalid_msg: "No video found at this link",
+            lbl_role_platform: "Role on the platform",
+            banner_color1: "First color",
+            banner_color2: "Second color",
+            banner_direction: "Gradient direction",
+
         }
     };
 
