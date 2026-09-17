@@ -1,4 +1,3 @@
-<!--gallery.html-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -10,7 +9,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
 
 
     <link rel="stylesheet" href="style.css">
@@ -92,13 +91,13 @@
                     </button>
                     <div class="dropdown-content">
                         <button class="dropdown-item" type="button" data-theme-val="light">
-                            <img src="Photo/sun_ICON.png" alt="Light"> <span>فاتح</span>
+                            <img src="Photo/sun_ICON.png" alt=""> <span>فاتح</span>
                         </button>
                         <button class="dropdown-item" type="button" data-theme-val="dark">
-                            <img src="Photo/moon_ICON.png" alt="Dark"> <span>داكن</span>
+                            <img src="Photo/moon_ICON.png" alt=""> <span>داكن</span>
                         </button>
                         <button class="dropdown-item" type="button" data-theme-val="auto">
-                            <img src="Photo/auto_ICON.png" alt="Auto"> <span>تلقائي</span>
+                            <img src="Photo/auto_ICON.png" alt=""> <span>تلقائي</span>
                         </button>
                     </div>
                 </div>
@@ -117,6 +116,8 @@
                         <button class="dropdown-item" type="button" data-lang-val="en">English</button>
                     </div>
                 </div>
+
+                <div id="authHeaderSlot"></div>
             </div>
         </div>
     </header>
@@ -198,7 +199,7 @@
                         <svg class="icon-svg" viewBox="0 0 24 24"><rect x="2" y="6" width="15" height="12" rx="2"></rect><path d="m17 10 5-3v10l-5-3"></path></svg>
                         <span data-i18n="modal_video_title">فيديو التعريف</span>
                     </h3>
-                    <div class="video-container" id="modalVideoContainer"></div>
+                    <div class="modal-video-list" id="modalVideoContainer"></div>
                 </div>
 
 

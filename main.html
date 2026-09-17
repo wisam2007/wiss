@@ -13,10 +13,7 @@
     <script src="enhancements.js" defer></script>
 </head>
 <body>
-    <!-- calm, low-opacity dot background — see .dot-field in main_style.css -->
     <div class="dot-field" aria-hidden="true"></div>
-
-
 
 
     <header>
@@ -28,8 +25,6 @@
             </div>
 
 
-
-
             <nav>
                 <a href="main.html" class="active" data-i18n="nav_main">Main</a>
                 <a href="global_map.html" data-i18n="nav_global_map">Global Map</a>
@@ -38,14 +33,9 @@
             </nav>
 
 
-
-
             <div class="header-actions">
                 <div class="custom-dropdown" id="themeDropdown">
                     <button class="dropdown-btn" id="themeDropdownBtn" title="Select Theme">
-                        <!-- Animated sun/moon toggle, replaces the old static swapped-PNG icon.
-                             main_control.js only ever toggles is-dark / is-auto on this wrapper;
-                             main_style.css (.celestial-toggle) does all the animating. -->
                         <span class="celestial-toggle" id="celestialToggle">
                             <svg class="celestial-icon sun-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                 <g class="sun-rays">
@@ -89,8 +79,6 @@
                 </div>
 
 
-
-
                 <div class="custom-dropdown" id="langDropdown">
                     <button class="dropdown-btn" id="langDropdownBtn" title="Select Language">
                         <svg class="icon-svg globe-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -106,40 +94,38 @@
                 </div>
 
 
-
-
                 <!-- shows "Sign in" for guests, or the user's avatar + menu once logged in -->
                 <div id="authHeaderSlot"></div>
             </div>
         </div>
     </header>
-<!-- شمس وقمر متحركة في الخلفية -->
-<div class="sky-layer" aria-hidden="true">
-    <svg class="sky-body sky-sun" viewBox="0 0 100 100" focusable="false">
-        <g class="sky-sun-rays">
-            <line x1="50" y1="4" x2="50" y2="20"></line>
-            <line x1="50" y1="4" x2="50" y2="20" transform="rotate(45 50 50)"></line>
-            <line x1="50" y1="4" x2="50" y2="20" transform="rotate(90 50 50)"></line>
-            <line x1="50" y1="4" x2="50" y2="20" transform="rotate(135 50 50)"></line>
-            <line x1="50" y1="4" x2="50" y2="20" transform="rotate(180 50 50)"></line>
-            <line x1="50" y1="4" x2="50" y2="20" transform="rotate(225 50 50)"></line>
-            <line x1="50" y1="4" x2="50" y2="20" transform="rotate(270 50 50)"></line>
-            <line x1="50" y1="4" x2="50" y2="20" transform="rotate(315 50 50)"></line>
-        </g>
-        <circle cx="50" cy="50" r="26"></circle>
-    </svg>
-    <svg class="sky-body sky-moon" viewBox="0 0 100 100" focusable="false">
-        <defs>
-            <mask id="skyMoonMask">
-                <rect x="0" y="0" width="100" height="100" fill="#fff"></rect>
-                <circle cx="62" cy="34" r="28" fill="#000"></circle>
-            </mask>
-        </defs>
-        <circle cx="50" cy="50" r="28" mask="url(#skyMoonMask)"></circle>
-    </svg>
-</div>
 
 
+    <!-- شمس وقمر متحركة في الخلفية -->
+    <div class="sky-layer" aria-hidden="true">
+        <svg class="sky-body sky-sun" viewBox="0 0 100 100" focusable="false">
+            <g class="sky-sun-rays">
+                <line x1="50" y1="4" x2="50" y2="20"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(45 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(90 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(135 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(180 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(225 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(270 50 50)"></line>
+                <line x1="50" y1="4" x2="50" y2="20" transform="rotate(315 50 50)"></line>
+            </g>
+            <circle cx="50" cy="50" r="26"></circle>
+        </svg>
+        <svg class="sky-body sky-moon" viewBox="0 0 100 100" focusable="false">
+            <defs>
+                <mask id="skyMoonMask">
+                    <rect x="0" y="0" width="100" height="100" fill="#fff"></rect>
+                    <circle cx="62" cy="34" r="28" fill="#000"></circle>
+                </mask>
+            </defs>
+            <circle cx="50" cy="50" r="28" mask="url(#skyMoonMask)"></circle>
+        </svg>
+    </div>
 
 
     <!-- HERO + KEY DETAILS -->
@@ -150,8 +136,6 @@
             Amala educational program. Here we gather the leading hands-on initiatives, field photos, and inspiring
             moments that shaped our learning path and strengthened our community impact.
         </p>
-
-
 
 
         <div class="key-details">
@@ -182,11 +166,7 @@
         </div>
 
 
-
-
         <a href="gallery.html" class="cta-btn" data-i18n="hero_cta">Browse the gallery and write your message</a>
-
-
 
 
         <div class="scroll-cue">
@@ -200,16 +180,12 @@
     </section>
 
 
-
-
     <!-- STUDY LOCATION MAP -->
     <section class="location-section reveal" id="location">
         <h2 class="section-title" data-i18n="location_title">Where do we learn?</h2>
         <p class="section-desc" data-i18n="location_desc">
             A map showing the center and the rooms where we held cohort sessions and hands-on workshops.
         </p>
-
-
 
 
         <div class="location-content">
@@ -246,8 +222,6 @@
     </section>
 
 
-
-
     <!-- GALLERY SHOWCASE -->
     <main class="gallery-section" id="gallery">
         <h2 class="section-title reveal" data-i18n="memories_title">Our memories</h2>
@@ -276,8 +250,6 @@
         </div>
 
 
-
-
         <!-- TEACHERS & MENTORS -->
         <div class="teachers-section">
             <h2 class="section-title reveal" data-i18n="teachers_title">Our teachers</h2>
@@ -289,8 +261,6 @@
                 </div>
 
 
-
-
                 <div class="teacher-card">
                     <img src="Photo/WhatsApp Image 2026-08-24 at 4.45.10 PM.jpeg" alt="Abdel-Hamid Adam" loading="lazy">
                     <h3>Abdel-Hamid Adam</h3>
@@ -298,15 +268,11 @@
                 </div>
 
 
-
-
                 <div class="teacher-card">
                     <img src="Photo/hgfd.png" alt="Rahaf" loading="lazy">
                     <h3>Rahaf</h3>
                     <blockquote class="quote" data-i18n="quote_common">"Thank you all"</blockquote>
                 </div>
-
-
 
 
                 <div class="teacher-card">
@@ -317,15 +283,11 @@
             </div>
 
 
-
-
             <div class="teachers-cta reveal">
                 <a href="gallery.html" class="cta-btn" data-i18n="hero_cta">Browse the gallery and write your message</a>
             </div>
         </div>
     </main>
-
-
 
 
     <footer>
@@ -339,38 +301,7 @@
     </footer>
 
 
-
-
-   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="core.js" defer></script>
-<script src="translator.js" defer></script>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-analytics.js";
-
-
-
-
-        const firebaseConfig = {
-            apiKey: "REPLACE_WITH_YOUR_FULL_VALID_API_KEY",
-            authDomain: "wall-of-memories-6ebe5.firebaseapp.com",
-            projectId: "wall-of-memories-6ebe5",
-            storageBucket: "wall-of-memories-6ebe5.firebasestorage.app",
-            messagingSenderId: "815152503979",
-            appId: "1:815152503979:web:557da206072dd061edebee",
-            measurementId: "G-482RV8EB7W"
-        };
-
-
-
-
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="core.js" defer></script>
 </body>
 </html>
-
-
-
-

@@ -4,14 +4,12 @@
 (function () {
     'use strict';
 
-
     /* ============================================================
        1) CONFIG
        ============================================================ */
     window.CONFIG_APP = {
         SUPABASE_URL: 'https://scomyankrwvlquopqrxk.supabase.co',
-        SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjb215YW5rcnd2bHF1b3BxcnhrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjI4NzUyOCwiZXhwIjoyMTAxODYzNTI4fQ.Iv1Nu_i7SvPhtx5iG4a3g9jzcMeDw3q16PgP2fZrAB0',
-        measurementId: 'G-M3TLYE6HSQ',
+        SUPABASE_ANON_KEY: 'sb_publishable_nS3vXoEQABjfyRNSfHYpKQ_RLQPYdIX',
         MAX_IMAGE_MB: 5,
         ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp'],
         TOTAL_STEPS: 4,
@@ -24,13 +22,31 @@
        ============================================================ */
     window.getSupabaseClient = function () {
         if (window.supabaseClient) return window.supabaseClient;
-        if (window.supabase && window.supabase.createClient) {
-            window.supabaseClient = window.supabase.createClient(
-                window.CONFIG_APP.SUPABASE_URL,
-                window.CONFIG_APP.SUPABASE_ANON_KEY
-            );
+        if (!window.supabase || !window.supabase.createClient) {
+            console.error('[getSupabaseClient] Supabase library not loaded. Check the <script> tag in HTML.');
+            return null;
         }
-        return window.supabaseClient || null;
+
+
+        const url = window.CONFIG_APP.SUPABASE_URL;
+        const key = window.CONFIG_APP.SUPABASE_ANON_KEY;
+
+
+        if (!url || !key || key.includes('ضع هنا')) {
+            console.error('[getSupabaseClient] Missing Supabase URL or publishable key.');
+            return null;
+        }
+
+
+        const keyLooksValid = key.startsWith('sb_publishable_') || key.startsWith('eyJ');
+        if (!keyLooksValid) {
+            console.error('[getSupabaseClient] Invalid key format. Expected sb_publishable_... or eyJ...');
+            return null;
+        }
+
+
+        window.supabaseClient = window.supabase.createClient(url, key);
+        return window.supabaseClient;
     };
 
 
@@ -62,6 +78,37 @@
     window.buildSocialUrl = buildSocialUrl;
 
 
+    /* ---------- Storage URL resolver (global) ---------- */
+    const FALLBACK_IMAGE = 'https://placehold.co/300x300/e2e8f0/1e293b?text=No+Image';
+
+
+    function getPublicStorageUrl(path, bucketName = 'avatars') {
+        if (!path || String(path).trim() === '' || path === 'null') return FALLBACK_IMAGE;
+        if (/^https?:\/\//i.test(path) || String(path).startsWith('data:')) return path;
+
+
+        const client = window.getSupabaseClient();
+        if (!client) return FALLBACK_IMAGE;
+
+
+        const cleanPath = String(path).startsWith('/') ? String(path).substring(1) : String(path);
+
+
+        // Always use plain public URL — image transformations are a paid feature
+        const { data } = client.storage.from(bucketName).getPublicUrl(cleanPath);
+        const publicUrl = data?.publicUrl || '';
+
+
+        if (publicUrl && /^https?:\/\//i.test(publicUrl)) return publicUrl;
+
+
+        // Fallback: build URL manually
+        const base = window.CONFIG_APP.SUPABASE_URL;
+        return `${base}/storage/v1/object/public/${bucketName}/${cleanPath}`;
+    }
+    window.getPublicStorageUrl = getPublicStorageUrl;
+
+
     /* ============================================================
        4) TRANSLATIONS
        ============================================================ */
@@ -80,7 +127,7 @@
             search_placeholder: 'Search by name or bio...',
             modal_song_title: 'Favorite song',
             modal_gallery_title: 'Photo gallery',
-            modal_video_title: 'Intro video',
+            modal_video_title: 'Videos',
             modal_reactions_title: 'Reactions',
             modal_reactions_hint: 'One reaction per visitor — tap another to switch, or tap your current one to remove it.',
             modal_comments_title: 'Comments',
@@ -253,7 +300,7 @@
             search_placeholder: 'ابحث بالاسم أو النبذة...',
             modal_song_title: 'الأغنية المفضلة',
             modal_gallery_title: 'معرض الصور',
-            modal_video_title: 'فيديو التعريف',
+            modal_video_title: 'الفيديوهات',
             modal_reactions_title: 'التفاعلات',
             modal_reactions_hint: 'تفاعل واحد لكل زائر — اضغط على تفاعل آخر للتبديل، أو اضغط على تفاعلك الحالي لإزالته.',
             modal_comments_title: 'التعليقات',
@@ -452,6 +499,7 @@
         }
         safeSetItem('preferred_theme', themeChoice);
     }
+    window.applyTheme = applyTheme;
 
 
     function applyLanguage(lang) {
@@ -570,7 +618,10 @@
             .from('profiles').select('full_name, avatar_url').eq('id', session.user.id).maybeSingle();
 
 
-        const avatarUrl = profile?.avatar_url || 'Photo/placeholder_avatar.png';
+        const rawAvatar = profile?.avatar_url;
+        const avatarUrl = rawAvatar
+            ? getPublicStorageUrl(rawAvatar, 'avatars')
+            : 'Photo/placeholder_avatar.png';
         const name = profile?.full_name || session.user.email;
 
 
@@ -605,7 +656,6 @@
        7) GALLERY MODULE
        ============================================================ */
     function initGallery() {
-        const FALLBACK_IMAGE = 'https://placehold.co/300x300/e2e8f0/1e293b?text=No+Image';
         let allProfiles = [];
         let activeProfileId = null;
         let currentUser = null;
@@ -625,20 +675,6 @@
             const div = document.createElement('div');
             div.textContent = str ?? '';
             return div.innerHTML;
-        }
-
-
-        function getPublicStorageUrl(path, bucketName = 'avatars', transform = '') {
-            if (!path || String(path).trim() === '' || path === 'null') return FALLBACK_IMAGE;
-            if (/^https?:\/\//i.test(path) || String(path).startsWith('data:')) return path;
-            const client = window.getSupabaseClient();
-            if (!client) return FALLBACK_IMAGE;
-            const cleanPath = String(path).startsWith('/') ? String(path).substring(1) : String(path);
-            const { data } = client.storage.from(bucketName).getPublicUrl(
-                cleanPath,
-                transform ? { transform } : undefined
-            );
-            return data?.publicUrl || FALLBACK_IMAGE;
         }
 
 
@@ -687,7 +723,7 @@
                 const geo = await res.json();
                 if (!geo.latitude || !geo.longitude) return;
                 const { data: profile } = await client.from('profiles')
-                    .select('lat, lng, city').eq('id', session.user.id).single();
+                    .select('lat, lng, city').eq('id', session.user.id).maybeSingle();
                 if (!profile || !profile.lat) { safeSetItem('last_geo_check', String(Date.now())); return; }
                 const R = 6371, toRad = (d) => d * Math.PI / 180;
                 const dLat = toRad(geo.latitude - profile.lat);
@@ -724,7 +760,7 @@
                     return;
                 }
                 currentUser = session.user;
-                const { data: profile } = await client.from('profiles').select('*').eq('id', currentUser.id).single();
+                const { data: profile } = await client.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
                 if (footerActions) footerActions.style.display = 'flex';
                 if (navUserName) navUserName.textContent = profile?.full_name || currentUser.email;
             } catch (err) { console.error(err); }
@@ -748,16 +784,12 @@
             _loading = true;
 
 
-            // Disable (not remove) the button to preserve scroll position
             const oldBtn = document.getElementById('loadMoreBtn');
             if (oldBtn) { oldBtn.disabled = true; oldBtn.textContent = '...'; }
 
 
             const from = _page * PAGE_SIZE;
             const to = from + PAGE_SIZE - 1;
-
-
-            if (reset) window.showGallerySkeletons?.(6);
 
 
             try {
@@ -777,7 +809,6 @@
                 _hasMore = (data || []).length === PAGE_SIZE;
 
 
-                // Remove old button AFTER new content added
                 oldBtn?.remove();
 
 
@@ -829,30 +860,25 @@
             const instagramUrl = buildSocialUrl(instagramRaw, 'instagram');
 
 
-            const videoLinks = Array.isArray(profile.video_links) ? profile.video_links : [];
-            const firstVideo = videoLinks[0] || null;
+            const videoLinks = Array.isArray(profile.video_links)
+                ? profile.video_links.filter(v => v && v.url)
+                : [];
+            const hasVideo = videoLinks.length > 0;
 
 
-            return { avatarUrl, galleryImages, bannerStyle, hasAudio, linkedinUrl, instagramUrl, firstVideo };
+            return { avatarUrl, galleryImages, bannerStyle, hasAudio, linkedinUrl, instagramUrl, videoLinks, hasVideo };
         }
 
 
         function buildGalleryCard(profile) {
-            const { avatarUrl, galleryImages, bannerStyle, hasAudio, firstVideo } = resolveProfileMedia(profile);
+            const { avatarUrl, galleryImages, bannerStyle, hasAudio, videoLinks, hasVideo } = resolveProfileMedia(profile);
 
 
-            // Cover: first gallery image with server-side 600×400 crop
             const coverImage = galleryImages.length > 0
-                ? getPublicStorageUrl(profile.gallery[0], 'media', {
-                    width: 600,
-                    height: 400,
-                    resize: 'cover',
-                    quality: 78
-                  })
+                ? getPublicStorageUrl(profile.gallery[0], 'media')
                 : avatarUrl;
 
 
-            const hasVideo = Boolean(firstVideo && firstVideo.url);
             const safeName = profile.full_name || '—';
             const safeBio = profile.bio || '—';
 
@@ -869,8 +895,8 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
                             ${galleryImages.length}
                         </span>
-                        ${hasAudio ? `<span class="card-badge audio-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg> ${window.t('section_song')}</span>` : ''}
-                        ${hasVideo ? `<span class="card-badge video-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5v14l11-7z"></path></svg> ${window.t('section_video')}</span>` : ''}
+                        ${hasAudio ? `<span class="card-badge audio-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg> ${window.t('section_song') || 'Song'}</span>` : ''}
+                        ${hasVideo ? `<span class="card-badge video-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5v14l11-7z"></path></svg> ${window.t('section_video') || 'Videos'}</span>` : ''}
                     </div>
                 </div>
                 <div class="card-content">
@@ -1069,6 +1095,7 @@
             renderSocialLinks(linkedinUrl, instagramUrl);
 
 
+            /* ---------- Audio ---------- */
             const audioSection = document.getElementById('modalAudioSection');
             if (audioSection) {
                 let songObj = profile.song_url;
@@ -1089,6 +1116,7 @@
             }
 
 
+            /* ---------- Gallery ---------- */
             const modalGalleryGrid = document.getElementById('modalGalleryGrid');
             if (modalGalleryGrid) {
                 modalGalleryGrid.innerHTML = '';
@@ -1103,28 +1131,50 @@
             }
 
 
+            /* ---------- Videos (all of them) ---------- */
             const videoSection = document.getElementById('modalVideoSection');
             const videoContainer = document.getElementById('modalVideoContainer');
             if (videoSection && videoContainer) {
                 videoContainer.innerHTML = '';
-                const videoLinks = Array.isArray(profile.video_links) ? profile.video_links : [];
-                const firstVideo = videoLinks[0];
-                if (firstVideo && firstVideo.url) {
-                    const vType = (firstVideo.type === 'drive' || firstVideo.type === 'gdrive') ? 'drive' : 'youtube';
+
+
+                const videoLinks = Array.isArray(profile.video_links)
+                    ? profile.video_links.filter(v => v && v.url)
+                    : [];
+
+
+                let renderedCount = 0;
+
+
+                videoLinks.forEach((v) => {
+                    const vType = (v.type === 'drive' || v.type === 'gdrive') ? 'drive' : 'youtube';
+                    let embedHtml = '';
+
+
                     if (vType === 'drive') {
-                        const driveId = extractDriveFileId(firstVideo.url);
+                        const driveId = extractDriveFileId(v.url);
                         if (driveId) {
-                            videoContainer.innerHTML = `<iframe src="https://drive.google.com/file/d/${driveId}/preview" allow="autoplay" allowfullscreen></iframe>`;
-                            videoSection.style.display = 'block';
-                        } else videoSection.style.display = 'none';
+                            embedHtml = `<iframe src="https://drive.google.com/file/d/${driveId}/preview" allow="autoplay" allowfullscreen loading="lazy"></iframe>`;
+                        }
                     } else {
-                        const videoId = extractYouTubeId(firstVideo.url);
+                        const videoId = extractYouTubeId(v.url);
                         if (videoId) {
-                            videoContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>`;
-                            videoSection.style.display = 'block';
-                        } else videoSection.style.display = 'none';
+                            embedHtml = `<iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen loading="lazy"></iframe>`;
+                        }
                     }
-                } else videoSection.style.display = 'none';
+
+
+                    if (embedHtml) {
+                        const wrap = document.createElement('div');
+                        wrap.className = 'video-container';
+                        wrap.innerHTML = embedHtml;
+                        videoContainer.appendChild(wrap);
+                        renderedCount++;
+                    }
+                });
+
+
+                videoSection.style.display = renderedCount > 0 ? 'block' : 'none';
             }
 
 
@@ -1237,7 +1287,6 @@
         });
 
 
-        // Logout with confirmation
         document.getElementById('logoutBtn')?.addEventListener('click', async () => {
             if (!confirm(window.t('confirm_logout'))) return;
             const client = window.getSupabaseClient();
@@ -1246,7 +1295,6 @@
         });
 
 
-        // Delete profile with double confirmation
         document.getElementById('deleteProfileBtn')?.addEventListener('click', async () => {
             if (!confirm(window.t('confirm_delete_1'))) return;
             if (!confirm(window.t('confirm_delete_2'))) return;
@@ -1339,10 +1387,7 @@
         function resolveAvatarUrl(avatarUrl) {
             if (!avatarUrl) return null;
             if (/^https?:\/\//i.test(avatarUrl)) return avatarUrl;
-            const client = window.getSupabaseClient();
-            if (!client) return null;
-            const { data } = client.storage.from(AVATAR_BUCKET).getPublicUrl(avatarUrl);
-            return data ? data.publicUrl : null;
+            return getPublicStorageUrl(avatarUrl, AVATAR_BUCKET);
         }
         async function loadStudents() {
             setStatus('...');
@@ -1408,7 +1453,6 @@
 
 
         if (document.getElementById('authHeaderSlot')) {
-            renderAuthHeader();
             const client = window.getSupabaseClient();
             if (client) client.auth.onAuthStateChange(() => renderAuthHeader());
         }

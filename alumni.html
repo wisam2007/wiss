@@ -11,8 +11,7 @@
     <script src="enhancements.js" defer></script>
 </head>
 <body>
-      <div class="dot-field" aria-hidden="true"></div>
-
+    <div class="dot-field" aria-hidden="true"></div>
 
 
     <div class="sky-layer" aria-hidden="true">
@@ -49,23 +48,17 @@
             </div>
 
 
-
-
             <nav>
                 <a href="main.html" data-i18n="nav_main">Main</a>
                 <a href="global_map.html" data-i18n="nav_global_map">Global Map</a>
                 <a href="gallery.html" data-i18n="nav_gallery">Gallery</a>
                 <a href="alumni.html" class="active" data-i18n="nav_about">About Us</a>
-               
             </nav>
 
 
-
-
             <div class="header-actions">
-                <!-- قائمة اختيار الثيم -->
                 <div class="custom-dropdown" id="themeDropdown">
-                    <button class="dropdown-btn" id="themeDropdownBtn" title="Select Theme">
+                    <button class="dropdown-btn" id="themeDropdownBtn" type="button" title="Select Theme">
                         <span class="celestial-toggle" id="celestialToggle">
                             <svg class="celestial-icon sun-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                 <g class="sun-rays">
@@ -96,68 +89,70 @@
                         </span>
                     </button>
                     <div class="dropdown-content">
-                        <button class="dropdown-item" data-theme-val="light">
-                            <img src="Photo/sun_ICON.png" alt="Light"> Light
+                        <button class="dropdown-item" type="button" data-theme-val="light">
+                            <img src="Photo/sun_ICON.png" alt=""> Light
                         </button>
-                        <button class="dropdown-item" data-theme-val="dark">
-                            <img src="Photo/moon_ICON.png" alt="Dark"> Dark
+                        <button class="dropdown-item" type="button" data-theme-val="dark">
+                            <img src="Photo/moon_ICON.png" alt=""> Dark
                         </button>
-                        <button class="dropdown-item" data-theme-val="auto">
-                            <img src="Photo/auto_ICON.png" alt="Auto"> Auto (Time)
+                        <button class="dropdown-item" type="button" data-theme-val="auto">
+                            <img src="Photo/auto_ICON.png" alt=""> Auto (Time)
                         </button>
                     </div>
                 </div>
 
 
-
-
-                <!-- قائمة اختيار اللغة -->
                 <div class="custom-dropdown" id="langDropdown">
-                    <button class="dropdown-btn" id="langDropdownBtn" title="Select Language">
+                    <button class="dropdown-btn" id="langDropdownBtn" type="button" title="Select Language">
                         <svg class="lang-globe-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"></path>
                         </svg>
                         <span id="currentLangLabel">EN</span>
                     </button>
                     <div class="dropdown-content">
-                        <button class="dropdown-item" data-lang-val="en">English</button>
-                        <button class="dropdown-item" data-lang-val="ar">العربية</button>
+                        <button class="dropdown-item" type="button" data-lang-val="en">English</button>
+                        <button class="dropdown-item" type="button" data-lang-val="ar">العربية</button>
                     </div>
                 </div>
+                
+                <div id="authHeaderSlot"></div>
             </div>
         </div>
     </header>
 
-   <!-- ---------- Hero ---------- -->
-<section class="about-hero">
-    <span class="about-eyebrow" data-i18n="about_eyebrow">Cohort 8th</span>
-    <h1 class="about-headline" data-i18n="about_headline">Our Story, Our Journey</h1>
-    <p class="about-quote" data-i18n="about_quote">...</p>
-</section>
-<!-- ---------- About Amala GSD ---------- -->
-<section class="vision-section">
-    <h2 class="section-title reveal" data-i18n="who_title">من نحن؟</h2>
-    <p class="vision-intro reveal" data-i18n="who_desc">
-        Amala GSD برنامج تعليمي مجتمعي أُطلق عام 2024 لدعم الشباب في الأردن عبر مسار تعليمي مكثّف يمتد 8 أشهر، يركّز على المهارات العملية، القيادة، والتفكير التصميمي، ويربط المتعلمين بمجتمع مهني فعّال.
-    </p>
-    <div class="vision-grid reveal reveal-stagger">
-        <div class="vision-card">
-            <div class="vision-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></div>
-            <h3 data-i18n="stat_students_t">+120 طالب وطالبة</h3>
-            <p data-i18n="stat_students_d">تخرّجوا من الدفعات السابقة ضمن مسارات متعددة.</p>
+
+    <!-- ---------- Hero ---------- -->
+    <section class="about-hero">
+        <span class="about-eyebrow" data-i18n="about_eyebrow">Cohort 8th</span>
+        <h1 class="about-headline" data-i18n="about_headline">Our Story, Our Journey</h1>
+        <p class="about-quote" data-i18n="about_quote">...</p>
+    </section>
+
+
+    <!-- ---------- About Amala GSD ---------- -->
+    <section class="vision-section">
+        <h2 class="section-title reveal" data-i18n="who_title">من نحن؟</h2>
+        <p class="vision-intro reveal" data-i18n="who_desc">
+            Amala GSD برنامج تعليمي مجتمعي أُطلق عام 2024 لدعم الشباب في الأردن عبر مسار تعليمي مكثّف يمتد 8 أشهر، يركّز على المهارات العملية، القيادة، والتفكير التصميمي، ويربط المتعلمين بمجتمع مهني فعّال.
+        </p>
+        <div class="vision-grid reveal reveal-stagger">
+            <div class="vision-card">
+                <div class="vision-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></div>
+                <h3 data-i18n="stat_students_t">+120 طالب وطالبة</h3>
+                <p data-i18n="stat_students_d">تخرّجوا من الدفعات السابقة ضمن مسارات متعددة.</p>
+            </div>
+            <div class="vision-card">
+                <div class="vision-icon"><svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg></div>
+                <h3 data-i18n="stat_cohorts_t">8 دفعات</h3>
+                <p data-i18n="stat_cohorts_d">دفعة كل 6 أشهر، بمنهجية تتطور مع كل جيل.</p>
+            </div>
+            <div class="vision-card">
+                <div class="vision-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></div>
+                <h3 data-i18n="stat_mentors_t">+30 مرشد</h3>
+                <p data-i18n="stat_mentors_d">من مهنيين وأكاديميين في السوق الأردني والعربي.</p>
+            </div>
         </div>
-        <div class="vision-card">
-            <div class="vision-icon"><svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg></div>
-            <h3 data-i18n="stat_cohorts_t">8 دفعات</h3>
-            <p data-i18n="stat_cohorts_d">دفعة كل 6 أشهر، بمنهجية تتطور مع كل جيل.</p>
-        </div>
-        <div class="vision-card">
-            <div class="vision-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></div>
-            <h3 data-i18n="stat_mentors_t">+30 مرشد</h3>
-            <p data-i18n="stat_mentors_d">من مهنيين وأكاديميين في السوق الأردني والعربي.</p>
-        </div>
-    </div>
-</section>
+    </section>
 
 
     <!-- ---------- Vision ---------- -->
@@ -191,8 +186,6 @@
     </section>
 
 
-
-
     <!-- ---------- Journey ---------- -->
     <section class="journey-section">
         <div class="journey-card">
@@ -205,8 +198,6 @@
             </p>
         </div>
     </section>
-
-
 
 
     <!-- ---------- Thanks (Signature Section) ---------- -->
@@ -233,22 +224,19 @@
     </section>
 
 
-
-
     <footer>
+        <div class="footer-user-actions" id="footerUserActions" style="display: none;">
+            <a href="edit_profile.html" class="btn-edit-profile" data-i18n="edit_profile">✎ تعديل البروفايل</a>
+            <button id="logoutBtn" class="btn-logout" type="button" data-i18n="logout">تسجيل الخروج</button>
+            <button id="deleteProfileBtn" class="btn-delete-profile" type="button" data-i18n="delete_profile">🗑 حذف البروفايل</button>
+        </div>
+
+
         <p data-i18n="footer_text">© 2026 All rights reserved for Amala Educational Program - this page was coded by <b>Wisam Appsas</b></p>
     </footer>
 
 
-
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="core.js" defer></script>
-    <script src="translator.js" defer></script>
-
 </body>
 </html>
-
-
-
-

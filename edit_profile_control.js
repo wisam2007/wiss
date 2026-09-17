@@ -1,18 +1,17 @@
 /* ============================================================
-   edit_profile_control.js — per-section profile editor (i18n-ready)
+   edit_profile_control.js — per-section profile editor
    ============================================================ */
 (function () {
     'use strict';
 
 
     const client = window.getSupabaseClient ? window.getSupabaseClient() : null;
-    if (!client) { console.error('Supabase not ready'); return; }
+    if (!client) { console.error('[edit_profile] Supabase not ready'); return; }
 
 
     const FALLBACK_AVATAR = 'https://placehold.co/200x200/e2e8f0/1e293b?text=?';
 
 
-    /* t() helper: reads key, replaces {param} placeholders */
     function t(key, params) {
         let str = window.t ? window.t(key) : key;
         if (params) {
@@ -21,6 +20,27 @@
             });
         }
         return str;
+    }
+
+
+    /* Safe setter for input/textarea elements */
+    function setValue(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.value = value ?? '';
+    }
+
+
+    /* Safe setter for element text */
+    function setText(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value ?? '';
+    }
+
+
+    /* Safe setter for element HTML */
+    function setHTML(id, html) {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = html ?? '';
     }
 
 
@@ -87,10 +107,18 @@
     }
 
 
+    function parseGradient(str) {
+        if (!str || typeof str !== 'string') return null;
+        const m = str.match(/linear-gradient\(\s*(\d+)deg\s*,\s*(#[0-9a-fA-F]{3,8})\s*0%\s*,\s*(#[0-9a-fA-F]{3,8})\s*100%\s*\)/i);
+        if (!m) return null;
+        return { deg: parseInt(m[1], 10), c1: m[2], c2: m[3] };
+    }
+
+
     function validateImageFile(file) {
         const allowed = (window.CONFIG_APP?.ALLOWED_IMAGE_TYPES) || ['image/jpeg', 'image/png', 'image/webp'];
         if (!allowed.includes(file.type)) return { valid: false, message: `${file.name} — ${file.type}` };
-        const maxMb = window.CONFIG_APP?.MAX_IMAGE_MB || 5;
+FIG_APP?.MAX_IMAGE_MB || 5;
         if (file.size > maxMb * 1024 * 1024) return { valid: false, message: `${file.name} > ${maxMb}MB` };
         return { valid: true };
     }
@@ -163,9 +191,13 @@
             state.banner.type = p.banner.type || 'auto';
             state.banner.value = p.banner.value || null;
         } else if (p.banner_style) {
-            if (p.banner_style.startsWith('linear-gradient')) state.banner = { type: 'custom', value: p.banner_style, file: null };
-            else if (/\.(jpe?g|png|webp)$/i.test(p.banner_style)) state.banner = { type: 'image', value: p.banner_style, file: null };
-            else state.banner = { type: 'auto', value: p.banner_style, file: null };
+            if (p.banner_style.startsWith('linear-gradient')) {
+                state.banner = { type: 'custom', value: p.banner_style, file: null };
+            } else if (/\.(jpe?g|png|webp)$/i.test(p.banner_style)) {
+                state.banner = { type: 'image', value: p.banner_style, file: null };
+            } else {
+                state.banner = { type: 'auto', value: p.banner_style, file: null };
+            }
         }
 
 
@@ -195,7 +227,7 @@
     function renderPreview() {
         const bannerEl = document.getElementById('previewBanner');
         if (bannerEl) bannerEl.style.background = bannerToCss(state.banner, state.banner.value);
-        if (state.banner.type === 'image' && state.banner.file) {
+        if (state.banner.type === 'image' && state.banner.file && bannerEl) {
             const reader = new FileReader();
             reader.onload = (e) => { bannerEl.style.background = `url('${e.target.result}') center/cover no-repeat`; };
             reader.readAsDataURL(state.banner.file);
@@ -206,34 +238,35 @@
         if (avatarEl) avatarEl.src = state.avatar.previewUrl || avatarToUrl(state.profile.avatar_url);
 
 
-        document.getElementById('previewName').textContent = state.identity.full_name || '—';
+        setText('previewName', state.identity.full_name || '—');
         const roleText = state.identity.role === 'teacher' ? t('role_teacher') : t('role_student');
-        document.getElementById('previewRole').textContent = state.identity.role === 'teacher' ? `👩‍🏫 ${roleText}` : `🎓 ${roleText}`;
-        document.getElementById('previewBio').textContent = state.identity.bio || '—';
+        setText('previewRole', state.identity.role === 'teacher' ? `👩‍🏫 ${roleText}` : `🎓 ${roleText}`);
+        setText('previewBio', state.identity.bio || '—');
 
 
         const socialsEl = document.getElementById('previewSocials');
-        const links = [];
-        if (state.social.instagram) {
-            const url = window.buildSocialUrl ? window.buildSocialUrl(state.social.instagram, 'instagram') : `https://instagram.com/${state.social.instagram}`;
-            links.push(`<a class="social-link" target="_blank" rel="noopener" aria-label="Instagram" href="${url}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" stroke="none"></circle></svg></a>`);
+        if (socialsEl) {
+            const links = [];
+            if (state.social.instagram) {
+                const url = window.buildSocialUrl ? window.buildSocialUrl(state.social.instagram, 'instagram') : `https://instagram.com/${state.social.instagram}`;
+                links.push(`<a class="social-link" target="_blank" rel="noopener" aria-label="Instagram" href="${url}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" stroke="none"></circle></svg></a>`);
+            }
+            if (state.social.linkedin) {
+                const url = window.buildSocialUrl ? window.buildSocialUrl(state.social.linkedin, 'linkedin') : `https://linkedin.com/in/${state.social.linkedin}`;
+                links.push(`<a class="social-link" target="_blank" rel="noopener" aria-label="LinkedIn" href="${url}"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.44-2.14 2.94v5.66H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56z"></path></svg></a>`);
+            }
+            socialsEl.innerHTML = links.join('');
         }
-        if (state.social.linkedin) {
-            const url = window.buildSocialUrl ? window.buildSocialUrl(state.social.linkedin, 'linkedin') : `https://linkedin.com/in/${state.social.linkedin}`;
-            links.push(`<a class="social-link" target="_blank" rel="noopener" aria-label="LinkedIn" href="${url}"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.44-2.14 2.94v5.66H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56z"></path></svg></a>`);
-        }
-        socialsEl.innerHTML = links.join('');
 
 
         const totalImages = state.gallery.length + state.newGalleryFiles.length;
-        document.getElementById('previewGalleryCount').innerHTML =
-            `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>${totalImages}`;
-        document.getElementById('previewSongStatus').innerHTML = state.song
+        setHTML('previewGalleryCount', `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>${totalImages}`);
+        setHTML('previewSongStatus', state.song
             ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>${t('song_added_hint')}`
-            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>${t('song_none_hint')}`;
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>${t('song_none_hint')}`);
         const videoCount = state.videoLinks.filter(v => v.url).length;
-        document.getElementById('previewVideoStatus').innerHTML =
-            `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="15" height="12" rx="2"/><path d="m17 10 5-3v10l-5-3"/></svg>${videoCount ? t('video_count_hint', { n: videoCount }) : t('video_none_hint')}`;
+        setHTML('previewVideoStatus',
+            `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="15" height="12" rx="2"/><path d="m17 10 5-3v10l-5-3"/></svg>${videoCount ? t('video_count_hint', { n: videoCount }) : t('video_none_hint')}`);
 
 
         updateHint('identity', state.identity.full_name || '—');
@@ -251,29 +284,49 @@
 
     /* ---------- render sections ---------- */
     function renderAllSections() {
-        document.getElementById('editFullName').value = state.identity.full_name;
-        document.getElementById('editBio').value = state.identity.bio;
+        setValue('editFullName', state.identity.full_name);
+        setValue('editBio', state.identity.bio);
+
+
         document.querySelectorAll('.edit-section[data-section="identity"] .role-card').forEach(c => {
             c.classList.toggle('selected', c.dataset.role === state.identity.role);
         });
 
 
-        document.getElementById('editCity').value = state.location.city;
+        setValue('editCity', state.location.city);
+        setValue('editInstagram', state.social.instagram);
+        setValue('editLinkedin', state.social.linkedin);
 
 
-        document.getElementById('editInstagram').value = state.social.instagram;
-        document.getElementById('editLinkedin').value = state.social.linkedin;
+        const avatarEl = document.getElementById('editAvatarCurrent');
+        if (avatarEl) avatarEl.src = avatarToUrl(state.profile.avatar_url);
 
 
-        document.getElementById('editAvatarCurrent').src = avatarToUrl(state.profile.avatar_url);
+        const bannerPrev = document.getElementById('editBannerPreview');
+        if (bannerPrev) bannerPrev.style.background = bannerToCss(state.banner, state.banner.value);
 
 
-        document.getElementById('editBannerPreview').style.background = bannerToCss(state.banner, state.banner.value);
         document.querySelectorAll('.edit-section[data-section="banner"] .banner-opt').forEach(b => {
             b.classList.toggle('active', b.dataset.bannerType === state.banner.type);
         });
-        if (state.banner.type === 'custom') document.getElementById('customColorControls').style.display = 'block';
-        if (state.banner.type === 'image')  document.getElementById('bannerImageControls').style.display = 'block';
+
+
+        const customCtrl = document.getElementById('customColorControls');
+        const imageCtrl  = document.getElementById('bannerImageControls');
+        if (customCtrl) customCtrl.style.display = state.banner.type === 'custom' ? 'block' : 'none';
+        if (imageCtrl)  imageCtrl.style.display  = state.banner.type === 'image'  ? 'block' : 'none';
+
+
+        if (state.banner.type === 'custom' && state.banner.value) {
+            const parsed = parseGradient(state.banner.value);
+            if (parsed) {
+                setValue('bannerColor1', parsed.c1);
+                setValue('bannerColor2', parsed.c2);
+                const degEl = document.getElementById('bannerDirection');
+                if (degEl) degEl.value = String(parsed.deg);
+                setText('bannerDirectionLabel', parsed.deg + '°');
+            }
+        }
 
 
         renderSongCurrent();
@@ -285,6 +338,9 @@
     function renderSongCurrent() {
         const box = document.getElementById('songCurrentBox');
         const removeBtn = document.getElementById('removeSongBtn');
+        if (!box || !removeBtn) return;
+
+
         if (!state.song) {
             box.style.display = 'none';
             removeBtn.style.display = 'none';
@@ -301,31 +357,38 @@
             ${state.song.previewUrl ? `<button type="button" class="song-play-btn" id="playCurrentSong">▶</button>` : ''}
         `;
         if (state.song.previewUrl) {
-            document.getElementById('playCurrentSong').addEventListener('click', (e) => {
-                e.stopPropagation();
-                const audio = document.getElementById('previewAudioEl');
-                if (!audio) return;
-                if (audio.src !== state.song.previewUrl) audio.src = state.song.previewUrl;
-                if (audio.paused) { audio.play().catch(() => {}); e.target.textContent = '⏸'; }
-                else { audio.pause(); e.target.textContent = '▶'; }
-            });
+            const playBtn = document.getElementById('playCurrentSong');
+            if (playBtn) {
+                playBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const audio = document.getElementById('previewAudioEl');
+                    if (!audio) return;
+                    if (audio.src !== state.song.previewUrl) audio.src = state.song.previewUrl;
+                    if (audio.paused) { audio.play().catch(() => {}); e.target.textContent = '⏸'; }
+                    else { audio.pause(); e.target.textContent = '▶'; }
+                });
+            }
         }
     }
 
 
     function renderGalleryGrid() {
         const grid = document.getElementById('editGalleryGrid');
+        if (!grid) return;
         grid.innerHTML = '';
         const total = state.gallery.length + state.newGalleryFiles.length;
-        document.getElementById('editGalleryCount').textContent = `${total} / 15`;
-        document.getElementById('editGalleryCount').classList.toggle('limit-reached', total >= 15);
+        const countEl = document.getElementById('editGalleryCount');
+        if (countEl) {
+            countEl.textContent = `${total} / 15`;
+            countEl.classList.toggle('limit-reached', total >= 15);
+        }
 
 
         state.gallery.forEach((path) => {
             const url = resolveStorageUrl(path, 'media');
             const wrap = document.createElement('div');
             wrap.className = 'edit-gallery-thumb';
-            wrap.innerHTML = `<img src="${url}" alt=""><button class="thumb-remove" title="✕">✕</button>`;
+            wrap.innerHTML = `<img src="${url || FALLBACK_AVATAR}" alt=""><button type="button" class="thumb-remove" title="✕">✕</button>`;
             wrap.querySelector('.thumb-remove').addEventListener('click', () => {
                 state.gallery = state.gallery.filter(x => x !== path);
                 state.galleryRemoved.push(path);
@@ -340,7 +403,7 @@
             const url = URL.createObjectURL(file);
             const wrap = document.createElement('div');
             wrap.className = 'edit-gallery-thumb';
-            wrap.innerHTML = `<img src="${url}" alt=""><button class="thumb-remove" title="✕">✕</button>`;
+            wrap.innerHTML = `<img src="${url}" alt=""><button type="button" class="thumb-remove" title="✕">✕</button>`;
             wrap.querySelector('.thumb-remove').addEventListener('click', () => {
                 state.newGalleryFiles.splice(i, 1);
                 renderGalleryGrid();
@@ -358,6 +421,7 @@
 
     function renderVideoBlocks() {
         const container = document.getElementById('editVideoBlocks');
+        if (!container) return;
         container.innerHTML = '';
         if (state.videoLinks.length === 0) {
             container.innerHTML = `<p class="field-hint">${t('hint_no_videos')}</p>`;
@@ -371,7 +435,7 @@
                     <button type="button" class="video-tab ${v.type === 'youtube' ? 'active' : ''}" data-vtype="youtube">YouTube</button>
                     <button type="button" class="video-tab ${v.type === 'gdrive' ? 'active' : ''}" data-vtype="gdrive">Google Drive</button>
                 </div>
-                <input type="text" class="video-url-input" value="${v.url || ''}" placeholder="https://...">
+                <input type="text" class="video-url-input" value="${v.url || ''}" placeholder="https://..." autocomplete="off" spellcheck="false">
                 <div style="display:flex;gap:8px;margin-top:8px;">
                     <button type="button" class="btn-remove-video">${t('remove_video')}</button>
                 </div>
@@ -438,9 +502,9 @@
 
 
     async function saveIdentity() {
-        const full_name = document.getElementById('editFullName').value.trim();
+        const full_name = (document.getElementById('editFullName')?.value || '').trim();
         const role = document.querySelector('.edit-section[data-section="identity"] .role-card.selected')?.dataset.role;
-        const bio = document.getElementById('editBio').value.trim();
+        const bio = (document.getElementById('editBio')?.value || '').trim();
         if (!full_name) throw new Error(t('err_name_required'));
         if (!role) throw new Error(t('err_role_required'));
         await patch({ full_name, role, bio });
@@ -452,7 +516,7 @@
 
 
     async function saveLocation() {
-        const city = document.getElementById('editCity').value.trim();
+        const city = (document.getElementById('editCity')?.value || '').trim();
         await patch({ city: city || null, lat: state.location.lat, lng: state.location.lng });
         state.location.city = city;
         renderPreview();
@@ -462,8 +526,8 @@
 
 
     async function saveSocial() {
-        const instagram = cleanSocial(document.getElementById('editInstagram').value);
-        const linkedin = cleanSocial(document.getElementById('editLinkedin').value);
+        const instagram = cleanSocial(document.getElementById('editInstagram')?.value || '');
+        const linkedin = cleanSocial(document.getElementById('editLinkedin')?.value || '');
         await patch({
             social_links: { linkedin: linkedin || null, instagram: instagram || null },
             linkedin: linkedin || null,
@@ -478,6 +542,7 @@
 
     async function saveAvatar() {
         const fileInput = document.getElementById('editAvatarFile');
+        if (!fileInput) return;
         const file = fileInput.files[0];
         if (!file) { closeSection('avatar'); return; }
         const check = validateImageFile(file);
@@ -487,7 +552,8 @@
         await patch({ avatar_url: path });
         fileInput.value = '';
         state.avatar = { file: null, previewUrl: null };
-        document.getElementById('editAvatarCurrent').src = avatarToUrl(path);
+        const avatarEl = document.getElementById('editAvatarCurrent');
+        if (avatarEl) avatarEl.src = avatarToUrl(path);
         renderPreview();
         toast(t('saved_avatar'), 'success');
         closeSection('avatar');
@@ -500,13 +566,13 @@
 
 
         if (bannerType === 'custom') {
-            const c1 = document.getElementById('bannerColor1').value;
-            const c2 = document.getElementById('bannerColor2').value;
-            const deg = document.getElementById('bannerDirection').value;
+            const c1 = document.getElementById('bannerColor1')?.value || '#1d4ed8';
+            const c2 = document.getElementById('bannerColor2')?.value || '#a855f7';
+            const deg = document.getElementById('bannerDirection')?.value || 135;
             bannerValue = `linear-gradient(${deg}deg, ${c1} 0%, ${c2} 100%)`;
         } else if (bannerType === 'image') {
             const fileInput = document.getElementById('bannerImgInput');
-            const file = fileInput.files[0];
+            const file = fileInput?.files[0];
             if (file) {
                 const check = validateImageFile(file);
                 if (!check.valid) throw new Error(check.message);
@@ -535,7 +601,7 @@
 
     async function saveSong() {
         const payload = state.song
-            ? { url: state.song.previewUrl, title: state.song.title, artist: state.song.artist, artwork: state.song.artwork }
+            ? { url: state.song.previewUrl, previewUrl: state.song.previewUrl, title: state.song.title, artist: state.song.artist, artwork: state.song.artwork }
             : null;
         await patch({ song_url: payload });
         renderPreview();
@@ -555,7 +621,8 @@
         state.gallery = finalGallery;
         state.newGalleryFiles = [];
         state.galleryRemoved = [];
-        document.getElementById('editGalleryFiles').value = '';
+        const fileInput = document.getElementById('editGalleryFiles');
+        if (fileInput) fileInput.value = '';
         renderAllSections();
         renderPreview();
         toast(t('saved_gallery'), 'success');
@@ -587,21 +654,28 @@
         });
 
 
-        document.getElementById('editFullName').addEventListener('input', (e) => { state.identity.full_name = e.target.value; renderPreview(); });
-        document.getElementById('editBio').addEventListener('input', (e) => { state.identity.bio = e.target.value; renderPreview(); });
-        document.getElementById('editCity').addEventListener('input', (e) => { state.location.city = e.target.value; renderPreview(); });
-        document.getElementById('editInstagram').addEventListener('input', (e) => { state.social.instagram = cleanSocial(e.target.value); renderPreview(); });
-        document.getElementById('editLinkedin').addEventListener('input', (e) => { state.social.linkedin = cleanSocial(e.target.value); renderPreview(); });
+        const addListener = (id, event, fn) => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener(event, fn);
+        };
 
 
-        document.getElementById('editAvatarFile').addEventListener('change', (e) => {
+        addListener('editFullName', 'input', (e) => { state.identity.full_name = e.target.value; renderPreview(); });
+        addListener('editBio', 'input', (e) => { state.identity.bio = e.target.value; renderPreview(); });
+        addListener('editCity', 'input', (e) => { state.location.city = e.target.value; renderPreview(); });
+        addListener('editInstagram', 'input', (e) => { state.social.instagram = cleanSocial(e.target.value); renderPreview(); });
+        addListener('editLinkedin', 'input', (e) => { state.social.linkedin = cleanSocial(e.target.value); renderPreview(); });
+
+
+        addListener('editAvatarFile', 'change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
             const check = validateImageFile(file);
             if (!check.valid) { toast(check.message, 'error'); e.target.value = ''; return; }
             state.avatar.file = file;
             state.avatar.previewUrl = URL.createObjectURL(file);
-            document.getElementById('editAvatarCurrent').src = state.avatar.previewUrl;
+            const avatarEl = document.getElementById('editAvatarCurrent');
+            if (avatarEl) avatarEl.src = state.avatar.previewUrl;
             renderPreview();
         });
 
@@ -611,8 +685,10 @@
                 document.querySelectorAll('.edit-section[data-section="banner"] .banner-opt').forEach(b => b.classList.remove('active'));
                 opt.classList.add('active');
                 state.banner.type = opt.dataset.bannerType;
-                document.getElementById('customColorControls').style.display = state.banner.type === 'custom' ? 'block' : 'none';
-                document.getElementById('bannerImageControls').style.display = state.banner.type === 'image' ? 'block' : 'none';
+                const customCtrl = document.getElementById('customColorControls');
+                const imageCtrl = document.getElementById('bannerImageControls');
+                if (customCtrl) customCtrl.style.display = state.banner.type === 'custom' ? 'block' : 'none';
+                if (imageCtrl) imageCtrl.style.display = state.banner.type === 'image' ? 'block' : 'none';
                 renderPreview();
             });
         });
@@ -620,21 +696,23 @@
 
         ['bannerColor1', 'bannerColor2', 'bannerDirection'].forEach(id => {
             const el = document.getElementById(id);
-            el?.addEventListener('input', () => {
+            if (!el) return;
+            el.addEventListener('input', () => {
                 if (id === 'bannerDirection') {
-                    document.getElementById('bannerDirectionLabel').textContent = `${el.value}°`;
+                    setText('bannerDirectionLabel', `${el.value}°`);
                 }
-                const c1 = document.getElementById('bannerColor1').value;
-                const c2 = document.getElementById('bannerColor2').value;
-                const deg = document.getElementById('bannerDirection').value;
+                const c1 = document.getElementById('bannerColor1')?.value || '#1d4ed8';
+                const c2 = document.getElementById('bannerColor2')?.value || '#a855f7';
+                const deg = document.getElementById('bannerDirection')?.value || 135;
                 state.banner.value = `linear-gradient(${deg}deg, ${c1} 0%, ${c2} 100%)`;
-                document.getElementById('editBannerPreview').style.background = state.banner.value;
+                const bannerPrev = document.getElementById('editBannerPreview');
+                if (bannerPrev) bannerPrev.style.background = state.banner.value;
                 renderPreview();
             });
         });
 
 
-        document.getElementById('bannerImgInput').addEventListener('change', (e) => {
+        addListener('bannerImgInput', 'change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
             const check = validateImageFile(file);
@@ -642,7 +720,8 @@
             state.banner.file = file;
             const reader = new FileReader();
             reader.onload = (ev) => {
-                document.getElementById('editBannerPreview').style.background = `url('${ev.target.result}') center/cover no-repeat`;
+                const bannerPrev = document.getElementById('editBannerPreview');
+                if (bannerPrev) bannerPrev.style.background = `url('${ev.target.result}') center/cover no-repeat`;
             };
             reader.readAsDataURL(file);
             renderPreview();
@@ -650,10 +729,11 @@
 
 
         let songTimer = null;
-        document.getElementById('editSongSearch').addEventListener('input', (e) => {
+        addListener('editSongSearch', 'input', (e) => {
             clearTimeout(songTimer);
             const q = e.target.value.trim();
             const box = document.getElementById('editSongResults');
+            if (!box) return;
             if (q.length < 2) { box.innerHTML = ''; return; }
             songTimer = setTimeout(async () => {
                 try {
@@ -672,7 +752,8 @@
                                 previewUrl: track.previewUrl
                             };
                             box.innerHTML = '';
-                            document.getElementById('editSongSearch').value = '';
+                            const searchInput = document.getElementById('editSongSearch');
+                            if (searchInput) searchInput.value = '';
                             renderSongCurrent();
                             renderPreview();
                         });
@@ -683,14 +764,14 @@
         });
 
 
-        document.getElementById('removeSongBtn').addEventListener('click', () => {
+        addListener('removeSongBtn', 'click', () => {
             state.song = null;
             renderSongCurrent();
             renderPreview();
         });
 
 
-        document.getElementById('editGalleryFiles').addEventListener('change', (e) => {
+        addListener('editGalleryFiles', 'change', (e) => {
             const files = Array.from(e.target.files);
             const total = state.gallery.length + state.newGalleryFiles.length;
             const room = Math.max(0, 15 - total);
@@ -707,7 +788,7 @@
         });
 
 
-        document.getElementById('addVideoBlockBtn').addEventListener('click', () => {
+        addListener('addVideoBlockBtn', 'click', () => {
             if (state.videoLinks.length >= 3) { toast(t('err_max_videos'), 'error'); return; }
             state.videoLinks.push({ url: '', type: 'youtube' });
             renderVideoBlocks();
@@ -723,17 +804,19 @@
 
 
         const locSection = document.querySelector('.edit-section[data-section="location"]');
-        locSection.addEventListener('toggle', () => {
-            if (locSection.open && !leafletMap) {
-                setTimeout(initMap, 150);
-            } else if (locSection.open && leafletMap) {
-                setTimeout(() => leafletMap.invalidateSize(), 100);
-            }
-        });
+        if (locSection) {
+            locSection.addEventListener('toggle', () => {
+                if (locSection.open && !leafletMap) {
+                    setTimeout(initMap, 150);
+                } else if (locSection.open && leafletMap) {
+                    setTimeout(() => leafletMap.invalidateSize(), 100);
+                }
+            });
+        }
 
 
-        document.getElementById('locateBtn').addEventListener('click', async () => {
-            const q = document.getElementById('editCity').value.trim();
+        addListener('locateBtn', 'click', async () => {
+            const q = (document.getElementById('editCity')?.value || '').trim();
             if (!q) { toast(t('err_city_required'), 'error'); return; }
             try {
                 const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`);
@@ -749,7 +832,6 @@
         });
 
 
-        // Re-render on language change
         window.addEventListener('languageChanged', () => {
             renderPreview();
             renderVideoBlocks();
