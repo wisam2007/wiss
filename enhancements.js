@@ -83,7 +83,14 @@
         var backdrop = document.createElement('div');
         backdrop.className = 'nav-backdrop';
         document.body.appendChild(backdrop);
-
+        // Close button inside the drawer
+        var closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'nav-close-btn';
+        closeBtn.setAttribute('aria-label', 'Close menu');
+        closeBtn.innerHTML = '✕';
+        nav.prepend(closeBtn);
+        closeBtn.addEventListener('click', function () { toggle(false); });
 
         function toggle(open) {
             var isOpen = open === undefined ? !nav.classList.contains('open') : open;
