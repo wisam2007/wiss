@@ -1,12 +1,9 @@
-
-
 /* enhancements.js — shared UI layer for all pages */
 (function () {
     'use strict';
 
-
     /* ============================================================
-       1) SCROLL REVEAL  (runs on every page that has .reveal)
+       1) SCROLL REVEAL
        ============================================================ */
     function initReveal() {
         var targets = document.querySelectorAll('.reveal');
@@ -26,7 +23,6 @@
         targets.forEach(function (el) { obs.observe(el); });
     }
 
-
     /* ============================================================
        2) PARALLAX (dot-field follows mouse)
        ============================================================ */
@@ -45,9 +41,8 @@
         }, { passive: true });
     }
 
-
     /* ============================================================
-       3) STAGGER DELAYS  (sets --i on children of .reveal-stagger)
+       3) STAGGER DELAYS
        ============================================================ */
     function initStagger() {
         document.querySelectorAll('.reveal-stagger').forEach(function (g) {
@@ -57,14 +52,12 @@
         });
     }
 
-
     /* ============================================================
-       4) MOBILE BURGER MENU  (auto-injects button + drawer)
+       4) MOBILE BURGER MENU  (simple dropdown panel)
        ============================================================ */
     function initBurger() {
         var nav = document.querySelector('header nav');
         if (!nav || document.getElementById('burgerBtn')) return;
-
 
         var btn = document.createElement('button');
         btn.id = 'burgerBtn';
@@ -73,46 +66,42 @@
         btn.setAttribute('aria-expanded', 'false');
         btn.innerHTML = '<span></span><span></span><span></span>';
 
-
         // Insert right after the logo
         var logo = document.querySelector('header .logo');
         if (logo && logo.parentNode) logo.parentNode.insertBefore(btn, logo.nextSibling);
 
-
-        // Backdrop
-        var backdrop = document.createElement('div');
-        backdrop.className = 'nav-backdrop';
-        document.body.appendChild(backdrop);
-        // Close button inside the drawer
-        var closeBtn = document.createElement('button');
-        closeBtn.type = 'button';
-        closeBtn.className = 'nav-close-btn';
-        closeBtn.setAttribute('aria-label', 'Close menu');
-        closeBtn.innerHTML = '✕';
-        nav.prepend(closeBtn);
-        closeBtn.addEventListener('click', function () { toggle(false); });
-
         function toggle(open) {
-            var isOpen = open === undefined ? !nav.classList.contains('open') : open;
+            var isOpen = (open === undefined) ? !nav.classList.contains('open') : open;
             nav.classList.toggle('open', isOpen);
-            backdrop.classList.toggle('show', isOpen);
             btn.classList.toggle('open', isOpen);
             btn.setAttribute('aria-expanded', String(isOpen));
-            document.body.style.overflow = isOpen ? 'hidden' : '';
         }
-        btn.addEventListener('click', function () { toggle(); });
-        backdrop.addEventListener('click', function () { toggle(false); });
+
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggle();
+        });
+
+        // Close when clicking a link
         nav.querySelectorAll('a').forEach(function (a) {
             a.addEventListener('click', function () { toggle(false); });
         });
+
+        // Close when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!nav.classList.contains('open')) return;
+            if (nav.contains(e.target) || btn.contains(e.target)) return;
+            toggle(false);
+        });
+
+        // Close on Escape
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') toggle(false);
         });
     }
 
-
     /* ============================================================
-       5) GLOBAL TOAST  (replaces alert(); translate via data-i18n-* optional)
+       5) GLOBAL TOAST
        ============================================================ */
     function ensureToastContainer() {
         var c = document.getElementById('toastContainer');
@@ -137,13 +126,11 @@
     }
     window.showToast = toast;
 
-
-    // Override alert() with toast — safer UX, everything still works
+    // Override alert() with toast
     window.alert = function (msg) {
         var kind = /خطأ|error|failed|تعذّر/i.test(msg) ? 'error' : 'info';
         toast(msg, kind, 4000);
     };
-
 
     /* ============================================================
        BOOT
@@ -157,5 +144,3 @@
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
     else boot();
 })();
-
-
