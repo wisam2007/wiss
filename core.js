@@ -157,13 +157,15 @@
             location_value_1: 'Amala Center / Jabal Al-Weibdeh',
             location_label_2: 'Learning environment',
             location_value_2: 'Group and individual field activities',
-            memories_title: 'Our memories',
-            memory_1_title: 'Cohort opening session',
-            memory_1_desc: 'The launch of the field work program and building a shared vision among the students.',
-            memory_2_title: 'A variety of projects',
-            memory_2_desc: 'Showcasing innovative ideas and solutions aimed at developing the local community.',
-            memory_3_title: 'Group photo',
-            memory_3_desc: "The cohort's very first group photo.",
+           memories_title: 'Our memories',
+            memory_1_title: 'Cohort 8 opening — Class 2',
+            memory_1_desc: 'Our first group photo, marking the opening of Cohort 8, Class 2.',
+            memory_2_title: 'Farewell to our facilitators',
+            memory_2_desc: 'A farewell party honoring our facilitators Abdel-Hamid and Waqar.',
+            memory_3_title: 'Last session together',
+            memory_3_desc: 'A group photo to remember our last class together - coming soon!',
+            memory_4_title: 'Graduation',
+            memory_4_desc: 'Our graduation photo — coming soon, once we cross the finish line.',
             teachers_title: 'Our teachers',
             quote_waqar: '"Persisting in learning and leadership is the first step toward real change."',
             quote_abdelhamid: '"Thank you all — we\'re proud of what you achieved on this learning journey."',
@@ -330,13 +332,15 @@
             location_value_1: 'مركز امالا / اللويبدة',
             location_label_2: 'بيئة التعلم',
             location_value_2: 'الأنشطة الميدانية جماعية أو فردية',
-            memories_title: 'ذكرياتنا',
-            memory_1_title: 'الجلسة الافتتاحية للكوهورت',
-            memory_1_desc: 'انطلاقة برنامج العمل الميداني وبناء الرؤية المشتركة بين الطلاب.',
-            memory_2_title: 'مشاريع متنوعة',
-            memory_2_desc: 'عرض الأفكار والحلول المبتكرة الموجهة لتطوير المجتمع المحلي.',
-            memory_3_title: 'صورة جماعية',
-            memory_3_desc: 'أول صورة جماعية للكوهورت.',
+          memories_title: 'ذكرياتنا',
+            memory_1_title: 'افتتاح كوهورت 8 — كلاس 2',
+            memory_1_desc: 'أول صورة جماعية لنا، وثّقت افتتاح كوهورت 8، كلاس 2.',
+            memory_2_title: 'حفلة توديع ميسرينا',
+            memory_2_desc: 'صورة من حفلة توديع الميسّرَين عبد الحميد ووقار.',
+            memory_3_title: 'آخر حصة معاً',
+            memory_3_desc: 'صورة جماعية لذكرى آخر حصة مع ميسرينا.',
+            memory_4_title: 'التخرج',
+            memory_4_desc: 'صورة تخرجنا — قريباً، حين نعبر خط النهاية.',
             teachers_title: 'معلمونا',
             quote_waqar: '"الإصرار على التعلم والقيادة هو أول خطوات صنع التغيير الحقيقي."',
             quote_abdelhamid: '"شكراً لكم جميعاً — نفخر بما حققتموه خلال هذه الرحلة التعليمية."',
@@ -602,7 +606,7 @@
     /* ============================================================
        6) AUTH HEADER WIDGET
        ============================================================ */
-    async function renderAuthHeader() {
+   async function renderAuthHeader() {
         const slot = document.getElementById('authHeaderSlot');
         if (!slot) return;
         const client = window.getSupabaseClient();
@@ -611,9 +615,14 @@
 
         const { data: { session }, error } = await client.auth.getSession();
         if (error || !session) {
-            slot.innerHTML = `<a href="log_in.html" class="auth-header-signin">${window.t('auth_signin')}</a>`;
+            // 🔒 No sign-in button in the header — login link is shared privately
+            slot.innerHTML = '';
+            slot.style.display = 'none';
             return;
         }
+        slot.style.display = '';
+
+
         const { data: profile } = await client
             .from('profiles').select('full_name, avatar_url').eq('id', session.user.id).maybeSingle();
 
