@@ -724,6 +724,7 @@ footer b { color: var(--primary-color); }
    14) AUTH HEADER WIDGET
    ============================================================ */
 .auth-header-signin {
+    display: none !important;
     text-decoration: none;
     color: #ffffff;
     background-color: var(--primary-color);
