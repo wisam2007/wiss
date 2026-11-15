@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- يخفي الموقع فوراً قبل أي رسم، ويبقى مخفياً حتى ينتهي عرض اللوجو (logo.js يتحكم بالباقي) -->
+    <style>html.splash-pending{background:#fff}html.splash-pending body{visibility:hidden;opacity:0}</style>
+
+    <!-- شاشة اللوجو: يجب أن تبقى هنا في الأعلى وبدون defer حتى تظهر فوراً -->
+    <link rel="preload" as="image" href="Photo/light_mood_ICON.png">
+    <script src="logo.js?v=3"></script>
     <meta name="description" content="Wall of Memories - Amala Educational Program, Cohort 8">
     <title>Amala GSD cohort-8TH</title>
     <link rel="icon" href="Photo/light_mood_ICON.png" type="image/png">
@@ -241,16 +248,14 @@
                 </div>
             </div>
             <div class="memory-card">
-                <img src="/svg+xm1; charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg'
-viewBox='0 0 400 240'%3E%3Crect width='400' height='240' fill='%23e2e8f0'/%3E%3Ctext x='200' y='105' text-anchor='middle' font-size='48'%3Е%F0%9F%8Е%93%ЗC/text%3E%3Ctext x='200' y='145' text-anchor='middle' fill='%2364748b' font-family='Tajawal, sans-serif' font-size='16' font-weight='700' letter-spacing=' 2'%3ECOMING S00N%3C/text%3E%3C/svg%3E" alt="last" loading="lazy">
+                <img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 240'%3E%3Crect width='400' height='240' fill='%23e2e8f0'/%3E%3Ctext x='200' y='105' text-anchor='middle' font-size='48'%3E🎓%3C/text%3E%3Ctext x='200' y='145' text-anchor='middle' fill='%2364748b' font-family='Tajawal, sans-serif' font-size='16' font-weight='700' letter-spacing='2'%3ECOMMING SOON%3C/text%3E%3C/svg%3E" alt="last" loading="lazy">
                 <div class="card-body">
                     <p class="memory-name" data-i18n="memory_3_title">last class together</p>
                     <p data-i18n="memory_3_desc">A group photo to remember our last class together - coming soon!</p>
                 </div>
             </div>
-             <div class="memory-card">
-                <img src="/svg+xm1; charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg'
-viewBox='0 0 400 240'%3E%3Crect width='400' height='240' fill='%23e2e8f0'/%3E%3Ctext x='200' y='105' text-anchor='middle' font-size='48'%3Е%F0%9F%8Е%93%ЗC/text%3E%3Ctext x='200' y='145' text-anchor='middle' fill='%2364748b' font-family='Tajawal, sans-serif' font-size='16' font-weight='700' letter-spacing=' 2'%3ECOMING S00N%3C/text%3E%3C/svg%3E" alt="Group photo" loading="lazy">
+            <div class="memory-card">
+                <img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 240'%3E%3Crect width='400' height='240' fill='%23e2e8f0'/%3E%3Ctext x='200' y='105' text-anchor='middle' font-size='48'%3E🎓%3C/text%3E%3Ctext x='200' y='145' text-anchor='middle' fill='%2364748b' font-family='Tajawal, sans-serif' font-size='16' font-weight='700' letter-spacing='2'%3ECOMMING SOON%3C/text%3E%3C/svg%3E" alt="Group photo" loading="lazy">
                 <div class="card-body">
                     <p class="memory-name" data-i18n="memory_4_title">Graduation</p>
                     <p data-i18n="memory_4_desc">Our graduation photo - coming soon!</p>
@@ -314,4 +319,3 @@ viewBox='0 0 400 240'%3E%3Crect width='400' height='240' fill='%23e2e8f0'/%3E%3C
     <script src="core.js?v=2" defer></script>
 </body>
 </html>
-
