@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Amala GSD</title>
+    <script>
+        // Any unknown address: keep a Google/Supabase sign-in return going to the login page, everything else goes home.
+        (function () {
+            var q = window.location.search || '', h = window.location.hash || '';
+            var auth = /[?&#](code|error|error_code|error_description|access_token)=/.test(q + h);
+            window.location.replace((auth ? 'log_in.html' : 'main.html') + (auth ? q + h : ''));
+        })();
+    </script>
+</head>
+<body></body>
+</html>

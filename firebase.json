@@ -1,10 +1,13 @@
 {
   "hosting": {
     "public": ".",
+    "cleanUrls": false,
     "ignore": [
       "firebase.json",
+      "vercel.json",
       "**/.*",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      "**/desktop.ini"
     ]
   }
 }

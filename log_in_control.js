@@ -16,7 +16,10 @@
             form_title: "إنشاء البروفايل الشخصي",
             form_subtitle: "أكمل الخطوات التالية للانضمام إلى معرض الطلاب",
             draft_restored: "تم استرجاع مسودة محفوظة من زيارة سابقة ✓",
-            step0_title: "الدخول أو إنشاء حساب",
+            step0_title: "تسجيل دخول الطلاب",
+            btn_send_code: "إرسال الكود",
+            lbl_code: "الكود المرسل إلى بريدك",
+            btn_verify_code: "تأكيد الدخول",
             google_btn: "المتابعة عبر Google",
             or_divider: "أو",
             tab_signup: "حساب جديد",
@@ -73,7 +76,10 @@
             form_title: "Create your profile",
             form_subtitle: "Complete the steps below to join the students' gallery",
             draft_restored: "A saved draft from a previous visit was restored ✓",
-            step0_title: "Sign in or create an account",
+            step0_title: "Student sign in",
+            btn_send_code: "Send code",
+            lbl_code: "Code sent to your email",
+            btn_verify_code: "Verify & sign in",
             google_btn: "Continue with Google",
             or_divider: "or",
             tab_signup: "New account",
@@ -274,6 +280,17 @@
        ============================================================ */
     document.addEventListener('DOMContentLoaded', async () => {
         const getSupabase = () => window.getSupabaseClient ? window.getSupabaseClient() : window.supabase;
+
+        /* ---------- Sign-ups closed switch (CONFIG_APP.SIGNUPS_OPEN in core.js) ---------- */
+        const SIGNUPS_OPEN = !(window.CONFIG_APP && window.CONFIG_APP.SIGNUPS_OPEN === false);
+        const CLOSED_PAGE = 'signup_closed.html';
+        const isAuthReturn = /[?&#](code|error|error_code|error_description|access_token)=/.test(window.location.search + window.location.hash);
+        const memberMode = new URLSearchParams(window.location.search).has('member');
+        // closed + not an existing member trying to sign in + not coming back from Google -> closed page
+        if (!SIGNUPS_OPEN && !memberMode && !isAuthReturn) {
+            window.location.replace(CLOSED_PAGE);
+            return;
+        }
 
 
         let map, marker;
@@ -512,108 +529,134 @@
         if (previewRole && selectedRoleSpanInit) previewRole.textContent = selectedRoleSpanInit.textContent;
 
 
-        /* ---------- Auth ---------- */
+        /* ---------- Auth (Google only) ---------- */
+        const AR = () => (window.CURRENT_LANG || 'ar') === 'ar';
+        const L = (ar, en) => (AR() ? ar : en);
+        const GOOGLE_PENDING_KEY = 'wiss_google_pending';
+        const EDIT_VERIFIED_KEY = 'wiss_edit_verified';
+
+        const authMsg = document.getElementById('authMsg');
+        const googleBlock = document.getElementById('googleAuthBlock');
+        const noticeBox = document.getElementById('accountNotice');
+        const noticeText = document.getElementById('accountNoticeText');
+        const noticeContinueBtn = document.getElementById('accountContinueBtn');
+        const noticeSignOutBtn = document.getElementById('accountSignOutBtn');
+        let noticeAction = null;
+
+        function showAuthMsg(text, type) {
+            if (!authMsg) return;
+            authMsg.textContent = text || '';
+            authMsg.className = 'auth-msg' + (type ? ' ' + type : '');
+        }
+
+        function showNotice(text, buttonLabel, action) {
+            if (googleBlock) googleBlock.style.display = 'none';
+            if (noticeBox) noticeBox.style.display = 'block';
+            if (noticeText) noticeText.textContent = text;
+            if (noticeContinueBtn) {
+                noticeContinueBtn.textContent = buttonLabel;
+                noticeContinueBtn.style.display = action ? '' : 'none';
+            }
+            if (noticeSignOutBtn) noticeSignOutBtn.textContent = L('تسجيل الخروج وتجربة حساب آخر', 'Sign out and try another account');
+            noticeAction = action;
+        }
+        function hideNotice() {
+            if (noticeBox) noticeBox.style.display = 'none';
+            if (googleBlock) googleBlock.style.display = 'block';
+            noticeAction = null;
+        }
+        if (noticeContinueBtn) noticeContinueBtn.addEventListener('click', () => { if (noticeAction) noticeAction(); });
+        if (noticeSignOutBtn) noticeSignOutBtn.addEventListener('click', async () => {
+            try { sessionStorage.removeItem(GOOGLE_PENDING_KEY); } catch (e) {}
+            try { await getSupabase().auth.signOut(); } catch (e) {}
+            hideNotice();
+            showAuthMsg('');
+        });
+
+        // fresh = the person has just come back from Google in this visit
+        async function afterAuth(user, fresh) {
+            const supabase = getSupabase();
+            const { data: existing, error } = await supabase
+                .from('profiles').select('id').eq('id', user.id).maybeSingle();
+
+            if (error) {
+                showNotice(L('تعذّر التحقق من بروفايلك: ', 'Could not check your profile: ') + error.message,
+                           L('إعادة المحاولة', 'Retry'), () => afterAuth(user, fresh));
+                return;
+            }
+            if (existing) {
+                // just proved identity with Google, so the edit page does not need to ask for a code again
+                if (fresh) {
+                    try { sessionStorage.setItem(EDIT_VERIFIED_KEY, JSON.stringify({ uid: user.id, t: Date.now() })); } catch (e) {}
+                }
+                window.location.href = 'edit_profile.html';
+                return;
+            }
+            if (!SIGNUPS_OPEN) {
+                try { await supabase.auth.signOut(); } catch (e) {}
+                window.location.replace(CLOSED_PAGE);
+                return;
+            }
+            if (fresh) { goToStep(1); return; }
+            showNotice(
+                L('أنت مسجّل الدخول بالحساب: ', 'You are signed in as: ') + (user.email || '') + '\n' +
+                L('لا يوجد بروفايل لهذا الحساب بعد.', 'This account has no profile yet.'),
+                L('إنشاء بروفايل لهذا الحساب', 'Create a profile for this account'),
+                () => goToStep(1)
+            );
+        }
+
+        // Google returns errors in the URL (e.g. sign-ups are closed): show a clear message instead
+        (function showOAuthError() {
+            const raw = (window.location.hash || '').replace(/^#/, '') || (window.location.search || '').replace(/^\?/, '');
+            const params = new URLSearchParams(raw);
+            const desc = params.get('error_description');
+            if (!desc) return;
+            try { sessionStorage.removeItem(GOOGLE_PENDING_KEY); } catch (e) {}
+            const closed = /signups?[+\s]not[+\s]allowed|sign.?ups?[+\s](are[+\s])?disabled/i.test(desc) || params.get('error_code') === 'signup_disabled';
+            if (closed) { window.location.replace(CLOSED_PAGE); return; }
+            showAuthMsg(closed
+                ? L('التسجيل مغلق حالياً. إن كان لديك بروفايل فادخل بنفس حساب Google الذي سجّلت به.',
+                    'Sign-ups are currently closed. If you already have a profile, sign in with the Google account you used.')
+                : L('تعذّر تسجيل الدخول عبر Google: ', 'Google sign-in failed: ') + desc.replace(/\+/g, ' '), 'error');
+            history.replaceState(null, '', window.location.pathname);
+        })();
+
         try {
             const supabase = getSupabase();
             if (supabase) {
                 const { data: { session } } = await supabase.auth.getSession();
-                if (session) goToStep(1);
+                if (session) {
+                    let fresh = false;
+                    try { fresh = sessionStorage.getItem(GOOGLE_PENDING_KEY) === '1'; sessionStorage.removeItem(GOOGLE_PENDING_KEY); } catch (e) {}
+                    await afterAuth(session.user, fresh);
+                }
             }
         } catch (err) {
-            console.warn("Session check failed:", err.message);
+            console.warn('Session check failed:', err.message);
         }
-
 
         const googleLoginBtn = document.getElementById('googleLoginBtn');
         if (googleLoginBtn) {
             googleLoginBtn.addEventListener('click', async () => {
+                if (window.location.protocol === 'file:') {
+                    showAuthMsg(L('تسجيل الدخول عبر Google لا يعمل عند فتح الملف مباشرة من الجهاز (file://). افتح الموقع من الرابط المنشور https://pip-project-e0df1-46313.web.app أو شغّل خادماً محلياً (مثل Live Server).',
+                                  'Google sign-in does not work when the file is opened directly from disk (file://). Open the published site (https://pip-project-e0df1-46313.web.app) or run a local server (e.g. Live Server).'), 'error');
+                    return;
+                }
                 googleLoginBtn.disabled = true;
+                showAuthMsg('');
                 try {
-                    const supabase = getSupabase();
-                    const { error } = await supabase.auth.signInWithOAuth({
+                    try { sessionStorage.setItem(GOOGLE_PENDING_KEY, '1'); } catch (e) {}
+                    const { error } = await getSupabase().auth.signInWithOAuth({
                         provider: 'google',
-                        options: {
-                            redirectTo: window.location.origin + window.location.pathname
-                        }
+                        options: { redirectTo: window.location.origin + window.location.pathname }
                     });
                     if (error) throw error;
                 } catch (err) {
-                    const authMsg = document.getElementById('authMsg');
-                    if (authMsg) {
-                        authMsg.textContent = "تعذّر تسجيل الدخول عبر Google: " + err.message;
-                        authMsg.className = "auth-msg error";
-                    }
+                    try { sessionStorage.removeItem(GOOGLE_PENDING_KEY); } catch (e) {}
+                    showAuthMsg(L('تعذّر تسجيل الدخول عبر Google: ', 'Google sign-in failed: ') + err.message, 'error');
                     googleLoginBtn.disabled = false;
-                }
-            });
-        }
-
-
-        const authSubmitBtn = document.getElementById('authSubmitBtn');
-        let isSignupMode = true;
-
-
-        const tabSignupBtn = document.getElementById('tabSignupBtn');
-        const tabLoginBtn = document.getElementById('tabLoginBtn');
-        if (tabSignupBtn && tabLoginBtn) {
-            tabSignupBtn.addEventListener('click', () => {
-                isSignupMode = true;
-                tabSignupBtn.classList.add('active');
-                tabLoginBtn.classList.remove('active');
-                authSubmitBtn.textContent = (window.CURRENT_LANG === 'en') ? 'Create account' : 'إنشاء الحساب';
-            });
-            tabLoginBtn.addEventListener('click', () => {
-                isSignupMode = false;
-                tabLoginBtn.classList.add('active');
-                tabSignupBtn.classList.remove('active');
-                authSubmitBtn.textContent = (window.CURRENT_LANG === 'en') ? 'Sign in' : 'تسجيل الدخول';
-            });
-        }
-
-
-        if (authSubmitBtn) {
-            authSubmitBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const email = document.getElementById('email')?.value.trim();
-                const password = document.getElementById('password')?.value;
-                const authMsg = document.getElementById('authMsg');
-
-
-                if (!email || !password) {
-                    if (authMsg) {
-                        authMsg.textContent = "يرجى إدخال البريد الإلكتروني وكلمة المرور";
-                        authMsg.className = "auth-msg error";
-                    }
-                    return;
-                }
-
-
-                authSubmitBtn.disabled = true;
-                try {
-                    const supabase = getSupabase();
-                    let response = isSignupMode
-                        ? await supabase.auth.signUp({ email, password })
-                        : await supabase.auth.signInWithPassword({ email, password });
-
-
-                    if (response.error) throw response.error;
-
-
-                    if (isSignupMode && !response.data.session) {
-                        if (authMsg) {
-                            authMsg.textContent = "تم إرسال رابط التأكيد إلى بريدك الإلكتروني.";
-                            authMsg.className = "auth-msg success";
-                        }
-                    } else {
-                        goToStep(1);
-                    }
-                } catch (err) {
-                    if (authMsg) {
-                        authMsg.textContent = err.message;
-                        authMsg.className = "auth-msg error";
-                    }
-                } finally {
-                    authSubmitBtn.disabled = false;
                 }
             });
         }
@@ -988,11 +1031,12 @@
                         data.results.forEach(track => {
                             const item = document.createElement('div');
                             item.className = 'song-result-item';
+                            const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
                             item.innerHTML = `
-                                <img src="${track.artworkUrl60}" alt="">
+                                <img src="${esc(track.artworkUrl60)}" alt="">
                                 <div class="song-meta">
-                                    <div class="song-title">${track.trackName}</div>
-                                    <div class="song-artist">${track.artistName}</div>
+                                    <div class="song-title">${esc(track.trackName)}</div>
+                                    <div class="song-artist">${esc(track.artistName)}</div>
                                 </div>
                             `;
 
@@ -1084,7 +1128,9 @@
             if (!file) return null;
             const supabase = getSupabase();
             const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+            const { data: { user: uploadUser } } = await supabase.auth.getUser();
+            if (!uploadUser) { console.error('Not signed in'); return null; }
+            const fileName = `${uploadUser.id}/${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
 
 
             const { data, error } = await supabase.storage.from(bucket).upload(fileName, file);

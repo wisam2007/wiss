@@ -12,6 +12,8 @@
         SUPABASE_ANON_KEY: 'sb_publishable_nS3vXoEQABjfyRNSfHYpKQ_RLQPYdIX',
         MAX_IMAGE_MB: 5,
         ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp'],
+        // Set to false to CLOSE new sign-ups: new people see signup_closed.html, existing members can still sign in.
+        SIGNUPS_OPEN: true,
         TOTAL_STEPS: 4,
         DRAFT_KEY: 'amala_profile_draft'
     };
@@ -630,7 +632,7 @@
         const rawAvatar = profile?.avatar_url;
         const avatarUrl = rawAvatar
             ? getPublicStorageUrl(rawAvatar, 'avatars')
-            : 'Photo/placeholder_avatar.png';
+            : 'Photo/placeholder_avatar.png.jpeg';
         const name = profile?.full_name || session.user.email;
 
 
@@ -1471,3 +1473,5 @@
         if (document.getElementById('globe-container'))  initGlobalMap();
     });
 })();
+
+

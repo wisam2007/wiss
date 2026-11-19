@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>التسجيل مغلق - Amala GSD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg:#f1f5f9; --card:#ffffff; --text:#0f172a; --muted:#475569; --accent:#1d4ed8; --border:#e2e8f0; }
+        @media (prefers-color-scheme: dark) {
+            :root { --bg:#0b1220; --card:#131c2f; --text:#f1f5f9; --muted:#94a3b8; --accent:#60a5fa; --border:#24314d; }
+        }
+        * { box-sizing: border-box; }
+        body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
+               background:var(--bg); color:var(--text); font-family:'Tajawal',system-ui,sans-serif; }
+        .card { width:100%; max-width:460px; background:var(--card); border:1px solid var(--border); border-radius:20px;
+                padding:36px 28px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,.08); }
+        .icon { font-size:56px; line-height:1; margin-bottom:12px; }
+        h1 { margin:0 0 10px; font-size:26px; font-weight:900; }
+        p { margin:0 0 22px; color:var(--muted); line-height:1.8; font-size:16px; }
+        .actions { display:flex; flex-direction:column; gap:10px; }
+        a.btn { display:block; padding:13px 18px; border-radius:12px; font-weight:700; text-decoration:none; font-size:16px; }
+        a.primary { background:var(--accent); color:#fff; }
+        a.ghost { border:1px solid var(--border); color:var(--text); }
+        .lang { margin-top:18px; background:none; border:0; color:var(--muted); cursor:pointer; font:inherit; text-decoration:underline; }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <div class="icon" aria-hidden="true">🔒</div>
+        <h1 id="t">التسجيل مغلق حالياً</h1>
+        <p id="d">لا نستقبل حسابات جديدة في الوقت الحالي. إن كان لديك بروفايل مسبقاً يمكنك تسجيل الدخول بنفس حساب Google الذي سجّلت به.</p>
+        <div class="actions">
+            <a class="btn primary" id="b1" href="log_in.html?member=1">لدي حساب — تسجيل الدخول</a>
+            <a class="btn ghost" id="b2" href="main.html">العودة للرئيسية</a>
+        </div>
+        <button class="lang" id="langBtn" type="button">English</button>
+    </main>
+    <script>
+        var TXT = {
+            ar: { dir:'rtl', t:'التسجيل مغلق حالياً', d:'لا نستقبل حسابات جديدة في الوقت الحالي. إن كان لديك بروفايل مسبقاً يمكنك تسجيل الدخول بنفس حساب Google الذي سجّلت به.', b1:'لدي حساب — تسجيل الدخول', b2:'العودة للرئيسية', l:'English', title:'التسجيل مغلق - Amala GSD' },
+            en: { dir:'ltr', t:'Sign-ups are currently closed', d:'We are not accepting new accounts right now. If you already have a profile, sign in with the same Google account you used before.', b1:'I have an account — Sign in', b2:'Back to home', l:'العربية', title:'Sign-ups closed - Amala GSD' }
+        };
+        function apply(lang) {
+            var x = TXT[lang] || TXT.ar;
+            document.documentElement.lang = lang; document.documentElement.dir = x.dir;
+            document.getElementById('t').textContent = x.t; document.getElementById('d').textContent = x.d;
+            document.getElementById('b1').textContent = x.b1; document.getElementById('b2').textContent = x.b2;
+            document.getElementById('langBtn').textContent = x.l; document.title = x.title;
+            try { localStorage.setItem('preferred_lang', lang); } catch (e) {}
+        }
+        var cur = 'ar';
+        try { cur = localStorage.getItem('preferred_lang') || 'ar'; } catch (e) {}
+        apply(cur);
+        document.getElementById('langBtn').onclick = function () { cur = (cur === 'ar') ? 'en' : 'ar'; apply(cur); };
+    </script>
+</body>
+</html>

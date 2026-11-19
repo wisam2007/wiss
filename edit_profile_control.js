@@ -151,18 +151,201 @@ FIG_APP?.MAX_IMAGE_MB || 5;
     }
 
 
+    /* ---------- identity gate: pick profile -> 6-digit code -> edit ---------- */
+    const VERIFY_KEY = 'wiss_edit_verified';
+    const VERIFY_TTL = 2 * 60 * 60 * 1000;
+    const AR = () => (window.CURRENT_LANG || 'ar') === 'ar';
+    const G = (ar, en) => (AR() ? ar : en);
+
+    function isVerified(uid) {
+        try {
+            const v = JSON.parse(sessionStorage.getItem(VERIFY_KEY) || 'null');
+            return !!(v && v.uid === uid && Date.now() - v.t < VERIFY_TTL);
+        } catch (e) { return false; }
+    }
+    function markVerified(uid) {
+        try { sessionStorage.setItem(VERIFY_KEY, JSON.stringify({ uid, t: Date.now() })); } catch (e) {}
+    }
+    function esc(s) {
+        return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    async function callCodeFn(body) {
+        const { data, error } = await client.functions.invoke('profile-code', { body });
+        if (error) {
+            let payload = null;
+            try { payload = await error.context.json(); } catch (e) {}
+            const err = new Error(payload?.error || error.message);
+            err.code = payload?.error;
+            throw err;
+        }
+        return data;
+    }
+
+    function runGate() {
+        return new Promise((resolve) => {
+            const root = document.createElement('div');
+            root.className = 'gate-overlay';
+            root.innerHTML = `
+              <div class="gate-card" role="dialog" aria-modal="true">
+                <h2 id="gateTitle"></h2>
+                <p class="gate-sub" id="gateSub"></p>
+                <div id="gateStepPick">
+                  <input type="search" id="gateSearch" autocomplete="off">
+                  <div class="gate-list" id="gateList"></div>
+                </div>
+                <div id="gateStepCode" style="display:none;">
+                  <div class="gate-chosen" id="gateChosen"></div>
+                  <input type="text" id="gateCode" inputmode="numeric" autocomplete="one-time-code"
+                         maxlength="6" placeholder="------">
+                  <button type="button" class="btn btn-submit" id="gateVerifyBtn"></button>
+                  <div class="gate-row">
+                    <button type="button" class="gate-link" id="gateResendBtn"></button>
+                    <button type="button" class="gate-link" id="gateBackBtn"></button>
+                  </div>
+                </div>
+                <div class="gate-msg" id="gateMsg"></div>
+                <a class="gate-link" href="main.html" id="gateCancel"></a>
+              </div>`;
+            document.body.appendChild(root);
+            const $ = (id) => root.querySelector('#' + id);
+
+            $('gateTitle').textContent = G('تأكيد الهوية قبل التعديل', 'Confirm your identity before editing');
+            $('gateSub').textContent = G('ابحث عن اسمك واختر بروفايلك، وسنرسل كوداً من 6 أرقام إلى إيميل صاحب الحساب.',
+                                         'Find your name and pick your profile. We will email a 6-digit code to the account owner.');
+            $('gateSearch').placeholder = G('اكتب اسمك…', 'Type your name…');
+            $('gateVerifyBtn').textContent = G('تأكيد وفتح التعديل', 'Confirm and edit');
+            $('gateResendBtn').textContent = G('إعادة إرسال الكود', 'Resend code');
+            $('gateBackBtn').textContent = G('اختيار بروفايل آخر', 'Pick another profile');
+            $('gateCancel').textContent = G('إلغاء', 'Cancel');
+
+            let chosen = null;
+            let cooldown = null;
+            const msg = (text, type) => { const m = $('gateMsg'); m.textContent = text || ''; m.className = 'gate-msg' + (type ? ' ' + type : ''); };
+
+            function startCooldown(seconds) {
+                const btn = $('gateResendBtn');
+                const label = G('إعادة إرسال الكود', 'Resend code');
+                let left = seconds;
+                btn.disabled = true;
+                clearInterval(cooldown);
+                btn.textContent = `${label} (${left})`;
+                cooldown = setInterval(() => {
+                    left--;
+                    if (left <= 0) { clearInterval(cooldown); btn.disabled = false; btn.textContent = label; }
+                    else btn.textContent = `${label} (${left})`;
+                }, 1000);
+            }
+
+            async function search(q) {
+                const list = $('gateList');
+                let query = client.from('profiles').select('id, full_name, avatar_url, role, city').order('full_name').limit(20);
+                const term = q.trim().replace(/[%,()]/g, ' ');
+                if (term) query = query.ilike('full_name', `%${term}%`);
+                const { data, error } = await query;
+                if (error) { list.innerHTML = ''; msg(G('تعذّر تحميل القائمة: ', 'Could not load the list: ') + error.message, 'error'); return; }
+                msg('');
+                if (!data.length) { list.innerHTML = `<div class="gate-empty">${esc(G('لا توجد نتائج', 'No results'))}</div>`; return; }
+                list.innerHTML = data.map(p => `
+                    <button type="button" class="gate-item" data-id="${esc(p.id)}">
+                      <img src="${esc(avatarToUrl(p.avatar_url))}" alt="" loading="lazy">
+                      <span><b>${esc(p.full_name || '—')}</b><small>${esc(p.city || '')}</small></span>
+                    </button>`).join('');
+                list.querySelectorAll('.gate-item').forEach((b, i) => b.addEventListener('click', () => pick(data[i])));
+            }
+
+            async function sendCode() {
+                msg('');
+                $('gateResendBtn').disabled = true;
+                try {
+                    const r = await callCodeFn({ action: 'send', profile_id: chosen.id });
+                    msg(G(`أُرسل كود من 6 أرقام إلى ${r.hint}`, `A 6-digit code was sent to ${r.hint}`), 'success');
+                    startCooldown(60);
+                    $('gateCode').focus();
+                } catch (e) {
+                    msg(e.code === 'send_failed'
+                        ? G('انتظر قليلاً قبل طلب كود جديد.', 'Please wait a moment before requesting another code.')
+                        : G('تعذّر إرسال الكود.', 'Could not send the code.'), 'error');
+                    startCooldown(30);
+                }
+            }
+
+            function pick(p) {
+                chosen = p;
+                $('gateStepPick').style.display = 'none';
+                $('gateStepCode').style.display = 'block';
+                $('gateChosen').innerHTML = `<img src="${esc(avatarToUrl(p.avatar_url))}" alt=""><b>${esc(p.full_name || '—')}</b>`;
+                $('gateCode').value = '';
+                sendCode();
+            }
+
+            $('gateBackBtn').addEventListener('click', () => {
+                chosen = null; clearInterval(cooldown); msg('');
+                $('gateStepCode').style.display = 'none';
+                $('gateStepPick').style.display = 'block';
+            });
+            $('gateResendBtn').addEventListener('click', sendCode);
+            $('gateCode').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); });
+            $('gateCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('gateVerifyBtn').click(); });
+
+            $('gateVerifyBtn').addEventListener('click', async () => {
+                const token = $('gateCode').value;
+                if (token.length !== 6) { msg(G('اكتب الكود المكوّن من 6 أرقام', 'Enter the 6-digit code'), 'error'); return; }
+                $('gateVerifyBtn').disabled = true;
+                try {
+                    const s = await callCodeFn({ action: 'verify', profile_id: chosen.id, token });
+                    const { data, error } = await client.auth.setSession({ access_token: s.access_token, refresh_token: s.refresh_token });
+                    if (error || data.session?.user?.id !== chosen.id) throw new Error('session');
+                    markVerified(chosen.id);
+                    clearInterval(cooldown);
+                    root.remove();
+                    resolve(data.session);
+                } catch (e) {
+                    msg(e.code === 'locked'
+                        ? G('محاولات كثيرة خاطئة. أعد المحاولة بعد عدة دقائق.', 'Too many wrong attempts. Try again in a few minutes.')
+                        : G('الكود غير صحيح أو انتهت صلاحيته.', 'Invalid or expired code.'), 'error');
+                    $('gateVerifyBtn').disabled = false;
+                }
+            });
+
+            let deb = null;
+            $('gateSearch').addEventListener('input', (e) => { clearTimeout(deb); deb = setTimeout(() => search(e.target.value), 250); });
+            search('');
+            $('gateSearch').focus();
+        });
+    }
+
+    function addSwitchLink() {
+        const host = document.querySelector('.edit-header > div:last-child');
+        if (!host || document.getElementById('switchProfileLink')) return;
+        const a = document.createElement('button');
+        a.type = 'button'; a.id = 'switchProfileLink'; a.className = 'gate-link';
+        a.textContent = G('ليس بروفايلك؟ تبديل', 'Not your profile? Switch');
+        a.addEventListener('click', async () => {
+            try { sessionStorage.removeItem(VERIFY_KEY); } catch (e) {}
+            try { await client.auth.signOut(); } catch (e) {}
+            window.location.reload();
+        });
+        host.appendChild(a);
+    }
+
     /* ---------- load ---------- */
     async function load() {
-        const { data: { session } } = await client.auth.getSession();
-        if (!session) { window.location.href = 'log_in.html'; return; }
+        let { data: { session } } = await client.auth.getSession();
+        if (!session || !isVerified(session.user.id)) {
+            session = await runGate();
+        }
         state.session = session;
 
-
         const { data, error } = await client.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
-        if (error || !data) { window.location.href = 'log_in.html'; return; }
+        if (error || !data) {
+            try { sessionStorage.removeItem(VERIFY_KEY); } catch (e) {}
+            window.location.reload();
+            return;
+        }
         state.profile = data;
 
-
+        addSwitchLink();
         hydrateFromProfile(data);
         renderPreview();
         renderAllSections();

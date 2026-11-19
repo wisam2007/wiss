@@ -126,26 +126,24 @@
                 <!-- STEP 0: Auth -->
                 <div class="form-step active-step" data-step="0">
                     <h3 data-i18n="step0_title">الدخول أو إنشاء حساب</h3>
-                    <button type="button" class="btn-google" id="googleLoginBtn">
-                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="" width="18">
-                        <span data-i18n="google_btn">المتابعة عبر Google</span>
-                    </button>
-                    <div class="divider"><span data-i18n="or_divider">أو</span></div>
-                    <div class="auth-tabs">
-                        <button type="button" class="auth-tab active" id="tabSignupBtn" data-i18n="tab_signup">حساب جديد</button>
-                        <button type="button" class="auth-tab" id="tabLoginBtn" data-i18n="tab_login">لدي حساب</button>
+                    <!-- Google-only sign in / sign up -->
+                    <div id="googleAuthBlock">
+                        <button type="button" class="btn-google" id="googleLoginBtn">
+                            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="" width="18">
+                            <span data-i18n="google_btn">المتابعة عبر Google</span>
+                        </button>
+                        <div class="auth-msg" id="authMsg"></div>
                     </div>
-                    <div class="input-group">
-                        <label for="email" data-i18n="lbl_email">البريد الإلكتروني</label>
-                        <input type="email" id="email" required placeholder="name@example.com" autocomplete="email">
-                    </div>
-                    <div class="input-group">
-                        <label for="password" data-i18n="lbl_password">كلمة المرور</label>
-                        <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password">
-                    </div>
-                    <div class="auth-msg" id="authMsg"></div>
-                    <div class="btn-group single-btn">
-                        <button type="button" class="btn btn-next" id="authSubmitBtn" data-i18n="btn_create_account">إنشاء الحساب</button>
+
+                    <!-- Shown when a signed-in session exists but has no profile yet (or the profile check failed) -->
+                    <div id="accountNotice" style="display:none;">
+                        <p class="auth-msg" id="accountNoticeText"></p>
+                        <div class="btn-group single-btn">
+                            <button type="button" class="btn btn-next" id="accountContinueBtn"></button>
+                        </div>
+                        <div class="btn-group single-btn">
+                            <button type="button" class="btn btn-prev" id="accountSignOutBtn"></button>
+                        </div>
                     </div>
                 </div>
 
